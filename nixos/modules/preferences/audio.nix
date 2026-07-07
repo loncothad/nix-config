@@ -46,37 +46,41 @@ in
       jack.enable = true;
 
       wireplumber = mkIf cfg.bluetooth.enable {
-        # Disable dynamic headset switching during active mic sessions
-        "10-bluetooth-policy" = {
-          "wireplumber.settings" = {
-            "bluetooth.autoswitch-to-headset-profile" = false;
+        enable = true; # Explicitly enable wireplumber
+        
+        extraConfig = mkIf cfg.bluetooth.enable {
+          # Disable dynamic headset switching during active mic sessions
+          "10-bluetooth-policy" = {
+            "wireplumber.settings" = {
+              "bluetooth.autoswitch-to-headset-profile" = false;
+            };
           };
-        };
 
-        # Enforce high-fidelity Bluetooth codecs (Pre-configured preferences)
-        "51-bluetooth-codecs" = {
-          "monitor.bluez.properties" = {
-            "bluez5.codecs" = [
-              "ldac"
-              "aptx_hd"
-              "aac"
-              "sbc_xq"
+          # Enforce high-fidelity Bluetooth codecs (Pre-configured preferences)
+          "51-bluetooth-codecs" = {
+            "monitor.bluez.properties" = {
+              "bluez5.codecs" = [
+                "ldac"
+                "aptx_hd"
+                "aac"
+                "sbc_xq"
+              ];
+            };
+          };
+
+          # Hardware synchronization controls
+          "52-bluetooth-hw-tweaks" = {
+            "monitor.bluez.rules" = [
+              {
+                matches = [ { "device.name" = "~bluez_card.*"; } ];
+                actions = {
+                  update-props = {
+                    "bluez5.enable-hw-volume" = true;
+                  };
+                };
+              }
             ];
           };
-        };
-
-        # Hardware synchronization controls
-        "52-bluetooth-hw-tweaks" = {
-          "monitor.bluez.rules" = [
-            {
-              matches = [ { "device.name" = "~bluez_card.*"; } ];
-              actions = {
-                update-props = {
-                  "bluez5.enable-hw-volume" = true;
-                };
-              };
-            }
-          ];
         };
       };
     };
