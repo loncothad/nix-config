@@ -1,9 +1,9 @@
-{ inputs, ... }:
+{ inputs, pkgs, ... }:
 
 {
   programs.mark-shot = {
     enable = true;
-    package = inputs.mark-shot.packages.mark-shot;
+    package = inputs.mark-shot.packages.${pkgs.system}.default;
 
     settings = {
       ui = {
