@@ -50,13 +50,11 @@ in
     ];
 
     age = {
-      package = pkgs.rage;
+      ageBin = "${pkgs.rage}/bin/rage";
 
       # identityPaths = [ "/etc/ssh/ssh_host_ed25519_key" ];
 
       rekey = {
-        agePackage = pkgs.rage;
-
         masterKeys = cfg.masterKeys;
         extraEncryptionKeys = cfg.extraEncryptionKeys;
         storageMode = "local";
