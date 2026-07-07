@@ -167,7 +167,7 @@
     };
   };
 
-  security.apparmor.profiles = {
+  security.apparmor.appProfiles = {
     enable = true;
     brave.enable = true;
     telegram.enable = true;

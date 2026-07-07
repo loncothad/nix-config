@@ -8,11 +8,11 @@
 with lib;
 
 let
-  cfg = config.security.apparmor.profiles;
+  cfg = config.security.apparmor.appProfiles;
 in
 {
   options = {
-    security.apparmor.profiles = {
+    security.apparmor.appProfiles = {
       enable = mkOption {
         type = types.bool;
         default = false;
