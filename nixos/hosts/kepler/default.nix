@@ -192,4 +192,5 @@
     enable = true;
     hashedPasswordFile = null; # Manage via agenix or interactive setup
   };
+  users.users.loncothad.initialHashedPassword = "$y$j9T$aw8Yt7xsjcLgek9ZrZZNH1$NXEMoBYOyuvDSxyd8zBZriJyN7PrepEtUkcPHJRWVq7";
 }
