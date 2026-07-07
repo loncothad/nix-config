@@ -113,11 +113,11 @@ in
         # Map our hardware.cpuArchitecture to the correct CachyOS overlay binary tier
         cachyTier =
           if cfg.hardware.cpuArchitecture == "v4" then
-            pkgs.linux-cachyos-bore-lto-x86_64-v4
+            pkgs.cachyosKernels.linuxPackages-cachyos-bore-lto-x86_64-v4
           else if cfg.hardware.cpuArchitecture == "v3" then
-            pkgs.linux-cachyos-bore-lto-x86_64-v3
+            pkgs.cachyosKernels.linuxPackages-cachyos-bore-lto-x86_64-v3
           else
-            pkgs.linux-cachyos-latest-lto-x86_64-v3;
+            pkgs.cachyosKernels.linuxPackages-cachyos-latest-lto-x86_64-v3;
       in
       # Core Infrastructure Rules:
       # Servers & Routers require EEVDF stock execution streams for throughput.
@@ -129,8 +129,7 @@ in
           "relay"
         ]
       then
-        # pkgs.linuxPackages_latest
-        linux-cachyos-latest-lto-x86_64-v3
+        pkgs.cachyosKernels.linuxPackages-cachyos-latest-lto-x86_64-v3
       else
         cachyTier
     );
