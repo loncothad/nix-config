@@ -8,6 +8,8 @@
     ./settings
   ];
 
+  home.stateVersion = "26.05";
+
   profile.desktop = {
     enable = true;
     mainDisplay = "eDP-1";
