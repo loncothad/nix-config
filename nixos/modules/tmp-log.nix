@@ -7,11 +7,11 @@
 with lib;
 
 let
-  cfg = config.fileSystems.tmp-log;
+  cfg = config.boot.tmp-log;
 in
 {
   options = {
-    fileSystems.tmp-log = {
+    boot.tmp-log = {
       enable = mkEnableOption "tmpfs on /var/log";
     };
   };
