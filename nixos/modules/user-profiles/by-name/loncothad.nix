@@ -6,6 +6,6 @@
 
     description = "huh?";
     shell = pkgs.nushell;
-    homeManagerConfig = ../../../../home-manager/users/loncothad;
+    homeManagerConfig = inputs.self + "/home-manager/users/loncothad";
   };
 }
