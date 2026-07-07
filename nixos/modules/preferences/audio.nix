@@ -1,4 +1,9 @@
-{ lib, config, pkgs, ... }:
+{
+  lib,
+  config,
+  pkgs,
+  ...
+}:
 
 with lib;
 
@@ -26,23 +31,6 @@ in
         "--rttime-msec-max=200"
       ];
     };
-
-    # extraConfig = {
-    #   client."99-resample"."stream.properties"."resample.quality" = 15;
-    #   pipewire-pulse."99-resample"."stream.properties"."resample.quality" = 15;
-    #   pipewire."99-allowed-rates"."context.properties"."default.clock.allowed-rates" = [
-    #     44100
-    #     48000
-    #     88200
-    #     96000
-    #     176400
-    #     192000
-    #     358000
-    #     384000
-    #     716000
-    #     768000
-    #   ];
-    # };
 
     networking.firewall.allowedUDPPorts = [
       6001
@@ -91,63 +79,54 @@ in
           ];
         };
       };
+    };
 
-      # Bluetooth setup
-      hardware.bluetooth = mkIf cfg.bluetooth.enable {
-        enable = true;
-        powerOnBoot = mkDefault true;
-        settings = {
-          General = {
-            Enable = "Source,Sink,Media,Socket";
-            Experimental = true;
-            FastConnectable = true;
-            DiscoverableTimeout = 0;
-            PairableTimeout = 0;
-          };
-          Policy = {
-            AutoEnable = true;
-            ReconnectAttempts = 7;
-
-            ReconnectInterval = 2;
-          };
+    hardware.bluetooth = mkIf cfg.bluetooth.enable {
+      enable = true;
+      powerOnBoot = mkDefault true;
+      settings = {
+        General = {
+          Enable = "Source,Sink,Media,Socket";
+          Experimental = true;
+          FastConnectable = true;
+          DiscoverableTimeout = 0;
+          PairableTimeout = 0;
+        };
+        Policy = {
+          AutoEnable = true;
+          ReconnectAttempts = 7;
+          ReconnectInterval = 2;
         };
       };
-
-      systemd.user.services.mpris-proxy = mkIf cfg.bluetooth.enable {
-        description = "MPRIS proxy (media controls over bluetooth)";
-        wantedBy = [ "default.target" ];
-        after = [
-          "network.target"
-          "sound.target"
-        ];
-        requires = [ "dbus.service" ];
-        path = [ pkgs.bluez ];
-        script = "mpris-proxy";
-      };
-
-      # GUI Bluetooth controls
-      services.blueman.enable = mkIf cfg.bluetooth.enable true;
-
-      environment.systemPackages =
-        mkIf cfg.enable (
-          with pkgs;
-          [
-            wireplumber
-            pulsemixer
-            pamixer
-            pipewire
-
-            lxqt.pavucontrol-qt
-            easyeffects
-          ]
-        )
-        // mkIf cfg.bluetooth.enable (
-          with pkgs;
-          [
-            bluez
-            bluetuith
-          ]
-        );
     };
+
+    systemd.user.services.mpris-proxy = mkIf cfg.bluetooth.enable {
+      description = "MPRIS proxy (media controls over bluetooth)";
+      wantedBy = [ "default.target" ];
+      after = [
+        "network.target"
+        "sound.target"
+      ];
+      requires = [ "dbus.service" ];
+      path = [ pkgs.bluez ];
+      script = "mpris-proxy";
+    };
+
+    services.blueman.enable = mkIf cfg.bluetooth.enable true;
+
+    environment.systemPackages = lib.mkMerge [
+      (lib.mkIf cfg.enable (with pkgs; [
+        wireplumber
+        pulsemixer
+        pamixer
+        pipewire
+        lxqt.pavucontrol-qt
+        easyeffects
+      ]))
+      (lib.mkIf cfg.bluetooth.enable (with pkgs; [
+        bluez
+        bluetuith
+      ]))
+    ];
   };
 }
