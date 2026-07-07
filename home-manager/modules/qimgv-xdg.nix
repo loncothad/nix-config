@@ -36,7 +36,7 @@ in
     xdg.mimeApps = {
       enable = true;
       defaultApplications = associationMap;
-      addedAssociations = associationMap;
+      associations.added = associationMap;
     };
   };
 }
