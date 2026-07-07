@@ -64,12 +64,12 @@ in
 
     boot.kernel.sysctl = mkMerge [
       (mkIf cfg.core {
-        # "net.core.default_qdisc" = "cake";
+        "net.core.default_qdisc" = "cake";
         "net.core.somaxconn" = 8192;
         "net.core.optmem_max" = 65536;
-        "net.core.netdev_max_backlog" = 16384; # Max packets queued on the input side if an interface receives packets faster than the kernel can process them
-        "net.core.dev_weight" = 64; # Max packets processed by the kernel in a single NAPI polling cycle
-        "net.core.netdev_budget" = 600; # Total max packets processed by all interfaces in a single execution of net_rx_action
+        "net.core.netdev_max_backlog" = 16384;
+        "net.core.dev_weight" = 64;
+        "net.core.netdev_budget" = 600;
       })
 
       (mkIf cfg.buffers {
@@ -79,9 +79,6 @@ in
         "net.core.wmem_max" = 33554432;
         "net.ipv4.tcp_rmem" = "4096 1048576 33554432";
         "net.ipv4.tcp_wmem" = "4096 65536 33554432";
-
-        # System-wide global TCP memory tracking (min, pressure, max in 4KB architecture pages)
-        # Allows up to ~16GB overall allocation under pressure before enforcing constraints
         "net.ipv4.tcp_mem" = "1048576 2097152 4194304";
       })
 
@@ -96,33 +93,20 @@ in
         "net.ipv4.tcp_fin_timeout" = 15;
         "net.ipv4.tcp_ecn" = 1;
         "net.ipv4.tcp_window_scaling" = 1;
-
-        # Bufferbloat mitigation: controls the amount of unsent data allowed in the socket write queue.
-        # Essential for maintaining low latency on multiplexed connections (HTTP/2, HTTP/3, TLS).
         "net.ipv4.tcp_notsent_lowat" = 16384;
-
-        # Proactively optimize localized payload packaging
         "net.ipv4.tcp_autocorking" = 1;
       })
 
       (mkIf cfg.udp {
         "net.ipv4.udp_rmem_min" = 8192;
         "net.ipv4.udp_wmem_min" = 8192;
-
-        # System-wide global UDP memory tracking (min, pressure, max in 4KB pages)
-        # Prevents high-pps UDP infrastructure (e.g., WireGuard, QUIC data planes) from starvations
         "net.ipv4.udp_mem" = "524288 1048576 2097152";
       })
 
       (mkIf cfg.ipv6 {
-        # Increase the maximum number of IPv6 routes allowed in the routing table cache
         "net.ipv6.route.max_size" = 409600;
-
-        # Drop ICMPv6 redirect packets from non-gateway origins to stop routing topology manipulation
         "net.ipv6.conf.all.accept_redirects" = 0;
         "net.ipv6.conf.default.accept_redirects" = 0;
-
-        # Enable hop limits adjustments and Router Advertisements where explicitly allowed via network managers safely
         "net.ipv6.conf.all.accept_ra" = 1;
         "net.ipv6.conf.default.accept_ra" = 1;
       })
@@ -141,12 +125,8 @@ in
         "net.ipv4.conf.default.rp_filter" = 1;
         "net.ipv4.tcp_rfc1337" = 1;
         "net.ipv4.tcp_syncookies" = 1;
-
-        # Parity structures mapping protection logic directly into the IPv6 interfaces
         "net.ipv6.conf.all.log_martians" = 1;
         "net.ipv6.conf.default.log_martians" = 1;
-        # Note: Linux kernel implements IPv6 source validation differently via netfilter/rp_filter hooks,
-        # but modern kernels support standard configuration parity switches:
         "net.ipv6.conf.all.rp_filter" = 1;
         "net.ipv6.conf.default.rp_filter" = 1;
       })

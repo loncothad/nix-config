@@ -134,10 +134,6 @@
   services.bluetooth-kill-before-sleep.enable = true;
 
   preferences.networking = {
-    sysctl = {
-      enableBBR = true;
-      enableHardening = true;
-    };
     dns = {
       enable = true;
       mode = "dot";

@@ -22,19 +22,6 @@ let
 in
 {
   options.preferences.networking = {
-    sysctl = {
-      enableBBR = mkOption {
-        type = types.bool;
-        default = true;
-        description = "Enable BBR congestion control and Fair Queueing qdisc.";
-      };
-      enableHardening = mkOption {
-        type = types.bool;
-        default = true;
-        description = "Enable anti-spoofing (RP filter), SYN cookies, and reject ICMP redirects.";
-      };
-    };
-
     routing = {
       enableForwarding = mkOption {
         type = types.bool;
@@ -171,34 +158,7 @@ in
   };
 
   config = mkMerge [
-    # Sysctl Config
-    (mkIf cfg.sysctl.enableBBR {
-      boot.kernel.sysctl = {
-        "net.core.default_qdisc" = "fq";
-        "net.ipv4.tcp_congestion_control" = "bbr";
-      };
-    })
-
-    (mkIf cfg.sysctl.enableHardening {
-      boot.kernel.sysctl = {
-        "net.ipv4.tcp_syncookies" = 1;
-        "net.ipv4.tcp_rfc1337" = 1;
-        "net.ipv4.conf.all.rp_filter" = 1;
-        "net.ipv4.conf.default.rp_filter" = 1;
-        "net.ipv4.conf.all.accept_redirects" = 0;
-        "net.ipv4.conf.default.accept_redirects" = 0;
-        "net.ipv6.conf.all.accept_redirects" = 0;
-        "net.ipv6.conf.default.accept_redirects" = 0;
-        "net.ipv4.conf.all.secure_redirects" = 0;
-        "net.ipv4.conf.default.secure_redirects" = 0;
-        "net.ipv4.conf.all.send_redirects" = 0;
-        "net.ipv4.conf.default.send_redirects" = 0;
-        "net.ipv4.conf.all.accept_source_route" = 0;
-        "net.ipv6.conf.all.accept_source_route" = 0;
-        "net.ipv4.icmp_ignore_bogus_error_responses" = 1;
-      };
-    })
-
+    # Routing Forwarding Sysctls
     (mkIf cfg.routing.enableForwarding {
       boot.kernel.sysctl = {
         "net.ipv4.ip_forward" = 1;
@@ -253,15 +213,12 @@ in
     })
 
     (mkIf (cfg.time.enable && cfg.time.mode == "server") {
-      services.timesyncd.enable = false; # Prevent systemd tracking
+      services.timesyncd.enable = false;
       services.chrony = {
         enable = true;
         servers = cfg.time.servers;
         extraConfig = ''
-          # Enforce local daemon access limits
           ${concatMapStringsSep "\n" (subnet: "allow ${subnet}") cfg.time.allowedClients}
-
-          # Allow serving time even if un-synchronized with upstream sources
           local stratum 10
         '';
       };
