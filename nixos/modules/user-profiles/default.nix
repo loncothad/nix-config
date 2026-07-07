@@ -59,7 +59,7 @@ in
       hashedPasswordFile = u.hashedPasswordFile;
     }) (filterAttrs (name: u: u.enable) cfg);
 
-    home-manager.users = mapAttrs (name: u: import u.homeManagerConfig) (
+    home-manager.users = mapAttrs (name: u: u.homeManagerConfig) (
       filterAttrs (name: u: u.enable && u.homeManagerConfig != null) cfg
     );
   };
