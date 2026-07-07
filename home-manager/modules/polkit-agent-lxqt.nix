@@ -16,7 +16,7 @@ in
       enable = mkEnableOption "Polkit graphical authentication agent";
       package = mkOption {
         type = types.package;
-        default = pkgs.lxqt.lxqt-policykit-agent;
+        default = pkgs.lxqt.lxqt-policykit;
         description = "Target polkit interface implementation package.";
       };
     };
