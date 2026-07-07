@@ -64,7 +64,7 @@ in
 
     boot.kernel.sysctl = mkMerge [
       (mkIf cfg.core {
-        "net.core.default_qdisc" = "cake";
+        # "net.core.default_qdisc" = "cake";
         "net.core.somaxconn" = 8192;
         "net.core.optmem_max" = 65536;
         "net.core.netdev_max_backlog" = 16384; # Max packets queued on the input side if an interface receives packets faster than the kernel can process them
