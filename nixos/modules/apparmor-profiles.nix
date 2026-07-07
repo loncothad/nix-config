@@ -161,7 +161,7 @@ in
 
     security.apparmor.policies = mkMerge [
       (mkIf cfg.brave.enable {
-        brave = ''
+        brave.profile = ''
           #include <abstractions/base>
           #include <abstractions/graphical>
           #include <abstractions/audio>
@@ -201,7 +201,7 @@ in
       })
 
       (mkIf cfg.pidgin.enable {
-        pidgin = ''
+        pidgin.profile = ''
           #include <abstractions/base>
           #include <abstractions/graphical>
           #include <abstractions/audio>
@@ -226,7 +226,7 @@ in
       })
 
       (mkIf cfg.telegram.enable {
-        telegram = ''
+        telegram.profile = ''
           #include <abstractions/base>
           #include <abstractions/graphical>
           #include <abstractions/audio>
@@ -251,7 +251,7 @@ in
       })
 
       (mkIf cfg._64gram.enable {
-        _64gram = ''
+        _64gram.profile = ''
           #include <abstractions/base>
           #include <abstractions/graphical>
           #include <abstractions/audio>
@@ -278,7 +278,7 @@ in
       })
 
       (mkIf cfg.zed.enable {
-        zed = ''
+        zed.profile = ''
           #include <abstractions/base>
           #include <abstractions/graphical>
           #include <abstractions/nameservice>
@@ -302,7 +302,7 @@ in
       })
 
       (mkIf cfg.neovim.enable {
-        neovim = ''
+        neovim.profile = ''
           #include <abstractions/base>
 
           profile neovim ${pkgs.neovim}/bin/nvim flags=(attach_disconnected) {
@@ -320,7 +320,7 @@ in
       })
 
       (mkIf cfg.helix.enable {
-        helix = ''
+        helix.profile = ''
           #include <abstractions/base>
 
           profile helix ${pkgs.helix}/bin/hx flags=(attach_disconnected) {
@@ -338,7 +338,7 @@ in
       })
 
       (mkIf cfg.qimgv.enable {
-        qimgv = ''
+        qimgv.profile = ''
           #include <abstractions/base>
           #include <abstractions/graphical>
 
@@ -355,7 +355,7 @@ in
       })
 
       (mkIf cfg.mpv.enable {
-        mpv = ''
+        mpv.profile = ''
           #include <abstractions/base>
           #include <abstractions/graphical>
           #include <abstractions/audio>
@@ -377,7 +377,7 @@ in
       })
 
       (mkIf cfg.ghostty.enable {
-        ghostty = ''
+        ghostty.profile = ''
           #include <abstractions/base>
           #include <abstractions/graphical>
 
