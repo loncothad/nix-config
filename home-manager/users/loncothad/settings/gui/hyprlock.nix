@@ -13,7 +13,7 @@
 
       backgrounds = [
         {
-          path = inputs.self + "/misc/assets/wallpapers/blue-waves-dark-background.jpg";
+          path = "${../../../../../misc/assets/wallpapers/blue-waves-dark-background.jpg}";
           blur_passes = 3;
           blur_size = 8;
         }
