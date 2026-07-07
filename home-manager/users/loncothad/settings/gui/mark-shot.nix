@@ -3,7 +3,7 @@
 {
   programs.mark-shot = {
     enable = true;
-    package = inputs.mark-shot.packages.default;
+    package = inputs.mark-shot.packages.mark-shot;
 
     settings = {
       ui = {
