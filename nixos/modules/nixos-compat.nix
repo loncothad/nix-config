@@ -25,7 +25,7 @@ let
     bzip2
     libffi
     libxml2
-    tar
+    gnutar
     xz
 
     glib
