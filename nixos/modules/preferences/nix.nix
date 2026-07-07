@@ -44,6 +44,7 @@
 
     nixpkgs.config = {
       allowUnfree = true;
+      input-fonts.acceptLicense = true;
       permittedInsecurePackages = [
         "electron-39.8.10"
       ];
