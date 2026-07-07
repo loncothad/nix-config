@@ -26,7 +26,7 @@ let
         ];
       };
       shell = mkOption {
-        type = types.shell;
+        type = types.package;
         default = pkgs.bashInteractive;
       };
       hashedPasswordFile = mkOption {
