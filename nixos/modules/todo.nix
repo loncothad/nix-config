@@ -1,0 +1,112 @@
+{ ... }:
+
+{
+
+}
+
+# {
+#   config,
+#   flake,
+#   lib,
+#   pkgs,
+#   ...
+# }:
+# let
+#   inherit (flake) self;
+# in
+# {
+#   imports = with self.nixosModules; [
+#     aspell
+#     common
+#     nix
+#     nixpkgs
+#     registry
+#     resolved
+#     theme
+#     tmux
+#   ];
+
+#   environment.systemPackages = with pkgs; [
+#     man-pages
+#     ghostty.terminfo
+#   ];
+
+#   age.secrets.rootPassword.rekeyFile = lib.mkDefault (
+#     self + "/secrets/${config.networking.hostName}-root-password.age"
+#   );
+
+#   boot = {
+#     kernelParams = [ "log_buf_len=10M" ];
+#     tmp.useTmpfs = lib.mkDefault true;
+#   };
+
+#   console = {
+#     font = lib.mkDefault "ter-v24n";
+#     keyMap = lib.mkDefault "us";
+#     packages = with pkgs; [ terminus_font ];
+#   };
+
+#   hardware.enableRedistributableFirmware = lib.mkDefault true;
+
+#   i18n.defaultLocale = "en_US.UTF-8";
+
+#   networking = {
+#     firewall = {
+#       checkReversePath = "loose";
+#       trustedInterfaces = [ "tailscale0" ];
+#       allowedUDPPorts = [ config.services.tailscale.port ];
+#     };
+#     nftables.enable = lib.mkDefault true;
+#     useDHCP = false;
+#     useNetworkd = true;
+#     wireguard.enable = true;
+#   };
+
+#   nix.settings = {
+#     download-buffer-size = lib.mkDefault 268435456; # 256MiB
+#     max-substitution-jobs = lib.mkDefault 32;
+#   };
+
+#   powerManagement.cpuFreqGovernor = lib.mkDefault "performance";
+
+#   security = {
+#     pam.services.sudo.u2fAuth = true;
+#     polkit.enable = true;
+#     sudo-rs = {
+#       enable = true;
+#       wheelNeedsPassword = lib.mkDefault false;
+#     };
+#   };
+
+#   services = {
+#     dbus.implementation = "broker";
+#     openssh = {
+#       enable = true;
+#       settings = {
+#         PermitRootLogin = lib.mkDefault "no";
+#         PasswordAuthentication = false;
+#         KbdInteractiveAuthentication = false;
+#       };
+#     };
+#     tailscale.enable = true;
+#     fwupd.daemonSettings.EspLocation = config.boot.loader.efi.efiSysMountPoint;
+#   };
+
+#   systemd = {
+#     oomd = {
+#       enable = true;
+#       enableRootSlice = true;
+#       enableUserSlices = true;
+#     };
+#     network.wait-online.anyInterface = true;
+#   };
+
+#   users = {
+#     mutableUsers = false;
+#     users.root.hashedPasswordFile = config.age.secrets.rootPassword.path;
+#   };
+# }
+
+# services.fstrim.enable = true;
+
+# also adjust oom manager to 2?
