@@ -126,7 +126,6 @@ in
 
     (mkIf cfg.disableStorageDaemons {
       boot.swraid.enable = false;
-      boot.iscsi.enable = false;
     })
   ];
 }
