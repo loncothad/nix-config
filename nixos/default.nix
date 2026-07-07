@@ -30,7 +30,6 @@ let
         
         inputs.disko.nixosModules.disko
         inputs.home-manager.nixosModules.home-manager
-        inputs.nix-cachyos-kernel.nixosModules.default
         
         ({ ... }: { system.stateVersion = latestRecognizedNixOsVersion; })
       ]
