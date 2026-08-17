@@ -23,7 +23,7 @@ layout {
   default-column-width { proportion 0.5; }
 
   focus-ring {
-    enable
+    on
     width 2
     active-color "#89b4fa"
     inactive-color "#313244"
@@ -32,10 +32,6 @@ layout {
   border {
     off
   }
-}
-
-preferences {
-  coarse-gaps-on-empty-workspace
 }
 
 window-rule {
@@ -58,7 +54,7 @@ binds {
   Mod+S { spawn "fuzzel"; }
   Mod+X { spawn "ghostty"; }
 
-  Mod+L { spawn "hyprlock"; }
+  Mod+B { spawn "hyprlock"; }
   
   Mod+Shift+S { spawn "mark-shot"; }
   Print { spawn "mark-shot"; }

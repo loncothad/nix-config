@@ -122,4 +122,8 @@
   programs.git-cliff = {
     enable = true;
   };
+
+  home.packages = with pkgs; [
+    gitu
+  ];
 }
