@@ -124,10 +124,8 @@ home-manager/modules/                      shared HM modules (`programs.pi`, …
     hyprpaper, quickshell, xwayland-satellite) use systemd user units.
 
 Login is greetd + tuigreet (`nixos/modules/greetd-tuigreet.nix`, TOML at
-`/etc/tuigreet/config.toml`). `pkgs.tuigreet` is overlaid to 0.11 until
-nixpkgs-unstable ships TOML `--config` (still 0.9.1). The user menu UID
-window must stay below `ids.uids.nixbld` (30000) or `nixbld*` accounts
-appear in the list.
+`/etc/tuigreet/config.toml`). The tuigreet user menu UID window must stay
+below `ids.uids.nixbld` (30000) or `nixbld*` accounts appear in the list.
 
 ## Disko
 
