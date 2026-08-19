@@ -10,6 +10,7 @@
     ./profile.nix
     ./qimgv-xdg.nix
     ./wayland-compatibility.nix
+    ./xwayland-satellite.nix
     ./mark-shot.nix
     ./debloat.nix
   ];
