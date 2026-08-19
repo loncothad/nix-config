@@ -82,11 +82,6 @@
       # inputs.nixpkgs.follows = "nixpkgs";
     };
 
-    tuigreet = {
-      url = "github:NotAShelf/tuigreet";
-      inputs.nixpkgs.follows = "nixpkgs";
-    };
-
     mark-shot = {
       url = "github:jswysnemc/mark-shot";
       inputs.nixpkgs.follows = "nixpkgs";

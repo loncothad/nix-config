@@ -1,4 +1,4 @@
-{ inputs, pkgs, ... }:
+{ ... }:
 
 {
   imports = [
@@ -44,7 +44,6 @@
 
   services.greetd.tuigreet = {
     enable = true;
-    package = inputs.tuigreet.packages.${pkgs.system}.default;
 
     settings = {
       display = {

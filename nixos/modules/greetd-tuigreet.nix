@@ -18,7 +18,9 @@ in
 
       package = mkOption {
         type = types.package;
-        description = "The tuigreet package to execute. Pass your flake input or overridden derivation here.";
+        default = pkgs.tuigreet;
+        defaultText = literalExpression "pkgs.tuigreet";
+        description = "The tuigreet package to execute.";
       };
 
       settings = mkOption {
