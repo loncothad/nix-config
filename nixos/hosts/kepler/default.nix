@@ -164,7 +164,7 @@
   };
 
   security.apparmor.appProfiles = {
-    enable = true;
+    enable = false; # temporarily disabled
     brave.enable = true;
     telegram.enable = true;
     zed.enable = true;
