@@ -12,6 +12,7 @@
     ./wayland-compatibility.nix
     ./xwayland-satellite.nix
     ./mark-shot.nix
+    ./pi.nix
     ./debloat.nix
   ];
 }
