@@ -31,7 +31,7 @@ Defined under `flake-parts/`:
 | `homeModules.<name>` | individual HM modules | `pi`, `xwayland-satellite`, … |
 | `overlays.default` | `pkgs/default.nix` | adds `pkgs.piExtensions` |
 | `packages.<system>.*` | `pkgs/pi-extensions` | derivations only |
-| `formatter` | `pkgs.nixfmt` | per-system |
+| `formatter` | treefmt-nix (`nixfmt`) | per-system, via `nix fmt` / `just fmt` |
 | `diskoConfigurations` | `disko/` | currently `kepler` |
 
 External use:

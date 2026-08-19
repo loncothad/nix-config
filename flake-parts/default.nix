@@ -1,4 +1,4 @@
-{ ... }:
+{ inputs, ... }:
 
 {
   systems = [
@@ -6,6 +6,8 @@
   ];
 
   imports = [
+    inputs.treefmt.flakeModule
+    ./treefmt.nix
     ./modules.nix
     ./packages.nix
     ./nixos-configurations.nix
