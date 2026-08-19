@@ -25,41 +25,41 @@
       ".DS_Store"
     ];
 
-    settings =
-      let
-        url = url: "url \"${url}\":";
-      in
-      {
-        init = {
-          defaultBranch = "main";
-        };
-
-        pull = {
-          rebase = true;
-        };
-
-        push = {
-          autoSetupRemote = true;
-        };
-
-        core = {
-          autocrlf = "input";
-          whitespace = "space-before-tab";
-        };
-
-        core = {
-          fsmonitor = true;
-          untrackedCache = true;
-        };
-
-        safe = {
-          directory = [ "*" ];
-        };
-
-        "${url "git@github.com"}" = {
-          insteadOf = "https://github.com/";
-        };
+    settings = {
+      user = {
+        name = "loncothad";
+        email = "loncothad@gmail.com";
       };
+
+      init = {
+        defaultBranch = "main";
+      };
+
+      pull = {
+        rebase = true;
+      };
+
+      push = {
+        autoSetupRemote = true;
+      };
+
+      core = {
+        autocrlf = "input";
+        whitespace = "space-before-tab";
+        fsmonitor = true;
+        untrackedCache = true;
+      };
+
+      safe = {
+        directory = "*";
+      };
+
+      # Must be url."git@github.com:" so toGitINI emits [url "git@github.com:"]
+      # (a colon after the closing quote is invalid git-config syntax).
+      url."git@github.com:" = {
+        insteadOf = "https://github.com/";
+      };
+    };
   };
 
   programs.gh = {
