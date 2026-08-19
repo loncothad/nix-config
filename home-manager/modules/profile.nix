@@ -92,6 +92,8 @@ in
 
   config = mkMerge [
     (mkIf cfg.desktop.enable {
+      gtk.preferDarkTheme = mkDefault true;
+
       home.keyboard = {
         layout = cfg.desktop.xkb.layout;
         variant = cfg.desktop.xkb.variant;
