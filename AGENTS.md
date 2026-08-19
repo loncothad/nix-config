@@ -57,6 +57,17 @@ Declare Nix packages the script needs in a JSON BOM so
   `# BOM-START\n`).
 - Do not add Python, Bash, or other script languages under `misc/scripts/`.
 
+## Commits
+
+Commit as you go. Do not pile unrelated edits into one commit at the end.
+
+- One concern per commit (module, host, docs, scheduler, flake wiring, …).
+- After a coherent unit of work is done and files are consistent, `git add`
+  those paths and commit immediately. Then start the next unit.
+- New files must be in the same commit that first references them.
+- Do not amend, rebase, or rewrite history unless asked.
+- Match existing style: short subject, no conventional-commit prefixes.
+
 ## Edit rules
 
 - Keep host diffs in `nixos/hosts/<name>` and `…/niri/by-hostname/<hostname>.kdl`.
