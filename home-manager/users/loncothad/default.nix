@@ -60,6 +60,7 @@
   };
 
   home.packages = with pkgs; [
+    just
     playerctl
     mediainfo
     qpwgraph
