@@ -4,7 +4,7 @@
   users.profiles.loncothad = {
     enable = true;
 
-    description = "huh?";
+    description = "loncothad";
     shell = pkgs.nushell;
     homeManagerConfig = inputs.self + "/home-manager/users/loncothad";
   };
