@@ -18,7 +18,7 @@ def "main archive" [
         error make { msg: "No input files provided for archiving." }
     }
 
-    let ext = ($output | str downcase)
+    let ext = ($output | str lowercase)
 
     if ($ext =~ '\.(tar\.gz|tgz)$') {
         ^tar -czf $output ...$inputs
@@ -63,7 +63,7 @@ def "main unarchive" [
         mkdir $dest
     }
 
-    let ext = ($input | str downcase)
+    let ext = ($input | str lowercase)
     let stem = ($input | path parse | get stem)
     let single_out_path = ([$dest, $stem] | path join)
 
