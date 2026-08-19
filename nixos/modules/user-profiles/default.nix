@@ -38,6 +38,12 @@ let
         default = null;
         description = "Path to the user's home-manager specification.";
       };
+
+      authorizedKeys = mkOption {
+        type = types.listOf types.path;
+        default = [ ];
+        description = "OpenSSH public key files installed as authorized_keys.";
+      };
     };
   };
 in
@@ -57,6 +63,7 @@ in
       extraGroups = u.extraGroups;
       shell = u.shell;
       hashedPasswordFile = u.hashedPasswordFile;
+      openssh.authorizedKeys.keyFiles = u.authorizedKeys;
     }) (filterAttrs (name: u: u.enable) cfg);
 
     home-manager.users = mapAttrs (name: u: u.homeManagerConfig) (
