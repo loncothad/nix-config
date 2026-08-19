@@ -156,15 +156,34 @@ in
           if cfg.purpose == "wsl" then
             "scx_rustyland"
           else if cfg.purpose == "desktop" then
-            "scx_lavd" # Optimal for mobile hybrid platforms
+            "scx_rusty"
           else
-            "scx_bpfland"; # Raw continuous background tasks
+            "scx_bpfland";
 
         scheds = {
-          scx_lavd = {
-            # Automatically scale via dynamic Energy Performance Preference (EPP) flags
-            auto_mode = if cfg.purpose == "desktop" then [ "--autopower" ] else [ "--performance" ];
-            gaming_mode = [ "--performance" ];
+          # Laptop: energy-biased CPU freq, keep kthreads local, steal only
+          # when a remote queue actually has work, load-balance less often.
+          scx_rusty = {
+            auto_mode = [
+              "--perf"
+              "0"
+              "--kthreads-local"
+              "--balanced-kworkers"
+              "--slice-us-underutil"
+              "30000"
+              "--slice-us-overutil"
+              "2000"
+              "--interval"
+              "3.0"
+              "--greedy-threshold"
+              "2"
+            ];
+            gaming_mode = [
+              "--perf"
+              "1024"
+              "--kthreads-local"
+              "--balanced-kworkers"
+            ];
           };
           scx_bpfland = {
             auto_mode = [
