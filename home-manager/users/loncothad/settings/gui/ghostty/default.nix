@@ -5,7 +5,7 @@
     enable = true;
 
     settings = {
-      theme = "dark:Catppuccin Mocha,light:Catppuccin Latte";
+      theme = "Catppuccin Mocha";
       font-family = "Lilex";
       font-size = 12;
       command = "${lib.getExe pkgs.nushell}";
