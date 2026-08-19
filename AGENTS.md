@@ -30,6 +30,33 @@ Override host with `HOST=kepler` or `just host=kepler …`.
 Do not invent a second command surface. If a recipe is missing, add it to the
 justfile instead of documenting a one-off `nix` invocation.
 
+## Scripts
+
+All scripts under `misc/scripts/` must be Nushell (`*.nu`), with `#!/usr/bin/env nu`.
+
+Declare Nix packages the script needs in a JSON BOM so
+`programs.nushell.bomScripts` can inject them. The parser in
+`home-manager/modules/nushell-bom.nix` reads the first `# BOM-START` /
+`# BOM-END` block:
+
+```nu
+#!/usr/bin/env nu
+
+# BOM-START
+# {
+#   "dependencies": [
+#     "nodejs"
+#   ]
+# }
+# BOM-END
+```
+
+- `dependencies` is a list of **nixpkgs attribute names** (`pkgs.${name}`).
+- Every non-empty line inside the block must be a Nushell comment (`# …`).
+- `# BOM-START` must be followed by a newline immediately (the start tag is
+  `# BOM-START\n`).
+- Do not add Python, Bash, or other script languages under `misc/scripts/`.
+
 ## Edit rules
 
 - Keep host diffs in `nixos/hosts/<name>` and `…/niri/by-hostname/<hostname>.kdl`.
