@@ -1,0 +1,29 @@
+{
+  "pi-effort": {
+    "npm": "@nehlis/pi-effort",
+    "version": "0.1.0",
+    "hash": "sha256-m4AssLpv+/u3J0cFtCC8OXx836/AH4yyab0Y2mD6/iE="
+  },
+  "pi-goal-x": {
+    "npm": "pi-goal-x",
+    "version": "0.27.4",
+    "hash": "sha256-DRNaraAOeTxU/MiawkAGaoOElBPo63oZyqSACzzmlxQ="
+  },
+  "pi-grok-cli": {
+    "npm": "pi-grok-cli",
+    "version": "0.8.1",
+    "hash": "sha256-su8wvDNj1ur0SnXEKjmQEwawrWTO6TagvTSxOm0bYv8="
+  },
+  "pi-subagents": {
+    "npm": "@tintinweb/pi-subagents",
+    "version": "0.17.1",
+    "hash": "sha256-+bwgrR51AErnXDjDdRRUTpkIK75nrJ/1pewetN7rMnA=",
+    "npmDepsHash": "sha256-j8pLLxY4C+pD77UhPqGag2BxUVHjMFrSHucLu1YgLgc="
+  },
+  "pi-web-access": {
+    "npm": "pi-web-access",
+    "version": "0.24.0",
+    "hash": "sha256-7DgQuMRpenamGheWKnWXxCopzhNcv1eSjtn5fy774BE=",
+    "npmDepsHash": "sha256-R0Bb7E62x399fJwbyU1dc/h+3K5t3I/ctEBCvWU4LQ0="
+  }
+}

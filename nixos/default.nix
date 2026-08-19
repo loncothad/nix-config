@@ -6,6 +6,7 @@ let
   overlaysModule = { ... }: {
     nixpkgs.overlays = [
       inputs.nix-cachyos-kernel.overlays.default
+      (import ../pkgs)
     ];
   };
 

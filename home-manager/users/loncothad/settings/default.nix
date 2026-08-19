@@ -10,6 +10,7 @@
     ./zoxide.nix
 
     ./opencode
+    ./pi.nix
     ./nushell
     ./zellij
 

@@ -161,6 +161,34 @@ gc-old:
 optimise:
     {{ nix }} store optimise
 
+# ── pi ───────────────────────────────────────────────────────────────────────
+
+[group('pi')]
+[doc('Update pinned pi npm extensions (versions + hashes) in pkgs/pi-extensions/sources.json')]
+pi-extensions-update *names:
+    #!/usr/bin/env bash
+    set -euo pipefail
+    cd "{{ flake }}"
+    script=misc/scripts/update-pi-extensions.nu
+    if command -v nu >/dev/null && command -v npm >/dev/null; then
+      nu "$script" {{ names }}
+    else
+      {{ nix }} shell nixpkgs#nushell nixpkgs#nodejs --command nu "$script" {{ names }}
+    fi
+
+[group('pi')]
+[doc('List pinned pi npm extensions from sources.json')]
+pi-extensions:
+    #!/usr/bin/env bash
+    set -euo pipefail
+    cd "{{ flake }}"
+    script=misc/scripts/update-pi-extensions.nu
+    if command -v nu >/dev/null; then
+      nu "$script" list
+    else
+      {{ nix }} shell nixpkgs#nushell --command nu "$script" list
+    fi
+
 # ── desktop ──────────────────────────────────────────────────────────────────
 
 [group('desktop')]
