@@ -24,7 +24,6 @@
           "nix-command"
           "flakes"
           "auto-allocate-uids"
-          "configurable-impure-env"
         ];
         trusted-users = [
           "root"
@@ -37,7 +36,6 @@
         connect-timeout = 5;
         http-connections = 32;
         always-allow-substitutes = true;
-        impure-env = [ "NIXPKGS_ALLOW_UNFREE" ];
         builders-use-substitutes = true;
       };
     };

@@ -75,7 +75,8 @@
       user_menu = {
         enabled = true;
         min_uid = 1000;
-        max_uid = 60000;
+        # Below nixbld (30000); see services.greetd.tuigreet.settings.user_menu.
+        max_uid = 29999;
       };
 
       secret = {

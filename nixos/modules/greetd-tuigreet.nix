@@ -68,6 +68,13 @@ in
   };
 
   config = mkIf cfg.enable {
+    # tuigreet has no name denylist — only a UID window. Nix/Lix build
+    # users start at ids.uids.nixbld (30000), so keep the menu below that.
+    services.greetd.tuigreet.settings.user_menu = {
+      min_uid = mkDefault 1000;
+      max_uid = mkDefault (config.ids.uids.nixbld - 1);
+    };
+
     services.greetd = {
       enable = true;
       settings = {
