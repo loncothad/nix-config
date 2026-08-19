@@ -72,20 +72,38 @@ in
   config = mkIf cfg.enable {
     # tuigreet has no name denylist — only a UID window. Nix/Lix build
     # users start at ids.uids.nixbld (30000), so keep the menu below that.
-    services.greetd.tuigreet.settings.user_menu = {
-      min_uid = mkDefault 1000;
-      max_uid = mkDefault (config.ids.uids.nixbld - 1);
+    services.greetd.tuigreet.settings = {
+      user_menu = {
+        min_uid = mkDefault 1000;
+        max_uid = mkDefault (config.ids.uids.nixbld - 1);
+      };
+      session.sessions_dirs = mkDefault [
+        "/run/current-system/sw/share/wayland-sessions"
+        "/run/current-system/sw/share/xsessions"
+      ];
     };
 
     services.greetd = {
       enable = true;
+      # Keep boot/journal spam off VT1 so the TUI is not torn apart.
+      useTextGreeter = true;
       settings = {
         default_session = {
-          command = "${cfg.package}/bin/tuigreet --config /etc/tuigreet/config.toml ${escapeShellArgs cfg.extraArgs}";
+          command = escapeShellArgs (
+            [
+              (getExe cfg.package)
+              "--config"
+              "/etc/tuigreet/config.toml"
+            ]
+            ++ cfg.extraArgs
+          );
           user = "greeter";
         };
       };
     };
+
+    # [[outputs]] sizes the TTY from DRM connector info.
+    users.users.greeter.extraGroups = [ "video" ];
 
     environment.etc."tuigreet/config.toml".source =
       tomlFormat.generate "tuigreet-config.toml" cfg.settings;
