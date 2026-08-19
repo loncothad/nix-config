@@ -75,7 +75,7 @@
     keepassxc # used as a secrets service too
     davinci-resolve
     telegram-desktop
-    brave
+    brave-origin
     zathura
     pcmanfm-qt
     qdirstat

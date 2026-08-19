@@ -20,10 +20,11 @@ in
       };
 
       brave = {
-        enable = mkEnableOption "AppArmor profile for Brave Browser";
+        enable = mkEnableOption "AppArmor profiles for Brave and Brave Origin";
         description = ''
           **Allows:**
-          - Read/Write to `~/.config/BraveSoftware/` and `~/.cache/BraveSoftware/`.
+          - Read/Write to `~/.config/BraveSoftware/` and `~/.cache/BraveSoftware/`
+            (covers both `Brave-Browser` and `Brave-Origin` profiles).
           - Read/Write to the user's `~/Downloads/` directory.
           - System namespaces (`capability sys_admin, sys_chroot, sys_ptrace`) required for internal Chromium SUID sandboxing.
           - Inbound/outbound TCP/UDP network communication.
@@ -160,22 +161,14 @@ in
     security.apparmor.enable = true;
 
     security.apparmor.policies = mkMerge [
-      (mkIf cfg.brave.enable {
-        brave.profile = ''
-          #include <abstractions/base>
-          #include <abstractions/graphical>
-          #include <abstractions/audio>
-          #include <abstractions/cups-client>
-          #include <abstractions/nameservice>
-          #include <abstractions/user-download>
-          #include <abstractions/fonts>
-
-          profile brave ${pkgs.brave}/bin/brave flags=(attach_disconnected) {
+      (mkIf cfg.brave.enable (
+        let
+          braveBody = ''
             #include <abstractions/base>
             #include <abstractions/graphical>
             #include <abstractions/audio>
             #include <abstractions/fonts>
-            
+
             /nix/store/** r,
             /nix/store/**/bin/* ix,
             /run/current-system/sw/share/** r,
@@ -196,9 +189,31 @@ in
 
             network inet stream,
             network inet6 stream,
-          }
-        '';
-      })
+          '';
+
+          mkBraveProfile =
+            name: binary:
+            ''
+              #include <abstractions/base>
+              #include <abstractions/graphical>
+              #include <abstractions/audio>
+              #include <abstractions/cups-client>
+              #include <abstractions/nameservice>
+              #include <abstractions/user-download>
+              #include <abstractions/fonts>
+
+              profile ${name} ${binary} flags=(attach_disconnected) {
+            ${braveBody}
+              }
+            '';
+        in
+        {
+          brave.profile = mkBraveProfile "brave" "${pkgs.brave}/bin/brave";
+          brave-bin.profile = mkBraveProfile "brave-bin" "${pkgs.brave}/opt/brave.com/brave/brave";
+          brave-origin.profile = mkBraveProfile "brave-origin" "${pkgs.brave-origin}/bin/brave-origin";
+          brave-origin-bin.profile = mkBraveProfile "brave-origin-bin" "${pkgs.brave-origin}/opt/brave.com/brave-origin/brave";
+        }
+      ))
 
       (mkIf cfg.pidgin.enable {
         pidgin.profile = ''

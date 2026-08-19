@@ -44,7 +44,7 @@ in
 {
   options = {
     programs.brave.xdgIntegration = {
-      enable = lib.mkEnableOption "XDG MIME associations for Brave Browser";
+      enable = lib.mkEnableOption "XDG MIME associations for Brave Origin";
 
       documents = lib.mkOption {
         type = lib.types.bool;
@@ -67,6 +67,6 @@ in
   };
 
   config = lib.mkIf cfg.enable {
-    xdg.mimeApps.defaultApplications = lib.genAttrs allMimeTypes (_: "brave-browser.desktop");
+    xdg.mimeApps.defaultApplications = lib.genAttrs allMimeTypes (_: "brave-origin.desktop");
   };
 }
