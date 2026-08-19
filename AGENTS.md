@@ -43,20 +43,8 @@ justfile instead of documenting a one-off `nix` invocation.
   tracked by Git`).
 - Nix daemon is **Lix** (`nixos/modules/preferences/nix.nix`). Do not reintroduce
   CppNix-only settings (`configurable-impure-env`, `impure-env`).
-- tuigreet user menu: `max_uid` must stay `< ids.uids.nixbld` (29999). Config is
-  TOML via `services.greetd.tuigreet.settings`, not CLI flags.
-
-## Niri / git gotchas
-
-- `focus-ring { on }` — not `enable`
-- No top-level `preferences { }` in KDL
-- Do not bind the same key twice (`Mod+L` is column focus)
-- Git URL insteadOf: `url."git@github.com:".insteadOf = "https://github.com/";`
 
 ## Out of scope unless asked
-
-Do not add a microVM/VNC lab, extra `nixosConfigurations`, or wrap the full
-loncothad home into a test VM. Those were tried and dropped.
 
 Do not rewrite `ARCHITECTURE.md` for a one-line change. Update it when you add
 a host, move a module boundary, or change how users/HM attach.

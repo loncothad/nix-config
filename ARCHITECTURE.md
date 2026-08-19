@@ -106,9 +106,3 @@ Layouts in `disko/configurations/`. `disko/default.nix` currently exports
 
 - Prefer `preferences.*` / `host.profile` / `users.profiles` over ad-hoc copies
 - Host-specific hardware and greetd/niri output names stay in `nixos/hosts/<name>`
-- KDL for niri: `focus-ring { on }`, no top-level `preferences { }`, no
-  duplicate keybinds
-- Git HM config uses `programs.git.settings` (not `extraConfig`). URL rewrites
-  must be `url."git@github.com:"` so the generated INI is
-  `[url "git@github.com:"]`
-- The flake is git-tracked: `nix` only sees files `git add`ed
