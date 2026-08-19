@@ -26,6 +26,7 @@ let
 
       modules = [
         ./modules
+        ./modules/user-profiles/by-name/loncothad.nix
 
         overlaysModule
         

@@ -4,7 +4,6 @@
   imports = [
     ./preferences
 
-    ./user-profiles/by-name/loncothad.nix
     ./user-profiles/default.nix
 
     ./apparmor-profiles.nix
