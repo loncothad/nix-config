@@ -221,6 +221,19 @@ disko-eval host="kepler":
 # ── git / jj ─────────────────────────────────────────────────────────────────
 
 [group('git')]
+[doc('Download resident FEITIAN ssh-sk handles into ~/.ssh and ssh-add them')]
+sk-load:
+    #!/usr/bin/env bash
+    set -euo pipefail
+    cd "{{ flake }}"
+    script=misc/scripts/load-sk-keys.nu
+    if command -v nu >/dev/null; then
+      nu "$script"
+    else
+      {{ nix }} shell nixpkgs#nushell nixpkgs#openssh nixpkgs#libfido2 --command nu "$script"
+    fi
+
+[group('git')]
 [doc('Short git status')]
 status:
     git -C {{ flake }} status -sb
