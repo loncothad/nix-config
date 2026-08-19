@@ -14,6 +14,7 @@
     platform = "nixos";
     hardware = {
       cpuArchitecture = "v3"; # Core Ultra X9 388H (no AVX512)
+      formFactor = "laptop";
       schedExtMode = "auto";
     };
   };
