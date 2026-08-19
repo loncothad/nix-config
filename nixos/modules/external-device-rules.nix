@@ -36,9 +36,13 @@ in
   };
 
   config = mkIf cfg.enable {
+    environment.systemPackages = optionals (cfg.yubikeys || cfg.feitian) [
+      pkgs.libfido2
+    ];
+
     services.udev.packages =
       (optional cfg.yubikeys pkgs.yubikey-personalization)
-      ++ (optional cfg.yubikeys pkgs.libfido2)
+      ++ (optionals (cfg.yubikeys || cfg.feitian) [ pkgs.libfido2 ])
       ++ (optional cfg.keyboards pkgs.qmk-udev-rules)
       ++
         # Upstream packages tracking standard SWD/JTAG debuggers
@@ -57,8 +61,11 @@ in
 
     services.udev.extraRules = concatStringsSep "\n" [
       (optionalString cfg.feitian ''
-        KERNEL=="hidraw*", SUBSYSTEM=="hidraw", ATTRS{idVendor}=="096e", TAG+="uaccess"
-        SUBSYSTEM=="usb", ATTRS{idVendor}=="096e", TAG+="uaccess"
+        # Feitian (096e): FIDO hidraw + CCID so ssh-sk and pcscd can open the token
+        KERNEL=="hidraw*", SUBSYSTEM=="hidraw", ATTRS{idVendor}=="096e", MODE="0660", TAG+="uaccess"
+        SUBSYSTEM=="usb", ATTRS{idVendor}=="096e", MODE="0664", TAG+="uaccess"
+        SUBSYSTEM=="usb", ATTRS{idVendor}=="096e", ATTR{bInterfaceClass}=="0b", TAG+="uaccess"
+        ENV{ID_VENDOR_ID}=="096e", ENV{ID_SECURITY_TOKEN}=="1", TAG+="uaccess"
       '')
 
       (optionalString cfg.keyboards ''
@@ -91,6 +98,9 @@ in
       '')
     ];
 
-    services.pcscd.enable = mkIf (cfg.yubikeys || cfg.feitian) true;
+    services.pcscd = mkIf (cfg.yubikeys || cfg.feitian) {
+      enable = true;
+      plugins = [ pkgs.ccid ];
+    };
   };
 }
