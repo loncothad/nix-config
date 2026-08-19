@@ -5,6 +5,7 @@
     ./bottom.nix
     ./btop.nix
     ./git.nix
+    ./ssh.nix
     ./jj.nix
     ./tldr.nix
     ./zoxide.nix
