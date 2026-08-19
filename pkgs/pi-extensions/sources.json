@@ -18,12 +18,12 @@
     "npm": "@tintinweb/pi-subagents",
     "version": "0.17.1",
     "hash": "sha256-+bwgrR51AErnXDjDdRRUTpkIK75nrJ/1pewetN7rMnA=",
-    "npmDepsHash": "sha256-j8pLLxY4C+pD77UhPqGag2BxUVHjMFrSHucLu1YgLgc="
+    "npmDepsHash": "sha256-qXw1LMghsZ3ejTOaVSGy3Ctjdyi6KppAW2dOXA8zXSM="
   },
   "pi-web-access": {
     "npm": "pi-web-access",
     "version": "0.24.0",
     "hash": "sha256-7DgQuMRpenamGheWKnWXxCopzhNcv1eSjtn5fy774BE=",
-    "npmDepsHash": "sha256-R0Bb7E62x399fJwbyU1dc/h+3K5t3I/ctEBCvWU4LQ0="
+    "npmDepsHash": "sha256-dts31/3vJ9Hl/0m+AGRtEE4BJvFwleenKf//JXdv7u0="
   }
 }

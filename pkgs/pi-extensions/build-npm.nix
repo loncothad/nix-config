@@ -3,6 +3,7 @@
   stdenvNoCC,
   fetchurl,
   nodejs,
+  cacert,
 }:
 
 {
@@ -41,10 +42,20 @@ stdenvNoCC.mkDerivation (
     };
   }
   // lib.optionalAttrs (npmDepsHash != null) {
-    nativeBuildInputs = [ nodejs ];
+    nativeBuildInputs = [
+      nodejs
+      cacert
+    ];
     outputHashAlgo = "sha256";
     outputHashMode = "recursive";
     outputHash = npmDepsHash;
+    # Keep the tree identical to `nix hash path` from the updater.
+    dontFixup = true;
+
+    env = {
+      SSL_CERT_FILE = "${cacert}/etc/ssl/certs/ca-bundle.crt";
+      NODE_EXTRA_CA_CERTS = "${cacert}/etc/ssl/certs/ca-bundle.crt";
+    };
 
     buildPhase = ''
       runHook preBuild
