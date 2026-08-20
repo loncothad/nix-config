@@ -92,6 +92,12 @@
       url = "github:jswysnemc/mark-shot";
       inputs.nixpkgs.follows = "nixpkgs";
     };
+
+    mark-shot-hm = {
+      url = "path:./flakes/mark-shot";
+      inputs.nixpkgs.follows = "nixpkgs";
+      inputs.flake-parts.follows = "flake-parts";
+    };
   };
   # nixpkgs follow disabled in some places for more cache hits
 

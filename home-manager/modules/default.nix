@@ -12,7 +12,7 @@
     ./qimgv-xdg.nix
     ./wayland-compatibility.nix
     ./xwayland-satellite.nix
-    ./mark-shot.nix
+    ../../flakes/mark-shot/home-manager.nix
     ../../flakes/pi/home-manager.nix
     ./debloat.nix
   ];
