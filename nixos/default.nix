@@ -49,7 +49,7 @@ in
   vega-small = mkNixOsSystem {
     system = "x86_64-linux";
     extraModules = [
-      ../hosts/vega-small
+      ./hosts/vega-small
     ];
   };
 }
