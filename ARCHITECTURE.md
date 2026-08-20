@@ -78,11 +78,13 @@ Other directories under `nixos/hosts/` (`aldebaran`, `andromeda`, `janus`,
 This flake's systems additionally import
 `nixos/modules/user-profiles/by-name/loncothad.nix`.
 
-`host.profile` (`nixos/modules/profile.nix`) selects purpose, chassis
-(`hardware.formFactor`), and the CachyOS / sched_ext kernel path. Kepler
-enables it as a laptop; a VM or server should leave it off. Laptops use
-`scx_rusty` (domain locality, energy-biased); desktops use `scx_bpfland`
-(interactive vruntime); WSL uses `scx_rustyland`.
+`host.profile` (`nixos/modules/profile.nix`) selects purpose, ISA
+(`hardware.architecture`, any CPU name), x86-64 psABI level
+(`hardware.x86_64Level`: generic/v3/v4), chassis (`hardware.formFactor`),
+and the CachyOS / sched_ext kernel path (x86_64 only). Kepler enables it
+as a laptop; a VM or server should leave it off. Laptops use `scx_rusty`
+(domain locality, energy-biased); desktops use `scx_bpfland` (interactive
+vruntime); WSL uses `scx_rustyland`.
 
 Nix daemon settings live in `nixos/modules/preferences/nix.nix`. The configured
 `nix.package` is **Lix**. Do not add CppNix-only experimental features

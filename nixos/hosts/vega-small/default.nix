@@ -16,7 +16,7 @@
     enable = true;
     purpose = "wsl";
     platform = "nixos";
-    hardware.cpuArchitecture = "v3";
+    hardware.x86_64Level = "v3";
   };
 
   preferences.core = {

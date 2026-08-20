@@ -11,6 +11,23 @@ let
   cfg = config.host.profile;
 in
 {
+  imports = [
+    (mkRenamedOptionModule
+      [
+        "host"
+        "profile"
+        "hardware"
+        "cpuArchitecture"
+      ]
+      [
+        "host"
+        "profile"
+        "hardware"
+        "x86_64Level"
+      ]
+    )
+  ];
+
   options.host.profile = {
     enable = mkEnableOption "host optimization profiling configuration";
 
@@ -69,15 +86,28 @@ in
         description = "Determines whether to inject proprietary graphics pipelines.";
       };
 
-      # New Options Added Below
-      cpuArchitecture = mkOption {
+      architecture = mkOption {
+        type = types.str;
+        default = pkgs.stdenv.hostPlatform.parsed.cpu.name;
+        defaultText = literalExpression "pkgs.stdenv.hostPlatform.parsed.cpu.name";
+        example = "aarch64";
+        description = ''
+          CPU ISA name (x86_64, aarch64, riscv64, armv7l, …). Defaults to the
+          flake's hostPlatform. CachyOS kernels only apply when this is x86_64.
+        '';
+      };
+
+      x86_64Level = mkOption {
         type = types.enum [
           "generic"
           "v3"
           "v4"
         ];
         default = "v3";
-        description = "Target micro-architecture level for kernel and low-level system binaries.";
+        description = ''
+          x86-64 psABI / micro-architecture level (baseline, v3, v4) for CachyOS
+          kernels. Ignored unless hardware.architecture is x86_64.
+        '';
       };
 
       formFactor = mkOption {
@@ -106,47 +136,55 @@ in
     };
   };
 
-  config = mkIf cfg.enable {
-    # Core Host Logic Validations
-    assertions = [
-      {
-        assertion = (cfg.purpose == "wsl") -> (cfg.platform == "nixos");
-        message = "WSL hosts must use the nixos platform.";
-      }
-      {
-        assertion = (cfg.purpose == "router") -> (cfg.platform != "darwin");
-        message = "Darwin cannot be configured as a primary network router.";
-      }
-    ];
+  config = mkIf cfg.enable (
+    let
+      isX86_64 = cfg.hardware.architecture == "x86_64";
+    in
+    {
+      assertions = [
+        {
+          assertion = (cfg.purpose == "wsl") -> (cfg.platform == "nixos");
+          message = "WSL hosts must use the nixos platform.";
+        }
+        {
+          assertion = (cfg.purpose == "router") -> (cfg.platform != "darwin");
+          message = "Darwin cannot be configured as a primary network router.";
+        }
+        {
+          assertion = isX86_64 || cfg.hardware.x86_64Level == "generic";
+          message = ''
+            host.profile.hardware.x86_64Level v3/v4 is x86_64-only;
+            set it to "generic" when architecture is ${cfg.hardware.architecture}.
+          '';
+        }
+      ];
 
-    # =========================================================================
-    # Best-Effort Kernel Target Selection
-    # =========================================================================
-    boot.kernelPackages = mkIf (cfg.platform == "nixos") (
-      let
-        # Map our hardware.cpuArchitecture to the correct CachyOS overlay binary tier
-        cachyTier =
-          if cfg.hardware.cpuArchitecture == "v4" then
-            pkgs.cachyosKernels.linuxPackages-cachyos-bore-lto-x86_64-v4
-          else if cfg.hardware.cpuArchitecture == "v3" then
-            pkgs.cachyosKernels.linuxPackages-cachyos-bore-lto-x86_64-v3
-          else
-            pkgs.cachyosKernels.linuxPackages-cachyos-latest-lto-x86_64-v3;
-      in
-      # Core Infrastructure Rules:
-      # Servers & Routers require EEVDF stock execution streams for throughput.
-      # Desktops and Development machines get optimized low-latency sched-ext stacks.
-      if
-        builtins.elem cfg.purpose [
-          "server"
-          "router"
-          "relay"
-        ]
-      then
-        pkgs.cachyosKernels.linuxPackages-cachyos-latest-lto-x86_64-v3
-      else
-        cachyTier
-    );
+      warnings = optional (!isX86_64 && cfg.hardware.x86_64Level != "generic") ''
+        host.profile.hardware.x86_64Level (${cfg.hardware.x86_64Level}) is ignored on ${cfg.hardware.architecture}.
+      '';
+
+      # CachyOS x86-64-vN kernels. Other ISAs keep nixpkgs' default kernel.
+      boot.kernelPackages = mkIf (cfg.platform == "nixos" && isX86_64) (
+        let
+          cachyTier =
+            if cfg.hardware.x86_64Level == "v4" then
+              pkgs.cachyosKernels.linuxPackages-cachyos-bore-lto-x86_64-v4
+            else if cfg.hardware.x86_64Level == "v3" then
+              pkgs.cachyosKernels.linuxPackages-cachyos-bore-lto-x86_64-v3
+            else
+              pkgs.cachyosKernels.linuxPackages-cachyos-latest-lto-x86_64-v3;
+        in
+        if
+          builtins.elem cfg.purpose [
+            "server"
+            "router"
+            "relay"
+          ]
+        then
+          pkgs.cachyosKernels.linuxPackages-cachyos-latest-lto-x86_64-v3
+        else
+          cachyTier
+      );
 
     # =========================================================================
     # Best-Effort sched_ext Execution Configuration
@@ -299,7 +337,7 @@ in
       };
     };
 
-    # Standard Environment Overrides
-    networking.firewall.enable = mkDefault (cfg.purpose == "router" || cfg.network.isPublic);
-  };
+      networking.firewall.enable = mkDefault (cfg.purpose == "router" || cfg.network.isPublic);
+    }
+  );
 }
