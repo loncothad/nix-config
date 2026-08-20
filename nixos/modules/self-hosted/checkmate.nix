@@ -5,14 +5,15 @@
 }:
 
 let
-  cfg = config.services.checkmate;
-  runtime = config.services.selfhosted.containers;
+  root = config.virtualisation.oci-containers.namedContainers;
+  cfg = root.checkmate;
+  runtime = root;
   updateLabels = lib.optionalAttrs runtime.autoUpdate.enable {
     "io.containers.autoupdate" = "registry";
   };
 in
 {
-  options.services.checkmate = {
+  options.virtualisation.oci-containers.namedContainers.checkmate = {
     enable = lib.mkEnableOption "Checkmate uptime monitor";
 
     image = lib.mkOption {
@@ -55,7 +56,7 @@ in
   };
 
   config = lib.mkIf cfg.enable {
-    services.selfhosted.containers.enable = true;
+    virtualisation.oci-containers.namedContainers.enable = true;
     networking.firewall.allowedTCPPorts = lib.mkIf cfg.openFirewall [ cfg.port ];
 
     virtualisation.oci-containers.containers = {

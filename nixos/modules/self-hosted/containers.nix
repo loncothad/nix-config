@@ -6,10 +6,10 @@
 }:
 
 let
-  cfg = config.services.selfhosted.containers;
+  cfg = config.virtualisation.oci-containers.namedContainers;
 in
 {
-  options.services.selfhosted.containers = {
+  options.virtualisation.oci-containers.namedContainers = {
     enable = lib.mkEnableOption "the shared Podman runtime for self-hosted services";
 
     autoUpdate = {

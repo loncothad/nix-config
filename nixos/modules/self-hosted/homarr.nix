@@ -5,11 +5,12 @@
 }:
 
 let
-  cfg = config.services.homarr;
-  runtime = config.services.selfhosted.containers;
+  root = config.virtualisation.oci-containers.namedContainers;
+  cfg = root.homarr;
+  runtime = root;
 in
 {
-  options.services.homarr = {
+  options.virtualisation.oci-containers.namedContainers.homarr = {
     enable = lib.mkEnableOption "Homarr dashboard";
 
     image = lib.mkOption {
@@ -41,7 +42,7 @@ in
   };
 
   config = lib.mkIf cfg.enable {
-    services.selfhosted.containers.enable = true;
+    virtualisation.oci-containers.namedContainers.enable = true;
     networking.firewall.allowedTCPPorts = lib.mkIf cfg.openFirewall [ cfg.port ];
 
     virtualisation.oci-containers.containers.homarr = {

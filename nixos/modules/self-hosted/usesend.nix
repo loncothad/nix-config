@@ -5,8 +5,9 @@
 }:
 
 let
-  cfg = config.services.usesend;
-  runtime = config.services.selfhosted.containers;
+  root = config.virtualisation.oci-containers.namedContainers;
+  cfg = root.usesend;
+  runtime = root;
   updateLabels = lib.optionalAttrs runtime.autoUpdate.enable {
     "io.containers.autoupdate" = "registry";
   };
@@ -18,7 +19,7 @@ let
   ];
 in
 {
-  options.services.usesend = {
+  options.virtualisation.oci-containers.namedContainers.usesend = {
     enable = lib.mkEnableOption "useSend email platform";
 
     image = lib.mkOption {
@@ -52,7 +53,7 @@ in
   };
 
   config = lib.mkIf cfg.enable {
-    services.selfhosted.containers.enable = true;
+    virtualisation.oci-containers.namedContainers.enable = true;
     networking.firewall.allowedTCPPorts = lib.mkIf cfg.openFirewall [ cfg.port ];
 
     virtualisation.oci-containers.containers = {

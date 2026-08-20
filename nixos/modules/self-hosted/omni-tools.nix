@@ -5,11 +5,12 @@
 }:
 
 let
-  cfg = config.services.omni-tools;
-  runtime = config.services.selfhosted.containers;
+  root = config.virtualisation.oci-containers.namedContainers;
+  cfg = root.omni-tools;
+  runtime = root;
 in
 {
-  options.services.omni-tools = {
+  options.virtualisation.oci-containers.namedContainers.omni-tools = {
     enable = lib.mkEnableOption "OmniTools web application";
 
     image = lib.mkOption {
@@ -34,7 +35,7 @@ in
   };
 
   config = lib.mkIf cfg.enable {
-    services.selfhosted.containers.enable = true;
+    virtualisation.oci-containers.namedContainers.enable = true;
     networking.firewall.allowedTCPPorts = lib.mkIf cfg.openFirewall [ cfg.port ];
 
     virtualisation.oci-containers.containers.omni-tools = {

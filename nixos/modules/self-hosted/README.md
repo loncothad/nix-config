@@ -13,14 +13,14 @@ service must be reachable directly.
 | Project | Nix interface | Delivery |
 | --- | --- | --- |
 | Rauthy | `services.rauthy` | Native `pkgs.rauthy` |
-| useSend | `services.usesend` | Official OCI image plus PostgreSQL, Redis, and MinIO |
+| useSend | `virtualisation.oci-containers.namedContainers.usesend` | Official OCI image plus PostgreSQL, Redis, and MinIO |
 | Vaultwarden | `services.vaultwarden` | Upstream nixpkgs module |
 | OxiCloud | `services.oxicloud` | Native `pkgs.oxicloud` |
 | Tuwunel | `services.matrix-tuwunel` | Upstream nixpkgs module |
-| OmniTools | `services.omni-tools` | Official OCI image |
-| Checkmate | `services.checkmate` | Official OCI image plus MongoDB |
-| Rybbit | `services.rybbit` | Official OCI images plus ClickHouse, PostgreSQL, and Redis |
-| Homarr | `services.homarr` | Official OCI image |
+| OmniTools | `virtualisation.oci-containers.namedContainers.omni-tools` | Official OCI image |
+| Checkmate | `virtualisation.oci-containers.namedContainers.checkmate` | Official OCI image plus MongoDB |
+| Rybbit | `virtualisation.oci-containers.namedContainers.rybbit` | Official OCI images plus ClickHouse, PostgreSQL, and Redis |
+| Homarr | `virtualisation.oci-containers.namedContainers.homarr` | Official OCI image |
 | ntfy | `services.ntfy-sh` | Upstream nixpkgs module |
 | RustDesk server | `services.rustdesk-server` | Upstream nixpkgs module |
 | Scrutiny | `services.scrutiny` | Upstream nixpkgs module |
@@ -59,12 +59,12 @@ RustDesk client repository is represented on servers by nixpkgs' purpose-built
     environmentFile = "/run/agenix/convertx.env";
   };
 
-  services.homarr = {
+  virtualisation.oci-containers.namedContainers.homarr = {
     enable = true;
     environmentFile = "/run/agenix/homarr.env";
   };
 
-  services.selfhosted.containers.autoUpdate.enable = true;
+  virtualisation.oci-containers.namedContainers.autoUpdate.enable = true;
 }
 ```
 
@@ -91,8 +91,8 @@ OXICLOUD_DB_CONNECTION_STRING=postgres://oxicloud:password@127.0.0.1/oxicloud
 
 ConvertX should receive a stable `JWT_SECRET`. Homarr requires a 64-character
 hex `SECRET_ENCRYPTION_KEY`. Checkmate requires `JWT_SECRET`; set
-`services.checkmate.environment.CLIENT_HOST` to its public origin when the
-module's generated loopback URL is not suitable.
+`virtualisation.oci-containers.namedContainers.checkmate.environment.CLIENT_HOST`
+to its public origin when the module's generated loopback URL is not suitable.
 
 useSend's file must point at the module's internal container names:
 
@@ -120,10 +120,10 @@ Rybbit's shared file must include `BASE_URL`, `NEXT_PUBLIC_BACKEND_URL`,
 ## Updates
 
 Container applications use their stable `latest` tags by default. Enable
-`services.selfhosted.containers.autoUpdate` to run `podman auto-update` on a
-timer. Every managed container is labeled for registry updates; versioned
-database tags remain on their selected release line unless the configured image
-is changed.
+`virtualisation.oci-containers.namedContainers.autoUpdate` to run
+`podman auto-update` on a timer. Every managed container is labeled for registry
+updates; versioned database tags remain on their selected release line unless
+the configured image is changed.
 
 Native services update through the flake's nixpkgs input. To deploy committed
 lock-file updates automatically from a remote flake, configure:

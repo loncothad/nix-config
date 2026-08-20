@@ -5,8 +5,9 @@
 }:
 
 let
-  cfg = config.services.rybbit;
-  runtime = config.services.selfhosted.containers;
+  root = config.virtualisation.oci-containers.namedContainers;
+  cfg = root.rybbit;
+  runtime = root;
   updateLabels = lib.optionalAttrs runtime.autoUpdate.enable {
     "io.containers.autoupdate" = "registry";
   };
@@ -19,7 +20,7 @@ let
   ];
 in
 {
-  options.services.rybbit = {
+  options.virtualisation.oci-containers.namedContainers.rybbit = {
     enable = lib.mkEnableOption "Rybbit web analytics";
 
     backendImage = lib.mkOption {
@@ -65,7 +66,7 @@ in
   };
 
   config = lib.mkIf cfg.enable {
-    services.selfhosted.containers.enable = true;
+    virtualisation.oci-containers.namedContainers.enable = true;
     networking.firewall.allowedTCPPorts = lib.mkIf cfg.openFirewall [
       cfg.backendPort
       cfg.clientPort
