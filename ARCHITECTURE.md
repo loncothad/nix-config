@@ -39,7 +39,10 @@ listed there are sketches.
 
 `nixos/modules/default.nix` is the reusable set: `preferences/` (opt-in
 `preferences.*.enable`), `user-profiles/` (the option, no users turned on),
-and always-on hardware/policy modules.
+`self-hosted/` (opt-in native and OCI service modules), and always-on
+hardware/policy modules. Self-hosted containers share a private Podman network;
+see `nixos/modules/self-hosted/README.md` for the service inventory and secret
+contracts.
 
 This flake's systems also import
 `nixos/modules/user-profiles/by-name/loncothad.nix`.
