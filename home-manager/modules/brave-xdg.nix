@@ -1,7 +1,7 @@
 { config, lib, ... }:
 
 let
-  cfg = config.programs.brave.xdgIntegration;
+  cfg = config.programs.brave-origin.xdgIntegration;
 
   baseMimeTypes = [
     "text/html"
@@ -42,26 +42,41 @@ let
     ++ (lib.optionals cfg.images imageMimeTypes);
 in
 {
+  imports = [
+    (lib.mkAliasOptionModule
+      [
+        "programs"
+        "brave"
+        "xdgIntegration"
+      ]
+      [
+        "programs"
+        "brave-origin"
+        "xdgIntegration"
+      ]
+    )
+  ];
+
   options = {
-    programs.brave.xdgIntegration = {
+    programs.brave-origin.xdgIntegration = {
       enable = lib.mkEnableOption "XDG MIME associations for Brave Origin";
 
       documents = lib.mkOption {
         type = lib.types.bool;
         default = false;
-        description = "Associate document and markup MIME types (PDF, XML) with Brave.";
+        description = "Associate document and markup MIME types (PDF, XML) with Brave Origin.";
       };
 
       ftp = lib.mkOption {
         type = lib.types.bool;
         default = false;
-        description = "Associate the FTP scheme handler with Brave.";
+        description = "Associate the FTP scheme handler with Brave Origin.";
       };
 
       images = lib.mkOption {
         type = lib.types.bool;
         default = false;
-        description = "Associate common web image MIME types (WebP, PNG, JPEG, GIF, SVG) with Brave.";
+        description = "Associate common web image MIME types (WebP, PNG, JPEG, GIF, SVG) with Brave Origin.";
       };
     };
   };
