@@ -11,21 +11,6 @@ let
   cfg = config.security.apparmor.namedProfiles;
 in
 {
-  imports = [
-    (mkRenamedOptionModule
-      [
-        "security"
-        "apparmor"
-        "appProfiles"
-      ]
-      [
-        "security"
-        "apparmor"
-        "namedProfiles"
-      ]
-    )
-  ];
-
   options = {
     security.apparmor.namedProfiles = {
       enable = mkOption {
