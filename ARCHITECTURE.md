@@ -29,7 +29,7 @@ Defined under `flake-parts/`:
 | `nixosConfigurations` | `nixos/default.nix` | this flake's hosts |
 | `nixosModules.default` | `nixos/modules` | shared NixOS modules, **no** `loncothad` |
 | `homeModules.default` | `home-manager/modules` | barrel import of all HM modules |
-| `homeModules.<name>` | individual HM modules | `pi` / `mark-shot` from `flakes/`, rest local |
+| `homeModules.<name>` | individual HM modules | `pi` from `flakes/pi`, rest local |
 | `overlays.default` | `pkgs/default.nix` | adds `pkgs.piExtensions` |
 | `packages.<system>.*` | `pkgs/pi-extensions` | derivations only |
 | `formatter` | treefmt-nix (`nixfmt`) | per-system, via `nix fmt` / `just fmt` |
@@ -107,18 +107,21 @@ if a host needs a slim home.
 ## Nested flakes
 
 Complex Home Manager modules live in `flakes/<name>/` as their own
-flake-parts flakes (`path:` inputs). Each exports `flakeModules.default` and
-`homeModules`. This flake re-exports them from `flake-parts/modules.nix`:
+flake-parts flakes (`path:` inputs). Each exports `flakeModules.default`
+(sets `flake.homeModules.<name>`) and `homeModules.default`.
 
-| Input            | Path                 | Output                  |
-| ---------------- | -------------------- | ----------------------- |
-| `pi`             | `flakes/pi`          | `homeModules.pi`        |
-| `mark-shot-hm`   | `flakes/mark-shot`   | `homeModules.mark-shot` |
+This flake consumes them by importing those flake-parts modules
+(`flake-parts/default.nix`). `flake-parts/home-modules.nix` declares
+`flake.homeModules` as a mergeable attrs-of-modules option so keys from
+nested flakes combine with local ones.
 
-The HM barrel (`home-manager/modules/default.nix`) imports the same module
-files so `homeModules.default` stays self-contained. Add a new nested flake
-under `flakes/`, path-input it with `nixpkgs` / `flake-parts` follows, and
-re-export its `homeModules`.
+| Input | Path        | Output           |
+| ----- | ----------- | ---------------- |
+| `pi`  | `flakes/pi` | `homeModules.pi` |
+
+`flakes/mark-shot` is not a core input; the HM barrel imports its module file
+directly. Add a nested flake under `flakes/`, path-input it with `nixpkgs` /
+`flake-parts` follows, and import `inputs.<name>.flakeModules.default`.
 
 HM is opted in per host with `preferences.home-manager.enable`
 (`useGlobalPkgs`, `useUserPackages`, `extraSpecialArgs.inputs`).
