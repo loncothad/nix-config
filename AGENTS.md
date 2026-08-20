@@ -66,7 +66,10 @@ Commit as you go. Do not pile unrelated edits into one commit at the end.
   those paths and commit immediately. Then start the next unit.
 - New files must be in the same commit that first references them.
 - Do not amend, rebase, or rewrite history unless asked.
-- Match existing style: short subject, no conventional-commit prefixes.
+- Subject line is `section: what changed`. `section` is the area touched
+  (host, module, flake, docs, …); the rest is a short description of the
+  fix or change. Examples: `kepler: disable tuigreet doom background`,
+  `profile: ISA plus x86_64Level`, `agents: require section subjects`.
 
 ## Edit rules
 
