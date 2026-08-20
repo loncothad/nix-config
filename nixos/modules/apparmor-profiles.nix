@@ -8,11 +8,26 @@
 with lib;
 
 let
-  cfg = config.security.apparmor.appProfiles;
+  cfg = config.security.apparmor.namedProfiles;
 in
 {
+  imports = [
+    (mkRenamedOptionModule
+      [
+        "security"
+        "apparmor"
+        "appProfiles"
+      ]
+      [
+        "security"
+        "apparmor"
+        "namedProfiles"
+      ]
+    )
+  ];
+
   options = {
-    security.apparmor.appProfiles = {
+    security.apparmor.namedProfiles = {
       enable = mkOption {
         type = types.bool;
         default = false;

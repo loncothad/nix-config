@@ -155,7 +155,7 @@
     };
   };
 
-  security.apparmor.appProfiles = {
+  security.apparmor.namedProfiles = {
     enable = false; # temporarily disabled
     brave.enable = true;
     telegram.enable = true;
