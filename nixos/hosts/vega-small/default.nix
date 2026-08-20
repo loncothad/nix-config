@@ -24,6 +24,9 @@
     timeZone = "Europe/Moscow";
   };
 
+  # WSL synchronizes the guest clock from Windows and disables timesyncd.
+  preferences.networking.time.enable = false;
+
   # preferences.agenix = {
   #   enable = true;
   #   masterKeys = [
