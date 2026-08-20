@@ -11,6 +11,7 @@ Outside consumers can import `nixosModules`, `homeModules`, `overlays`, and
 ```
 flake.nix                 inputs + flake-parts entry
 flake-parts/              systems, modules, packages, host wiring
+flakes/                   nested flake-parts flakes (complex HM modules)
 nixos/                    NixOS systems, modules, hosts
 home-manager/             HM modules and user trees
 disko/                    disk layouts (referenced from NixOS)
@@ -28,7 +29,7 @@ Defined under `flake-parts/`:
 | `nixosConfigurations` | `nixos/default.nix` | this flake's hosts |
 | `nixosModules.default` | `nixos/modules` | shared NixOS modules, **no** `loncothad` |
 | `homeModules.default` | `home-manager/modules` | barrel import of all HM modules |
-| `homeModules.<name>` | individual HM modules | `pi`, `xwayland-satellite`, … |
+| `homeModules.<name>` | individual HM modules | `pi` / `mark-shot` from `flakes/`, rest local |
 | `overlays.default` | `pkgs/default.nix` | adds `pkgs.piExtensions` |
 | `packages.<system>.*` | `pkgs/pi-extensions` | derivations only |
 | `formatter` | treefmt-nix (`nixfmt`) | per-system, via `nix fmt` / `just fmt` |
@@ -102,6 +103,22 @@ Nix daemon settings live in `nixos/modules/preferences/nix.nix`. The configured
 `nixos/modules/user-profiles/by-name/loncothad.nix` and points at
 `home-manager/users/loncothad`. Override `homeManagerConfig` with `lib.mkForce`
 if a host needs a slim home.
+
+## Nested flakes
+
+Complex Home Manager modules live in `flakes/<name>/` as their own
+flake-parts flakes (`path:` inputs). Each exports `flakeModules.default` and
+`homeModules`. This flake re-exports them from `flake-parts/modules.nix`:
+
+| Input            | Path                 | Output                  |
+| ---------------- | -------------------- | ----------------------- |
+| `pi`             | `flakes/pi`          | `homeModules.pi`        |
+| `mark-shot-hm`   | `flakes/mark-shot`   | `homeModules.mark-shot` |
+
+The HM barrel (`home-manager/modules/default.nix`) imports the same module
+files so `homeModules.default` stays self-contained. Add a new nested flake
+under `flakes/`, path-input it with `nixpkgs` / `flake-parts` follows, and
+re-export its `homeModules`.
 
 HM is opted in per host with `preferences.home-manager.enable`
 (`useGlobalPkgs`, `useUserPackages`, `extraSpecialArgs.inputs`).
