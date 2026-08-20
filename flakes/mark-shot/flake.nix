@@ -21,11 +21,11 @@
       ];
 
       imports = [
-        ./flake-module.nix
+        ./flake-parts.nix
       ];
 
       flake = {
-        flakeModules.default = ./flake-module.nix;
+        flakeModules.default = ./flake-parts.nix;
         homeModules.default = ./home-manager.nix;
       };
     };
