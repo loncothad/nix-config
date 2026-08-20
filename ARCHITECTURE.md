@@ -51,7 +51,7 @@ This flake's systems also import
 ISA (`hardware.architecture`), x86-64 psABI level (`hardware.x86_64Level`),
 chassis (`hardware.formFactor`), and sched_ext policy. CachyOS kernels apply
 only on x86_64. Laptops use `scx_rusty`, desktops `scx_bpfland`, WSL
-`scx_rustyland`. Leave the profile off on a throwaway VM unless you want that
+`scx_rustland`. Leave the profile off on a throwaway VM unless you want that
 stack.
 
 Nix daemon settings live in `nixos/modules/preferences/nix.nix`. The package
