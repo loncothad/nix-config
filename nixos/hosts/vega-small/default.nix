@@ -36,9 +36,5 @@
   };
   users.users.loncothad.initialHashedPassword = "$y$j9T$aw8Yt7xsjcLgek9ZrZZNH1$NXEMoBYOyuvDSxyd8zBZriJyN7PrepEtUkcPHJRWVq7";
 
-  age.secrets.loncothad-password = {
-    rekeyFile = ../../../../secrets/loncothad-password.age;
-  };
-
   preferences.home-manager.enable = true;
 }
