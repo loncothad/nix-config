@@ -1,4 +1,4 @@
-{ ... }:
+{ inputs, ... }:
 
 {
   flake = {
@@ -8,7 +8,7 @@
 
     homeModules = {
       default = ../home-manager/modules;
-      pi = ../home-manager/modules/pi.nix;
+      pi = inputs.pi.homeModules.pi;
       xwayland-satellite = ../home-manager/modules/xwayland-satellite.nix;
       mark-shot = ../home-manager/modules/mark-shot.nix;
       nushell-bom = ../home-manager/modules/nushell-bom.nix;

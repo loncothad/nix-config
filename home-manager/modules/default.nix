@@ -13,7 +13,7 @@
     ./wayland-compatibility.nix
     ./xwayland-satellite.nix
     ./mark-shot.nix
-    ./pi.nix
+    ../../flakes/pi/home-manager.nix
     ./debloat.nix
   ];
 }
