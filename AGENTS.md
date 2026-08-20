@@ -11,6 +11,7 @@ This file is only the working contract for agents.
 2. `justfile` — recipes for eval/rebuild/validate
 3. The host you are touching under `nixos/hosts/<name>/`
 4. `home-manager/users/loncothad/` if the change is user-facing
+5. `flakes/<name>/` if the change is a nested flake module
 
 ## Commands
 
@@ -84,6 +85,31 @@ Commit as you go. Do not pile unrelated edits into one commit at the end.
   tracked by Git`).
 - Nix daemon is **Lix** (`nixos/modules/preferences/nix.nix`). Do not reintroduce
   CppNix-only settings (`configurable-impure-env`, `impure-env`).
+
+## Nested flakes (`flakes/`)
+
+Complex, reusable Home Manager modules live in `flakes/<name>/` as their own
+flake-parts flakes so they do not bloat this repo's flake. Layout:
+
+```
+flakes/<name>/
+  flake.nix          flake-parts entry (`flakeModules.default`, `homeModules.default`)
+  flake-parts.nix    sets `flake.homeModules.<name>`
+  home-manager.nix   the HM module implementation
+  flake.lock
+```
+
+- Use flake-parts. Do not add a second module system or a one-off `outputs =`.
+- File is `flake-parts.nix`, not `flake-module.nix`.
+- `nixpkgs` and `flake-parts` follows: on a core `path:` input, follow this
+  flake's `nixpkgs` and `flake-parts`.
+- To consume from this flake: add `inputs.<name>.url = "path:./flakes/<name>"`,
+  import `inputs.<name>.flakeModules.default` in `flake-parts/default.nix`, and
+  import `../../flakes/<name>/home-manager.nix` from the HM barrel so
+  `homeModules.default` stays self-contained.
+- Not every nested flake is a core input (`flakes/mark-shot` is barrel-only).
+- `git add` the new files, `nix flake lock ./flakes/<name>`, then `nix flake lock`
+  at the repo root. Path inputs are invisible until Git tracks them.
 
 ## Out of scope unless asked
 
