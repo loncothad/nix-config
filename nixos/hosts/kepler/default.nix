@@ -93,16 +93,7 @@
       ];
 
       background = {
-        kind = "doom";
-        fps = 30;
-
-        doom = {
-          height = 6;
-          spread = 2;
-          top_color = "#f38ba8";
-          middle_color = "#fab387";
-          bottom_color = "#11111b";
-        };
+        kind = "none";
       };
 
       theme = {
