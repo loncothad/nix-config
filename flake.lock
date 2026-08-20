@@ -869,7 +869,8 @@
         "pi": "pi",
         "quadlet-nix": "quadlet-nix",
         "stylix": "stylix",
-        "treefmt": "treefmt"
+        "treefmt": "treefmt",
+        "xwayland-satellite": "xwayland-satellite"
       }
     },
     "rust-overlay": {
@@ -1094,6 +1095,25 @@
         "repo": "treefmt-nix",
         "type": "github"
       }
+    },
+    "xwayland-satellite": {
+      "inputs": {
+        "flake-parts": [
+          "flake-parts"
+        ],
+        "nixpkgs": [
+          "nixpkgs"
+        ]
+      },
+      "locked": {
+        "path": "./flakes/xwayland-satellite",
+        "type": "path"
+      },
+      "original": {
+        "path": "./flakes/xwayland-satellite",
+        "type": "path"
+      },
+      "parent": []
     }
   },
   "root": "root",

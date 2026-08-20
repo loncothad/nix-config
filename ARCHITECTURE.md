@@ -29,7 +29,7 @@ Defined under `flake-parts/`:
 | `nixosConfigurations` | `nixos/default.nix` | this flake's hosts |
 | `nixosModules.default` | `nixos/modules` | shared NixOS modules, **no** `loncothad` |
 | `homeModules.default` | `home-manager/modules` | barrel import of all HM modules |
-| `homeModules.<name>` | individual HM modules | `pi` from `flakes/pi`, rest local |
+| `homeModules.<name>` | individual HM modules | `pi` / `xwayland-satellite` from `flakes/`, rest local |
 | `overlays.default` | `pkgs/default.nix` | adds `pkgs.piExtensions` |
 | `packages.<system>.*` | `pkgs/pi-extensions` | derivations only |
 | `formatter` | treefmt-nix (`nixfmt`) | per-system, via `nix fmt` / `just fmt` |
@@ -115,9 +115,10 @@ This flake consumes them by importing those flake-parts modules
 `flake.homeModules` as a mergeable attrs-of-modules option so keys from
 nested flakes combine with local ones.
 
-| Input | Path        | Output           |
-| ----- | ----------- | ---------------- |
-| `pi`  | `flakes/pi` | `homeModules.pi` |
+| Input                | Path                       | Output                         |
+| -------------------- | -------------------------- | ------------------------------ |
+| `pi`                 | `flakes/pi`                | `homeModules.pi`               |
+| `xwayland-satellite` | `flakes/xwayland-satellite`| `homeModules.xwayland-satellite` |
 
 `flakes/mark-shot` is not a core input; the HM barrel imports its module file
 directly. Add a nested flake under `flakes/`, path-input it with `nixpkgs` /

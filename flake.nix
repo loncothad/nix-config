@@ -33,6 +33,12 @@
       inputs.flake-parts.follows = "flake-parts";
     };
 
+    xwayland-satellite = {
+      url = "path:./flakes/xwayland-satellite";
+      inputs.nixpkgs.follows = "nixpkgs";
+      inputs.flake-parts.follows = "flake-parts";
+    };
+
     treefmt = {
       url = "github:numtide/treefmt-nix";
       inputs.nixpkgs.follows = "nixpkgs";
