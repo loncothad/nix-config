@@ -3,6 +3,7 @@
 {
   imports = [
     ./preferences
+    ./self-hosted
 
     ./user-profiles/default.nix
 
