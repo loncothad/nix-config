@@ -1,0 +1,73 @@
+diff --git a/tools/wine4office-manager/wine4office_backend.py b/tools/wine4office-manager/wine4office_backend.py
+--- a/tools/wine4office-manager/wine4office_backend.py
++++ b/tools/wine4office-manager/wine4office_backend.py
+@@ -257,2 +257,3 @@
+ DEFAULT_UPDATE_CHANNEL = "stable"
++NIX_MANAGED = os.environ.get("WINE4OFFICE_NIX_MANAGED") == "1"
+ VERSION_PATTERN = re.compile(r"[A-Za-z0-9][A-Za-z0-9._+-]{0,127}")
+@@ -371,2 +372,4 @@
+ def configured_update_url() -> str:
++    if NIX_MANAGED:
++        return ""
+     root = installed_root()
+@@ -403,3 +406,3 @@
+         "office_compatibility_policies": {},
+-        "update_url": configured_update_url(),
++        "update_url": "" if NIX_MANAGED else configured_update_url(),
+         "skipped_updates": {},
+@@ -2168,2 +2171,4 @@
+     """Check for updates only when the user opted into the systemd schedule."""
++    if NIX_MANAGED:
++        return {"checked": False, "updates": {}, "action": ""}
+     config = load_config()
+diff --git a/tools/wine4office-manager/wine4office_manager.py b/tools/wine4office-manager/wine4office_manager.py
+--- a/tools/wine4office-manager/wine4office_manager.py
++++ b/tools/wine4office-manager/wine4office_manager.py
+@@ -189,2 +189,4 @@
+         """Persist consent and reconcile the per-user update timer."""
++        if backend.NIX_MANAGED:
++            enabled = False
+         if not isinstance(enabled, bool):
+@@ -221,2 +223,4 @@
+         """Atomically persist first-run reporting and update-check choices."""
++        if backend.NIX_MANAGED:
++            automatic_update_checks = False
+         if reporting_mode not in incident.REPORT_MODES:
+@@ -395,2 +399,4 @@
+         """Check configured metadata off the UI thread without downloading artifacts."""
++        if backend.NIX_MANAGED:
++            return False
+         with self.lock:
+diff --git a/tools/wine4office-manager/wine4office_qt.py b/tools/wine4office-manager/wine4office_qt.py
+--- a/tools/wine4office-manager/wine4office_qt.py
++++ b/tools/wine4office-manager/wine4office_qt.py
+@@ -1158,2 +1158,4 @@
+         update = QGroupBox("Updates")
++        if backend.NIX_MANAGED:
++            update.setTitle("Updates (managed by Nix)")
+         update_layout = QVBoxLayout(update)
+@@ -1197,2 +1199,4 @@
+         update_layout.addLayout(update_buttons)
++        if backend.NIX_MANAGED:
++            update.setEnabled(False)
+         layout.addWidget(update)
+@@ -1200,2 +1204,5 @@
+         removal = QGroupBox("Removal")
++        if backend.NIX_MANAGED:
++            removal.setTitle("Removal (managed by Nix)")
++            removal.setEnabled(False)
+         removal_layout = QVBoxLayout(removal)
+@@ -1668,2 +1675,6 @@
+         updates.setChecked(True)
++        if backend.NIX_MANAGED:
++            updates.setText("Wine4Office updates are managed by Nix")
++            updates.setChecked(False)
++            updates.setEnabled(False)
+         updates.setToolTip(
+@@ -1703,3 +1714,5 @@
+             )
+-            automatic_checks = updates.isChecked() if accepted else True
++            automatic_checks = (
++                updates.isChecked() if accepted else not backend.NIX_MANAGED
++            )
+         else:

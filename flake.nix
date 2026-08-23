@@ -39,6 +39,12 @@
       inputs.flake-parts.follows = "flake-parts";
     };
 
+    wine4office = {
+      url = "path:./flakes/wine4office";
+      inputs.nixpkgs.follows = "nixpkgs";
+      inputs.flake-parts.follows = "flake-parts";
+    };
+
     treefmt = {
       url = "github:numtide/treefmt-nix";
       inputs.nixpkgs.follows = "nixpkgs";

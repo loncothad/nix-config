@@ -870,6 +870,7 @@
         "quadlet-nix": "quadlet-nix",
         "stylix": "stylix",
         "treefmt": "treefmt",
+        "wine4office": "wine4office",
         "xwayland-satellite": "xwayland-satellite"
       }
     },
@@ -1093,6 +1094,43 @@
       "original": {
         "owner": "numtide",
         "repo": "treefmt-nix",
+        "type": "github"
+      }
+    },
+    "wine4office": {
+      "inputs": {
+        "flake-parts": [
+          "flake-parts"
+        ],
+        "nixpkgs": [
+          "nixpkgs"
+        ],
+        "wine4office-src": "wine4office-src"
+      },
+      "locked": {
+        "path": "./flakes/wine4office",
+        "type": "path"
+      },
+      "original": {
+        "path": "./flakes/wine4office",
+        "type": "path"
+      },
+      "parent": []
+    },
+    "wine4office-src": {
+      "flake": false,
+      "locked": {
+        "lastModified": 1786090458,
+        "narHash": "sha256-HiFaA2KW/bZavNQ8RCaGYGmtEqYMKgsYqBVjX8PUWqs=",
+        "owner": "ttv20",
+        "repo": "wine4office",
+        "rev": "5e763e7f23ff2596292a0b0de64416b93411bd9a",
+        "type": "github"
+      },
+      "original": {
+        "owner": "ttv20",
+        "ref": "wine4office-v0.1.11-rc.2",
+        "repo": "wine4office",
         "type": "github"
       }
     },

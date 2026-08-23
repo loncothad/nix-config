@@ -9,8 +9,8 @@
       pkgs = import inputs.nixpkgs { inherit system; };
     in
     {
-      packages = lib.filterAttrs (_: lib.isDerivation) (
-        pkgs.callPackage ../pkgs/pi-extensions { }
-      );
+      packages = lib.filterAttrs (_: lib.isDerivation) (pkgs.callPackage ../pkgs/pi-extensions { }) // {
+        inherit (inputs.wine4office.packages.${system}) wine4office wine4office-wine;
+      };
     };
 }

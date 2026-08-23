@@ -28,6 +28,11 @@ check *args:
     {{ nix }} flake check --show-trace {{ flake }} {{ args }}
 
 [group('flake')]
+[doc('Build a package output without creating ./result')]
+build-package package *args:
+    {{ nix }} build --no-link {{ flake }}#{{ package }} {{ args }}
+
+[group('flake')]
 [doc('Show flake outputs')]
 show *args:
     {{ nix }} flake show {{ flake }} {{ args }}
