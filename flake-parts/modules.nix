@@ -34,6 +34,7 @@
       polkit-agent-lxqt = ../home-manager/modules/polkit-agent-lxqt.nix;
       wayland-compatibility = ../home-manager/modules/wayland-compatibility.nix;
       xdg-dbus-proxy = ../home-manager/modules/xdg-dbus-proxy.nix;
+      xdg-mime-apps = ../home-manager/modules/xdg-mime-apps.nix;
       xwayland-satellite = ../home-manager/modules/xwayland-satellite.nix;
       zellij-daemon = ../home-manager/modules/zellij-daemon.nix;
     };

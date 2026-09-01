@@ -57,6 +57,8 @@
 
   programs.notesnook.enable = true;
 
+  xdg.mimeApps.resetOnActivation = true;
+
   services.polkit-agent-lxqt = {
     enable = true;
   };

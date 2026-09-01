@@ -15,6 +15,7 @@
     ./qimgv-xdg.nix
     ./wayland-compatibility.nix
     ./xdg-dbus-proxy.nix
+    ./xdg-mime-apps.nix
     ./xwayland-satellite.nix
     ./mark-shot.nix
     ./zellij-daemon.nix
