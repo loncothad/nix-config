@@ -20,6 +20,17 @@ let
     "io.containers.autoupdate" = "registry";
   };
 
+  ownsPostgres = cfg.postgres.mode == "owned";
+  ownsRedis = cfg.redis.mode == "owned";
+  postgresHost = if ownsPostgres then "sub2api-postgres" else cfg.postgres.shared.host;
+  postgresPort = if ownsPostgres then 5432 else cfg.postgres.shared.port;
+  postgresUser = if ownsPostgres then cfg.postgres.owned.user else cfg.postgres.shared.user;
+  postgresDatabase =
+    if ownsPostgres then cfg.postgres.owned.database else cfg.postgres.shared.database;
+  postgresSslMode = if ownsPostgres then "disable" else cfg.postgres.shared.sslMode;
+  redisHost = if ownsRedis then "sub2api-redis" else cfg.redis.shared.host;
+  redisPort = if ownsRedis then 6379 else cfg.redis.shared.port;
+
   postgresCommand = [
     "postgres"
   ]
@@ -27,7 +38,7 @@ let
     lib.mapAttrsToList (name: value: [
       "-c"
       "${name}=${value}"
-    ]) cfg.postgres.settings
+    ]) cfg.postgres.owned.settings
   );
 
   environmentSetup = pkgs.writeShellScript "sub2api-environment" ''
@@ -39,13 +50,13 @@ let
     : "''${JWT_SECRET:?JWT_SECRET is required}"
     : "''${TOTP_ENCRYPTION_KEY:?TOTP_ENCRYPTION_KEY is required}"
 
-    postgres_user=${lib.escapeShellArg cfg.postgres.user}
-    postgres_database=${lib.escapeShellArg cfg.postgres.database}
-    postgres_host=${lib.escapeShellArg cfg.postgres.host}
-    postgres_port=${lib.escapeShellArg (toString cfg.postgres.port)}
-    postgres_sslmode=${lib.escapeShellArg cfg.postgres.sslMode}
-    redis_host=${lib.escapeShellArg cfg.redis.host}
-    redis_port=${lib.escapeShellArg (toString cfg.redis.port)}
+    postgres_user=${lib.escapeShellArg postgresUser}
+    postgres_database=${lib.escapeShellArg postgresDatabase}
+    postgres_host=${lib.escapeShellArg postgresHost}
+    postgres_port=${lib.escapeShellArg (toString postgresPort)}
+    postgres_sslmode=${lib.escapeShellArg postgresSslMode}
+    redis_host=${lib.escapeShellArg redisHost}
+    redis_port=${lib.escapeShellArg (toString redisPort)}
     admin_email=${lib.escapeShellArg cfg.adminEmail}
     timezone=${lib.escapeShellArg cfg.timezone}
 
@@ -77,8 +88,7 @@ let
   '';
 
   dependencyNames =
-    lib.optional cfg.postgres.createLocally "sub2api-postgres"
-    ++ lib.optional cfg.redis.createLocally "sub2api-redis";
+    lib.optional ownsPostgres "sub2api-postgres" ++ lib.optional ownsRedis "sub2api-redis";
   containerNames = dependencyNames ++ [ "sub2api" ];
   containerUnits = map (name: "podman-${name}.service") containerNames;
 in
@@ -125,81 +135,111 @@ in
       type = lib.types.attrsOf lib.types.str;
       default = {
         app = "docker.io/weishaw/sub2api:latest";
-        postgres = "docker.io/library/postgres:18-alpine";
-        redis = "docker.io/library/redis:8-alpine";
       };
-      description = "OCI images used by the Sub2API stack.";
+      description = "OCI images used by the Sub2API application stack.";
     };
 
     postgres = {
-      createLocally = lib.mkOption {
-        type = lib.types.bool;
-        default = true;
-        description = "Whether to run a dedicated PostgreSQL container for Sub2API.";
+      mode = lib.mkOption {
+        type = lib.types.enum [
+          "owned"
+          "shared"
+        ];
+        default = "owned";
+        description = "Whether Sub2API owns PostgreSQL or connects to a shared instance.";
       };
 
-      host = lib.mkOption {
-        type = lib.types.str;
-        default = "sub2api-postgres";
-        example = "postgres.internal";
-        description = "PostgreSQL host used by Sub2API.";
-      };
-
-      port = lib.mkOption {
-        type = lib.types.port;
-        default = 5432;
-        description = "PostgreSQL port used by Sub2API.";
-      };
-
-      user = lib.mkOption {
-        type = lib.types.str;
-        default = "sub2api";
-        description = "PostgreSQL user used by Sub2API.";
-      };
-
-      database = lib.mkOption {
-        type = lib.types.str;
-        default = "sub2api";
-        description = "PostgreSQL database used by Sub2API.";
-      };
-
-      sslMode = lib.mkOption {
-        type = lib.types.str;
-        default = "disable";
-        example = "require";
-        description = "PostgreSQL SSL mode used by Sub2API.";
-      };
-
-      settings = lib.mkOption {
-        type = lib.types.attrsOf lib.types.str;
-        default = {
-          max_connections = "100";
-          shared_buffers = "128MB";
-          effective_cache_size = "4GB";
-          maintenance_work_mem = "64MB";
+      owned = {
+        image = lib.mkOption {
+          type = lib.types.str;
+          default = "docker.io/library/postgres:18-alpine";
+          description = "OCI image used for the owned PostgreSQL instance.";
         };
-        description = "PostgreSQL server settings passed with -c.";
+
+        user = lib.mkOption {
+          type = lib.types.str;
+          default = "sub2api";
+          description = "PostgreSQL user created in the owned instance.";
+        };
+
+        database = lib.mkOption {
+          type = lib.types.str;
+          default = "sub2api";
+          description = "PostgreSQL database created in the owned instance.";
+        };
+
+        settings = lib.mkOption {
+          type = lib.types.attrsOf lib.types.str;
+          default = {
+            max_connections = "100";
+            shared_buffers = "128MB";
+            effective_cache_size = "4GB";
+            maintenance_work_mem = "64MB";
+          };
+          description = "PostgreSQL settings passed to the owned server with -c.";
+        };
+      };
+
+      shared = {
+        host = lib.mkOption {
+          type = lib.types.str;
+          example = "postgres.internal";
+          description = "Host of the shared PostgreSQL instance.";
+        };
+
+        port = lib.mkOption {
+          type = lib.types.port;
+          default = 5432;
+          description = "Port of the shared PostgreSQL instance.";
+        };
+
+        user = lib.mkOption {
+          type = lib.types.str;
+          default = "sub2api";
+          description = "PostgreSQL user allocated to Sub2API.";
+        };
+
+        database = lib.mkOption {
+          type = lib.types.str;
+          default = "sub2api";
+          description = "PostgreSQL database allocated to Sub2API.";
+        };
+
+        sslMode = lib.mkOption {
+          type = lib.types.str;
+          default = "require";
+          example = "verify-full";
+          description = "TLS mode used for the shared PostgreSQL connection.";
+        };
       };
     };
 
     redis = {
-      createLocally = lib.mkOption {
-        type = lib.types.bool;
-        default = true;
-        description = "Whether to run a dedicated Redis container for Sub2API.";
+      mode = lib.mkOption {
+        type = lib.types.enum [
+          "owned"
+          "shared"
+        ];
+        default = "owned";
+        description = "Whether Sub2API owns Redis or connects to a shared instance.";
       };
 
-      host = lib.mkOption {
+      owned.image = lib.mkOption {
         type = lib.types.str;
-        default = "sub2api-redis";
-        example = "redis.internal";
-        description = "Redis host used by Sub2API.";
+        default = "docker.io/library/redis:8-alpine";
+        description = "OCI image used for the owned Redis instance.";
       };
 
-      port = lib.mkOption {
+      shared.host = lib.mkOption {
+        type = lib.types.str;
+        example = "redis.internal";
+        description = "Host of the shared Redis instance.";
+      };
+
+      shared.port = lib.mkOption {
         type = lib.types.port;
         default = 6379;
-        description = "Redis port used by Sub2API.";
+        description = "Port of the shared Redis instance.";
       };
     };
 
@@ -232,9 +272,9 @@ in
         ];
       };
     }
-    // lib.optionalAttrs cfg.postgres.createLocally {
+    // lib.optionalAttrs ownsPostgres {
       sub2api-postgres = {
-        image = cfg.images.postgres;
+        image = cfg.postgres.owned.image;
         networks = [ "selfhosted" ];
         environmentFiles = environmentFiles;
         volumes = [ "sub2api-postgres:/var/lib/postgresql/data" ];
@@ -243,9 +283,9 @@ in
         extraOptions = [ "--ulimit=nofile=100000:100000" ];
       };
     }
-    // lib.optionalAttrs cfg.redis.createLocally {
+    // lib.optionalAttrs ownsRedis {
       sub2api-redis = {
-        image = cfg.images.redis;
+        image = cfg.redis.owned.image;
         networks = [ "selfhosted" ];
         environmentFiles = environmentFiles;
         volumes = [ "sub2api-redis:/data" ];

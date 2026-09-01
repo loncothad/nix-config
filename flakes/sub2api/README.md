@@ -27,10 +27,11 @@ application, database, and Redis data. The application binds to
 `127.0.0.1:8080` by default; use a TLS reverse proxy for public deployment and
 enable direct firewall access only when intended.
 
-PostgreSQL and Redis use `createLocally = true` by default. Disable either
-local dependency to reuse a shared service, then set its `host` and `port`.
-PostgreSQL additionally exposes `user`, `database`, and `sslMode`; passwords
-remain in `environmentFile`.
+PostgreSQL and Redis default to `mode = "owned"`, with their images and
+server-only settings under `owned`. Select `mode = "shared"` to remove the
+dependency container and configure the connection under `shared`. PostgreSQL
+exposes host, port, user, database, and TLS mode; Redis exposes host and port.
+Passwords remain in `environmentFile`.
 
 ## Secrets and configuration
 
