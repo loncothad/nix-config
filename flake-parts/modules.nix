@@ -20,7 +20,7 @@
     };
 
     homeModules = {
-      agents = ../home-manager/modules/agents.nix;
+      agents = ../home-manager/modules/agents;
       autolith = ../home-manager/modules/autolith.nix;
       default = {
         imports = [

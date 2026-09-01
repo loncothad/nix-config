@@ -92,6 +92,9 @@ Commit as you go. Do not pile unrelated edits into one commit at the end.
 - Keep global agent content in the Home Manager `agents` schema. Harness
   modules consume its records or canonical XDG directories and alone own
   vendor-specific discovery paths; do not add those paths to the shared schema.
+- Put repository-authored global agent files under
+  `home-manager/modules/agents/files/`; paths below that directory are
+  preserved below `$AGENTS_HOME`.
 - Nix daemon is **Determinate Nix**, supplied by the upstream `determinate`
   NixOS module. Do not set `nix.package` in repository modules; configure local
   daemon additions through `nix.settings`, which the Determinate module writes

@@ -97,10 +97,12 @@ profile instead of putting host policy into shared user modules.
 
 Global agent configuration uses the vendor-neutral `agents` Home Manager
 schema. It owns the canonical XDG tree of global instructions, system prompts,
-named prompts, skills, and supporting files. Agent harness integrations consume
-that schema or its published directories and own any vendor-specific discovery
-paths; the shared module does not encode a particular harness's layout. The
-`AGENTS_HOME` session variable points to the canonical tree.
+named prompts, skills, and supporting files. Repository-authored content is
+mirrored from `home-manager/modules/agents/files/`, while generated and
+external content uses the typed module options. Agent harness integrations
+consume that schema or its published directories and own any vendor-specific
+discovery paths; the shared module does not encode a particular harness's
+layout. The `AGENTS_HOME` session variable points to the canonical tree.
 
 ## Host and desktop boundaries
 

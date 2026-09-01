@@ -2,7 +2,7 @@
 
 {
   imports = [
-    ./agents.nix
+    ./agents
     ./autolith.nix
     ./brave-xdg.nix
     ./gtk-prefer-dark-theme.nix

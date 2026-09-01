@@ -19,6 +19,12 @@ agents/
 └── <additional files>
 ```
 
+Repository-owned content lives under [`files/`](./files/) in exactly this
+layout. The module discovers it recursively and preserves relative paths, so
+adding a prompt or a complete skill does not require a corresponding Nix
+entry. Files named `README.md` remain source documentation and are not
+installed. Set `agents.filesDirectory` to use another source tree.
+
 This module does not install an agent harness or write vendor-specific paths.
 A harness integration can inspect `config.agents`, use
 `config.agents.paths.root`, `config.agents.paths.prompts`, or
@@ -56,6 +62,10 @@ agents = {
   };
 };
 ```
+
+For files owned by this repository, prefer placing them directly under
+`agents/files/`; use these options when content is generated, inline, or
+sourced from somewhere else.
 
 By default, the two global documents become `AGENTS.md` and `SYSTEM.md`, while
 named prompts become `prompts/<name>.md`. `path` exists for deliberately

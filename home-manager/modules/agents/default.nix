@@ -8,6 +8,13 @@ let
   inherit (lib) mkOption types;
   cfg = config.agents;
 
+  repositoryFiles = builtins.sort (left: right: toString left < toString right) (
+    lib.filter (file: builtins.baseNameOf file != "README.md") (
+      lib.filesystem.listFilesRecursive cfg.filesDirectory
+    )
+  );
+  repositoryRelativePath = file: lib.removePrefix "${toString cfg.filesDirectory}/" (toString file);
+
   fileOptions = {
     options = {
       source = mkOption {
@@ -280,8 +287,15 @@ let
     origin = "agents.files.${relativePath}";
   }) cfg.files;
 
+  repositoryFileEntries = map (file: {
+    name = canonicalPath (repositoryRelativePath file);
+    value.source = file;
+    origin = "agents.filesDirectory.${repositoryRelativePath file}";
+  }) repositoryFiles;
+
   entries =
-    documentEntries "globalInstructions" "AGENTS.md" cfg.globalInstructions
+    repositoryFileEntries
+    ++ documentEntries "globalInstructions" "AGENTS.md" cfg.globalInstructions
     ++ documentEntries "systemPrompt" "SYSTEM.md" cfg.systemPrompt
     ++ promptEntries
     ++ skillEntries
@@ -311,6 +325,17 @@ in
         Canonical agent configuration directory relative to XDG_CONFIG_HOME.
         Agent harness modules consume this tree and own their tool-specific
         discovery paths.
+      '';
+    };
+
+    filesDirectory = mkOption {
+      type = types.path;
+      default = ./files;
+      defaultText = lib.literalExpression "./files";
+      description = ''
+        Repository directory recursively mirrored into the canonical agent
+        tree. Relative paths are preserved, and files named README.md are
+        treated as source documentation rather than installed content.
       '';
     };
 
