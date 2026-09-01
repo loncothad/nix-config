@@ -476,5 +476,7 @@ in
     xdg.configFile = builtins.listToAttrs (
       map (entry: lib.nameValuePair entry.name entry.value) entries
     );
+
+    home.sessionVariables.AGENTS_HOME = cfg.paths.root;
   };
 }

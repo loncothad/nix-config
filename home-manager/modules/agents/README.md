@@ -24,6 +24,9 @@ A harness integration can inspect `config.agents`, use
 `config.agents.paths.root`, `config.agents.paths.prompts`, or
 `config.agents.paths.skills`, and expose the relevant content in its own
 discovery location. `agents.schemaVersion` versions that integration contract.
+The module also exports `AGENTS_HOME` with the value of
+`config.agents.paths.root`, giving harnesses and scripts a stable way to find
+the canonical tree.
 
 ## Documents and prompts
 
