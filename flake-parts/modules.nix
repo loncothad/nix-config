@@ -18,6 +18,7 @@
     };
 
     homeModules = {
+      agents = ../home-manager/modules/agents.nix;
       autolith = ../home-manager/modules/autolith.nix;
       default = ../home-manager/modules;
       fastpotify = inputs.fastpotify-adapter.homeModules.default;

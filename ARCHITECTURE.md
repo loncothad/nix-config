@@ -85,6 +85,12 @@ The currently enabled profile is `loncothad`, sourced from
 `home-manager/users/loncothad/`. Host-specific reductions override that
 profile instead of putting host policy into shared user modules.
 
+Global agent configuration uses the vendor-neutral `agents` Home Manager
+schema. It owns the canonical XDG tree of global instructions, system prompts,
+named prompts, skills, and supporting files. Agent harness integrations consume
+that schema or its published directories and own any vendor-specific discovery
+paths; the shared module does not encode a particular harness's layout.
+
 ## Host and desktop boundaries
 
 Reusable policy belongs in `nixos/modules/` or `home-manager/modules/`.

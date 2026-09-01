@@ -2,6 +2,7 @@
 
 {
   imports = [
+    ./agents.nix
     ./autolith.nix
     ./brave-xdg.nix
     ../../flakes/fastpotify/home-manager.nix
