@@ -47,7 +47,7 @@
         "type": "github"
       }
     },
-    "appflowy": {
+    "appflowy-adapter": {
       "inputs": {
         "appflowy-cloud-src": "appflowy-cloud-src",
         "flake-parts": [
@@ -170,7 +170,7 @@
         "type": "github"
       }
     },
-    "celld": {
+    "celld-adapter": {
       "inputs": {
         "celld-src": "celld-src",
         "flake-parts": [
@@ -1005,9 +1005,9 @@
       "inputs": {
         "agenix": "agenix",
         "agenix-rekey": "agenix-rekey",
-        "appflowy": "appflowy",
+        "appflowy-adapter": "appflowy-adapter",
         "autolith": "autolith",
-        "celld": "celld",
+        "celld-adapter": "celld-adapter",
         "disko": "disko",
         "fastpotify-adapter": "fastpotify-adapter",
         "flake-parts": "flake-parts_3",
@@ -1025,7 +1025,7 @@
         "quadlet-nix": "quadlet-nix",
         "stylix": "stylix",
         "treefmt": "treefmt",
-        "wine4office": "wine4office"
+        "wine4office-adapter": "wine4office-adapter"
       }
     },
     "rust-overlay": {
@@ -1273,7 +1273,7 @@
         "type": "github"
       }
     },
-    "wine4office": {
+    "wine4office-adapter": {
       "inputs": {
         "flake-parts": [
           "flake-parts"

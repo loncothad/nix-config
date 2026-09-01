@@ -37,19 +37,19 @@
       inputs.flake-parts.follows = "flake-parts";
     };
 
-    appflowy = {
+    appflowy-adapter = {
       url = "path:./flakes/appflowy";
       inputs.nixpkgs.follows = "nixpkgs";
       inputs.flake-parts.follows = "flake-parts";
     };
 
-    celld = {
+    celld-adapter = {
       url = "path:./flakes/celld";
       inputs.nixpkgs.follows = "nixpkgs";
       inputs.flake-parts.follows = "flake-parts";
     };
 
-    wine4office = {
+    wine4office-adapter = {
       url = "path:./flakes/wine4office";
       inputs.nixpkgs.follows = "nixpkgs";
       inputs.flake-parts.follows = "flake-parts";

@@ -9,9 +9,9 @@ in
     agenix = inputs.agenix.packages.${system};
     agenix-rekey = inputs.agenix-rekey.packages.${system};
     autolith = inputs.autolith.packages.${system};
-    celld = inputs.celld.packages.${system};
+    celld-adapter = inputs.celld-adapter.packages.${system};
     fastpotify-adapter = inputs.fastpotify-adapter.packages.${system};
     mark-shot = inputs.mark-shot.packages.${system};
-    wine4office = inputs.wine4office.packages.${system};
+    wine4office-adapter = inputs.wine4office-adapter.packages.${system};
   };
 }

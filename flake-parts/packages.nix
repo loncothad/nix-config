@@ -14,10 +14,10 @@
     {
       packages = {
         autolith = pkgs.fromFlakes.autolith.autolith;
-        celld = pkgs.fromFlakes.celld.celld;
+        celld = pkgs.fromFlakes.celld-adapter.celld;
         fastpotify = pkgs.fromFlakes.fastpotify-adapter.fastpotify;
         mark-shot = pkgs.fromFlakes.mark-shot.default;
-        inherit (pkgs.fromFlakes.wine4office) wine4office wine4office-wine;
+        inherit (pkgs.fromFlakes.wine4office-adapter) wine4office wine4office-wine;
       };
     };
 }

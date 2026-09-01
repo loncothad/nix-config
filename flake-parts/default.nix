@@ -7,7 +7,7 @@
 
   imports = [
     inputs.treefmt.flakeModule
-    inputs.appflowy.flakeModules.default
+    inputs.appflowy-adapter.flakeModules.default
     ./home-modules.nix
     ./treefmt.nix
     ./modules.nix

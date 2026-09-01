@@ -30,8 +30,8 @@ let
 
         overlaysModule
 
-        inputs.appflowy.nixosModules.default
-        inputs.celld.nixosModules.default
+        inputs.appflowy-adapter.nixosModules.default
+        inputs.celld-adapter.nixosModules.default
         inputs.disko.nixosModules.disko
         inputs.home-manager.nixosModules.home-manager
 

@@ -3,12 +3,12 @@
 {
   flake = {
     nixosModules = {
-      celld = inputs.celld.nixosModules.default;
+      celld = inputs.celld-adapter.nixosModules.default;
       default = {
         imports = [
           ../nixos/modules
-          inputs.appflowy.nixosModules.default
-          inputs.celld.nixosModules.default
+          inputs.appflowy-adapter.nixosModules.default
+          inputs.celld-adapter.nixosModules.default
         ];
       };
     };

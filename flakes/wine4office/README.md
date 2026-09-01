@@ -35,8 +35,9 @@ Wine build used by that application.
   installation.
 - `flake-parts.nix` connects both packages, the app, and the overlay.
 
-The root consumes this directory as the `wine4office` path input. Its package
-set is available unchanged below `pkgs.fromFlakes.wine4office`.
+The root consumes this directory as the `wine4office-adapter` path input. Its
+package set is available unchanged below
+`pkgs.fromFlakes.wine4office-adapter`.
 
 ## Updating
 
