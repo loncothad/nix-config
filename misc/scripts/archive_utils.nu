@@ -1,12 +1,18 @@
 #!/usr/bin/env nu
 
 # BOM-START
-# {
-#   "dependencies": [
-#     "gnutar", "gzip", "bzip2", "xz", "zstd", "lz4", 
-#     "zip", "unzip", "_7zz", "libarchive"
-#   ]
-# }
+# dependencies = [
+#   "gnutar",
+#   "gzip",
+#   "bzip2",
+#   "xz",
+#   "zstd",
+#   "lz4",
+#   "zip",
+#   "unzip",
+#   "_7zz",
+#   "libarchive",
+# ]
 # BOM-END
 
 # Creates an archive from the provided inputs.

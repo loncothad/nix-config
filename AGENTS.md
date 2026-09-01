@@ -36,7 +36,7 @@ justfile instead of documenting a one-off `nix` invocation.
 
 All scripts under `misc/scripts/` must be Nushell (`*.nu`), with `#!/usr/bin/env nu`.
 
-Declare Nix packages the script needs in a JSON BOM so
+Declare Nix packages the script needs in a TOML BOM so
 `programs.nushell.bomScripts` can inject them. The parser in
 `home-manager/modules/nushell-bom.nix` reads the first `# BOM-START` /
 `# BOM-END` block:
@@ -45,11 +45,9 @@ Declare Nix packages the script needs in a JSON BOM so
 #!/usr/bin/env nu
 
 # BOM-START
-# {
-#   "dependencies": [
-#     "nodejs"
-#   ]
-# }
+# dependencies = [
+#   "nodejs",
+# ]
 # BOM-END
 ```
 

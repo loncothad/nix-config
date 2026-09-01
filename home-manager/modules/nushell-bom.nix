@@ -8,7 +8,7 @@
 let
   cfg = config.programs.nushell.bomScripts;
 
-  # Extracts, cleans, and parses the JSON BOM from a single file path
+  # Extracts, cleans, and parses the TOML BOM from a single file path
   getDependencies =
     path:
     let
@@ -19,12 +19,12 @@ let
       # index 1 is the START match, and index 2 is the raw payload.
       parts = builtins.split "# BOM-(START\n|END)" content;
 
-      rawBom = if builtins.length parts >= 3 then builtins.elemAt parts 2 else "{}";
+      rawBom = if builtins.length parts >= 3 then builtins.elemAt parts 2 else "";
 
-      # Strip out the Nushell comment syntax to yield raw JSON
+      # Strip out the Nushell comment syntax to yield raw TOML
       cleanBom = builtins.replaceStrings [ "# " "#" ] [ "" "" ] rawBom;
 
-      parsed = builtins.fromJSON cleanBom;
+      parsed = builtins.fromTOML cleanBom;
     in
     parsed.dependencies or [ ];
 
@@ -44,7 +44,7 @@ in
     scripts = lib.mkOption {
       type = lib.types.listOf lib.types.path;
       default = [ ];
-      description = "List of .nu script paths containing JSON BOM headers.";
+      description = "List of .nu script paths containing TOML BOM headers.";
     };
   };
 
