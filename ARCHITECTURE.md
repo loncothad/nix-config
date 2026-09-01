@@ -106,8 +106,14 @@ use systemd user units, not niri `spawn-at-startup`.
 Disk layouts live in `disko/configurations/` and are exported from
 `disko/default.nix`. Hosts import Disko through the shared NixOS module list.
 
-Pinned pi npm packages live in `pkgs/pi-extensions/sources.json`. The overlay
-exposes `pkgs.piExtensions.<name>`. Refresh with `just pi-extensions-update`.
+The package overlay groups applications sourced from package flakes under
+`pkgs.fromFlakes` (Autolith, Fastpotify, mark-shot, and wine4office). Locally
+packaged upstream releases such as Celld remain at the normal `pkgs.<name>`
+level. Application packages are also exported from the root `packages` output.
+Autolith keeps its upstream nixpkgs pin because its package couples an exact
+SBCL runtime and generated Quicklisp package set. The reusable
+`services.xdg-dbus-proxy` Home Manager module manages filtered per-user D-Bus
+proxy instances with nixpkgs' package.
 
 ## Conventions
 
