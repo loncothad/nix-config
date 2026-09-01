@@ -11,10 +11,19 @@ let
   updateLabels = lib.optionalAttrs runtime.autoUpdate.enable {
     "io.containers.autoupdate" = "registry";
   };
+  ownsClickHouse = cfg.clickhouse.mode == "owned";
+  ownsPostgres = cfg.postgres.mode == "owned";
+  ownsRedis = cfg.redis.mode == "owned";
+  clickhouseUrl =
+    if ownsClickHouse then "http://rybbit-clickhouse:8123" else cfg.clickhouse.shared.url;
+  postgresHost = if ownsPostgres then "rybbit-postgres" else cfg.postgres.shared.host;
+  postgresPort = if ownsPostgres then 5432 else cfg.postgres.shared.port;
+  redisHost = if ownsRedis then "rybbit-redis" else cfg.redis.shared.host;
+  redisPort = if ownsRedis then 6379 else cfg.redis.shared.port;
   dependencyNames =
-    lib.optional cfg.clickhouse.createLocally "rybbit-clickhouse"
-    ++ lib.optional cfg.postgres.createLocally "rybbit-postgres"
-    ++ lib.optional cfg.redis.createLocally "rybbit-redis";
+    lib.optional ownsClickHouse "rybbit-clickhouse"
+    ++ lib.optional ownsPostgres "rybbit-postgres"
+    ++ lib.optional ownsRedis "rybbit-redis";
   containerNames = dependencyNames ++ [
     "rybbit-backend"
     "rybbit-client"
@@ -74,57 +83,83 @@ in
     };
 
     clickhouse = {
-      createLocally = lib.mkOption {
-        type = lib.types.bool;
-        default = true;
-        description = "Whether to run a dedicated ClickHouse container.";
+      mode = lib.mkOption {
+        type = lib.types.enum [
+          "owned"
+          "shared"
+        ];
+        default = "owned";
+        description = "Whether Rybbit owns ClickHouse or connects to a shared instance.";
       };
 
-      url = lib.mkOption {
+      owned.image = lib.mkOption {
         type = lib.types.str;
-        default = "http://rybbit-clickhouse:8123";
+        default = "docker.io/clickhouse/clickhouse-server:26.3.17.4";
+        description = "OCI image used for the owned ClickHouse instance.";
+      };
+
+      shared.url = lib.mkOption {
+        type = lib.types.str;
         example = "https://clickhouse.internal:8443";
-        description = "ClickHouse HTTP endpoint used by the Rybbit backend.";
+        description = "HTTP endpoint of the shared ClickHouse instance.";
       };
     };
 
     postgres = {
-      createLocally = lib.mkOption {
-        type = lib.types.bool;
-        default = true;
-        description = "Whether to run a dedicated PostgreSQL container.";
+      mode = lib.mkOption {
+        type = lib.types.enum [
+          "owned"
+          "shared"
+        ];
+        default = "owned";
+        description = "Whether Rybbit owns PostgreSQL or connects to a shared instance.";
       };
 
-      host = lib.mkOption {
+      owned.image = lib.mkOption {
         type = lib.types.str;
-        default = "rybbit-postgres";
-        description = "PostgreSQL host used by the Rybbit backend.";
+        default = "docker.io/library/postgres:17.4";
+        description = "OCI image used for the owned PostgreSQL instance.";
       };
 
-      port = lib.mkOption {
+      shared.host = lib.mkOption {
+        type = lib.types.str;
+        example = "postgres.internal";
+        description = "Host of the shared PostgreSQL instance.";
+      };
+
+      shared.port = lib.mkOption {
         type = lib.types.port;
         default = 5432;
-        description = "PostgreSQL port used by the Rybbit backend.";
+        description = "Port of the shared PostgreSQL instance.";
       };
     };
 
     redis = {
-      createLocally = lib.mkOption {
-        type = lib.types.bool;
-        default = true;
-        description = "Whether to run a dedicated Redis container.";
+      mode = lib.mkOption {
+        type = lib.types.enum [
+          "owned"
+          "shared"
+        ];
+        default = "owned";
+        description = "Whether Rybbit owns Redis or connects to a shared instance.";
       };
 
-      host = lib.mkOption {
+      owned.image = lib.mkOption {
         type = lib.types.str;
-        default = "rybbit-redis";
-        description = "Redis host used by the Rybbit backend.";
+        default = "docker.io/library/redis:8.6.4-alpine";
+        description = "OCI image used for the owned Redis instance.";
       };
 
-      port = lib.mkOption {
+      shared.host = lib.mkOption {
+        type = lib.types.str;
+        example = "redis.internal";
+        description = "Host of the shared Redis instance.";
+      };
+
+      shared.port = lib.mkOption {
         type = lib.types.port;
         default = 6379;
-        description = "Redis port used by the Rybbit backend.";
+        description = "Port of the shared Redis instance.";
       };
     };
 
@@ -147,11 +182,11 @@ in
         environmentFiles = [ cfg.environmentFile ];
         environment = {
           NODE_ENV = "production";
-          CLICKHOUSE_HOST = cfg.clickhouse.url;
-          POSTGRES_HOST = cfg.postgres.host;
-          POSTGRES_PORT = toString cfg.postgres.port;
-          REDIS_HOST = cfg.redis.host;
-          REDIS_PORT = toString cfg.redis.port;
+          CLICKHOUSE_HOST = clickhouseUrl;
+          POSTGRES_HOST = postgresHost;
+          POSTGRES_PORT = toString postgresPort;
+          REDIS_HOST = redisHost;
+          REDIS_PORT = toString redisPort;
         }
         // cfg.environment;
         labels = updateLabels;
@@ -170,27 +205,27 @@ in
         labels = updateLabels;
       };
     }
-    // lib.optionalAttrs cfg.clickhouse.createLocally {
+    // lib.optionalAttrs ownsClickHouse {
       rybbit-clickhouse = {
-        image = "docker.io/clickhouse/clickhouse-server:26.3.17.4";
+        image = cfg.clickhouse.owned.image;
         networks = [ "selfhosted" ];
         environmentFiles = [ cfg.environmentFile ];
         volumes = [ "rybbit-clickhouse:/var/lib/clickhouse" ];
         labels = updateLabels;
       };
     }
-    // lib.optionalAttrs cfg.postgres.createLocally {
+    // lib.optionalAttrs ownsPostgres {
       rybbit-postgres = {
-        image = "docker.io/library/postgres:17.4";
+        image = cfg.postgres.owned.image;
         networks = [ "selfhosted" ];
         environmentFiles = [ cfg.environmentFile ];
         volumes = [ "rybbit-postgres:/var/lib/postgresql/data" ];
         labels = updateLabels;
       };
     }
-    // lib.optionalAttrs cfg.redis.createLocally {
+    // lib.optionalAttrs ownsRedis {
       rybbit-redis = {
-        image = "docker.io/library/redis:8.6.4-alpine";
+        image = cfg.redis.owned.image;
         networks = [ "selfhosted" ];
         environmentFiles = [ cfg.environmentFile ];
         volumes = [ "rybbit-redis:/data" ];

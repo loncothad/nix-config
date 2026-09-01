@@ -11,6 +11,7 @@ let
   updateLabels = lib.optionalAttrs runtime.autoUpdate.enable {
     "io.containers.autoupdate" = "registry";
   };
+  ownsMongoDB = cfg.mongodb.mode == "owned";
 in
 {
   options.virtualisation.oci-containers.namedContainers.checkmate = {
@@ -22,20 +23,29 @@ in
       description = "OCI image used for Checkmate.";
     };
 
-    mongoImage = lib.mkOption {
-      type = lib.types.str;
-      default = "docker.io/library/mongo:8.0";
-      description = "OCI image used for Checkmate's MongoDB.";
-    };
+    mongodb = {
+      mode = lib.mkOption {
+        type = lib.types.enum [
+          "owned"
+          "shared"
+        ];
+        default = "owned";
+        description = "Whether Checkmate owns MongoDB or connects to a shared instance.";
+      };
 
-    mongodb.createLocally = lib.mkOption {
-      type = lib.types.bool;
-      default = true;
-      description = ''
-        Whether to run a dedicated MongoDB container. When false,
-        environmentFile or environment must define DB_CONNECTION_STRING for a
-        reusable external MongoDB instance.
-      '';
+      owned.image = lib.mkOption {
+        type = lib.types.str;
+        default = "docker.io/library/mongo:8.0";
+        description = "OCI image used for the owned MongoDB instance.";
+      };
+
+      shared.environmentFile = lib.mkOption {
+        type = lib.types.path;
+        description = ''
+          Runtime environment file defining DB_CONNECTION_STRING for the
+          shared MongoDB instance.
+        '';
+      };
     };
 
     host = lib.mkOption {
@@ -74,21 +84,24 @@ in
         image = cfg.image;
         ports = [ "${cfg.host}:${toString cfg.port}:52345" ];
         networks = [ "selfhosted" ];
-        dependsOn = lib.optional cfg.mongodb.createLocally "checkmate-mongodb";
-        environmentFiles = [ cfg.environmentFile ];
+        dependsOn = lib.optional ownsMongoDB "checkmate-mongodb";
+        environmentFiles = [
+          cfg.environmentFile
+        ]
+        ++ lib.optional (!ownsMongoDB) cfg.mongodb.shared.environmentFile;
         environment = {
           CLIENT_HOST = "http://${cfg.host}:${toString cfg.port}";
         }
-        // lib.optionalAttrs cfg.mongodb.createLocally {
+        // lib.optionalAttrs ownsMongoDB {
           DB_CONNECTION_STRING = "mongodb://checkmate-mongodb:27017/uptime_db";
         }
         // cfg.environment;
         labels = updateLabels;
       };
     }
-    // lib.optionalAttrs cfg.mongodb.createLocally {
+    // lib.optionalAttrs ownsMongoDB {
       checkmate-mongodb = {
-        image = cfg.mongoImage;
+        image = cfg.mongodb.owned.image;
         networks = [ "selfhosted" ];
         volumes = [ "checkmate-mongodb:/data/db" ];
         cmd = [
@@ -107,7 +120,7 @@ in
         requires = [ "selfhosted-podman-network.service" ];
       };
     }
-    // lib.optionalAttrs cfg.mongodb.createLocally {
+    // lib.optionalAttrs ownsMongoDB {
       podman-checkmate-mongodb = {
         documentation = [ "https://checkmate.so/docs/getting-started/installation" ];
         after = [ "selfhosted-podman-network.service" ];

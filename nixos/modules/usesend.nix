@@ -11,10 +11,17 @@ let
   updateLabels = lib.optionalAttrs runtime.autoUpdate.enable {
     "io.containers.autoupdate" = "registry";
   };
+  ownsPostgres = cfg.postgres.mode == "owned";
+  ownsRedis = cfg.redis.mode == "owned";
+  ownsMinio = cfg.minio.mode == "owned";
   dependencyNames =
-    lib.optional cfg.postgres.createLocally "usesend-postgres"
-    ++ lib.optional cfg.redis.createLocally "usesend-redis"
-    ++ lib.optional cfg.minio.createLocally "usesend-minio";
+    lib.optional ownsPostgres "usesend-postgres"
+    ++ lib.optional ownsRedis "usesend-redis"
+    ++ lib.optional ownsMinio "usesend-minio";
+  sharedEnvironmentFiles =
+    lib.optional (!ownsPostgres) cfg.postgres.shared.environmentFile
+    ++ lib.optional (!ownsRedis) cfg.redis.shared.environmentFile
+    ++ lib.optional (!ownsMinio) cfg.minio.shared.environmentFile;
   containerNames = dependencyNames ++ [ "usesend" ];
 in
 {
@@ -54,31 +61,64 @@ in
       description = "Additional non-secret environment variables for useSend.";
     };
 
-    postgres.createLocally = lib.mkOption {
-      type = lib.types.bool;
-      default = true;
-      description = ''
-        Whether to run a dedicated PostgreSQL container. When false, configure
-        the external database through environmentFile.
-      '';
+    postgres = {
+      mode = lib.mkOption {
+        type = lib.types.enum [
+          "owned"
+          "shared"
+        ];
+        default = "owned";
+        description = "Whether useSend owns PostgreSQL or connects to a shared instance.";
+      };
+      owned.image = lib.mkOption {
+        type = lib.types.str;
+        default = "docker.io/library/postgres:16";
+        description = "OCI image used for the owned PostgreSQL instance.";
+      };
+      shared.environmentFile = lib.mkOption {
+        type = lib.types.path;
+        description = "Runtime environment file containing useSend's shared PostgreSQL connection settings.";
+      };
     };
 
-    redis.createLocally = lib.mkOption {
-      type = lib.types.bool;
-      default = true;
-      description = ''
-        Whether to run a dedicated Redis container. When false, configure the
-        external cache through environmentFile.
-      '';
+    redis = {
+      mode = lib.mkOption {
+        type = lib.types.enum [
+          "owned"
+          "shared"
+        ];
+        default = "owned";
+        description = "Whether useSend owns Redis or connects to a shared instance.";
+      };
+      owned.image = lib.mkOption {
+        type = lib.types.str;
+        default = "docker.io/library/redis:7";
+        description = "OCI image used for the owned Redis instance.";
+      };
+      shared.environmentFile = lib.mkOption {
+        type = lib.types.path;
+        description = "Runtime environment file containing useSend's shared Redis connection settings.";
+      };
     };
 
-    minio.createLocally = lib.mkOption {
-      type = lib.types.bool;
-      default = true;
-      description = ''
-        Whether to run a dedicated MinIO container. When false, configure
-        reusable S3-compatible storage through environmentFile.
-      '';
+    minio = {
+      mode = lib.mkOption {
+        type = lib.types.enum [
+          "owned"
+          "shared"
+        ];
+        default = "owned";
+        description = "Whether useSend owns MinIO or connects to shared S3-compatible storage.";
+      };
+      owned.image = lib.mkOption {
+        type = lib.types.str;
+        default = "docker.io/minio/minio:latest";
+        description = "OCI image used for the owned MinIO instance.";
+      };
+      shared.environmentFile = lib.mkOption {
+        type = lib.types.path;
+        description = "Runtime environment file containing useSend's shared object-storage settings.";
+      };
     };
 
     openFirewall = lib.mkEnableOption "the useSend port in the firewall";
@@ -94,7 +134,7 @@ in
         ports = [ "${cfg.host}:${toString cfg.port}:${toString cfg.port}" ];
         networks = [ "selfhosted" ];
         dependsOn = dependencyNames;
-        environmentFiles = [ cfg.environmentFile ];
+        environmentFiles = [ cfg.environmentFile ] ++ sharedEnvironmentFiles;
         environment = {
           PORT = toString cfg.port;
           NEXT_PUBLIC_IS_CLOUD = "false";
@@ -103,18 +143,18 @@ in
         labels = updateLabels;
       };
     }
-    // lib.optionalAttrs cfg.postgres.createLocally {
+    // lib.optionalAttrs ownsPostgres {
       usesend-postgres = {
-        image = "docker.io/library/postgres:16";
+        image = cfg.postgres.owned.image;
         networks = [ "selfhosted" ];
         environmentFiles = [ cfg.environmentFile ];
         volumes = [ "usesend-postgres:/var/lib/postgresql/data" ];
         labels = updateLabels;
       };
     }
-    // lib.optionalAttrs cfg.redis.createLocally {
+    // lib.optionalAttrs ownsRedis {
       usesend-redis = {
-        image = "docker.io/library/redis:7";
+        image = cfg.redis.owned.image;
         networks = [ "selfhosted" ];
         volumes = [ "usesend-redis:/data" ];
         cmd = [
@@ -125,9 +165,9 @@ in
         labels = updateLabels;
       };
     }
-    // lib.optionalAttrs cfg.minio.createLocally {
+    // lib.optionalAttrs ownsMinio {
       usesend-minio = {
-        image = "docker.io/minio/minio:latest";
+        image = cfg.minio.owned.image;
         networks = [ "selfhosted" ];
         environmentFiles = [ cfg.environmentFile ];
         volumes = [ "usesend-minio:/data" ];
