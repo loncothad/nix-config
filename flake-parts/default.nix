@@ -7,7 +7,6 @@
 
   imports = [
     inputs.treefmt.flakeModule
-    inputs.appflowy-adapter.flakeModules.default
     inputs.fastpotify-adapter.flakeModules.default
     inputs.sub2api-adapter.flakeModules.default
     ./home-modules.nix

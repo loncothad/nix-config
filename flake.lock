@@ -47,45 +47,6 @@
         "type": "github"
       }
     },
-    "appflowy-adapter": {
-      "inputs": {
-        "appflowy-cloud-src": "appflowy-cloud-src",
-        "flake-parts": [
-          "flake-parts"
-        ],
-        "nixpkgs": [
-          "nixpkgs"
-        ],
-        "quadlet-nix": [
-          "quadlet-nix"
-        ]
-      },
-      "locked": {
-        "path": "./flakes/appflowy",
-        "type": "path"
-      },
-      "original": {
-        "path": "./flakes/appflowy",
-        "type": "path"
-      },
-      "parent": []
-    },
-    "appflowy-cloud-src": {
-      "flake": false,
-      "locked": {
-        "lastModified": 1788166034,
-        "narHash": "sha256-1FA9gm7FNW/CacLCDsXsE6utYyHEpDfu1WJy3axiVaU=",
-        "owner": "AppFlowy-IO",
-        "repo": "AppFlowy-Cloud",
-        "rev": "351e8bd00e4e8914ce442939f664891da0ca6f1a",
-        "type": "github"
-      },
-      "original": {
-        "owner": "AppFlowy-IO",
-        "repo": "AppFlowy-Cloud",
-        "type": "github"
-      }
-    },
     "autolith": {
       "inputs": {
         "flake-parts": "flake-parts_2",
@@ -1205,7 +1166,6 @@
       "inputs": {
         "agenix": "agenix",
         "agenix-rekey": "agenix-rekey",
-        "appflowy-adapter": "appflowy-adapter",
         "autolith": "autolith",
         "celld-adapter": "celld-adapter",
         "determinate": "determinate",
