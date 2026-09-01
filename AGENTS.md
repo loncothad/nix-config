@@ -100,8 +100,10 @@ update procedure.
 - File is `flake-parts.nix`, not `flake-module.nix`.
 - If the imported upstream repository has no `flake.nix`, it **must** have an
   adapter here. Track its source as `inputs.<name>-src` (or another unambiguous
-  `-src` name) with `flake = false`; pass that input into the package instead of
-  fetching the project source from root `pkgs/`.
+  `-src` name) with `flake = false`. Pass that input into a locally built
+  package instead of fetching the project source from root `pkgs/`. For an OCI
+  service stack with no local package, use the container-service contract in
+  `flakes/README.md` and keep the source pin for deployment review.
 - Keep a project's package and project-specific modules in the same adapter.
   Root `pkgs/`, `nixos/modules/`, and `home-manager/modules/` must not become
   alternate homes for non-flake upstream integrations.

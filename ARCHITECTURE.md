@@ -93,7 +93,7 @@ selected by system composition. Scripts are Nushell programs under
   barrel.
 - New native-flake project: add the input and mirror its package set under
   `pkgs.fromFlakes.<input>`.
-- New non-flake project: follow the package-adapter contract in
+- New non-flake project: follow the appropriate adapter contract in
   `flakes/README.md`, then wire its exported packages and modules at the root
   boundaries.
 - New user-facing choice: keep the reusable option in a module and enable it in

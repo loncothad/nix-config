@@ -11,9 +11,10 @@ Use one of these integration paths:
 
 1. An upstream project with a usable `flake.nix` is a direct root input. Do not
    wrap its packages in another local flake.
-2. An upstream project without a flake gets a package adapter here. Its source
-   is a non-flake input of that adapter, and its package and project-specific
-   modules stay together.
+2. An upstream project without a flake gets an adapter here. Its source is a
+   non-flake input of that adapter. Locally built packages and project-specific
+   modules stay together; an image-based deployment may instead use the
+   container-service shape below.
 3. A reusable module for a native-flake or nixpkgs project may use a
    module-only adapter here. It does not duplicate the upstream package.
 
@@ -134,9 +135,35 @@ Use the corresponding `nixosModules` names for a NixOS-only adapter. The
 service/program module uses `lib.mkPackageOption` when nixpkgs owns the package,
 or requires an explicit package when a separate upstream flake owns it.
 
+### Container-service adapter
+
+Use this shape when a project without a flake publishes an OCI service stack
+instead of a package built by Nix:
+
+```text
+flakes/<name>/
+  README.md
+  flake.nix
+  flake-parts.nix
+  nixos.nix
+  flake.lock
+```
+
+Track the deployment repository as a `flake = false` source input so changes
+to its images, environment, storage, and routing remain reviewable against a
+specific revision. The adapter exports `nixosModules.default`, a stable named
+`nixosModules.<name>`, and `flakeModules.default`; it does not invent a package
+or overlay for container images.
+
+Container services follow the shared
+`virtualisation.oci-containers.namedContainers` runtime in this repository.
+Their module must expose image overrides, bind to loopback by default, keep
+secrets in runtime environment files, declare persistent volumes and service
+ordering, and make direct firewall exposure opt-in.
+
 ## Root wiring
 
-A package-producing local adapter is added to root `flake.nix` as a path input:
+A core local adapter is added to root `flake.nix` as a path input:
 
 ```nix
 inputs.<name> = {
