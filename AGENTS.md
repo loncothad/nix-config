@@ -24,6 +24,8 @@ just                  # list recipes
 just hosts            # flake nixosConfigurations
 just host=kepler eval-host
 just niri-validate    # loncothad niri KDL (HOST selects by-hostname)
+just update-adapter celld
+just update-all       # nested adapter locks, then the root lock
 just switch           # nixos-rebuild switch for current hostname
 ```
 
@@ -132,7 +134,8 @@ update procedure.
   (or be an explicit package option), so the adapter remains usable outside
   this repository's overlay.
 - `git add` new adapter files before locking, then run
-  `nix flake lock ./flakes/<name>` followed by `nix flake lock` at the root.
+  `just update-adapter <name>` to update its nested lock and corresponding root
+  path input. Use `just update-all` to update every adapter before the root.
   Path inputs are invisible until Git tracks them.
 
 ## Out of scope unless asked

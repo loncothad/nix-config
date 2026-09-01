@@ -175,17 +175,21 @@ Then wire only the boundaries the adapter exports:
 
 ## Updating and validation
 
-For a new adapter, add its files to Git before Nix evaluates the path. Then
-lock the adapter first and the root second:
+For a new adapter, add its files to Git before Nix evaluates the path. Then use
+the repository command that updates the adapter first and its root path input
+second:
 
 ```console
 git add flakes/<name>
-nix flake lock ./flakes/<name>
-nix flake lock
+just update-adapter <name>
 ```
 
 For an existing non-flake source, update the source input in the nested flake,
-then refresh the root lock after verifying any source or dependency hashes.
+then use the same command after verifying any source or dependency hashes.
+`just update` updates only root inputs; `just update-all` updates every nested
+adapter and then all root inputs. Update recipes also accept flags supported by
+`nix flake update`; use `just outdated` for a non-mutating update check.
+
 Use the repository command surface for validation:
 
 ```console

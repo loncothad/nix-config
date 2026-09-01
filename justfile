@@ -63,9 +63,37 @@ eval +attr:
     {{ nix }} eval --show-trace {{ flake }}#{{ attr }}
 
 [group('flake')]
-[doc('Update all flake inputs')]
-update:
-    {{ nix }} flake update --flake {{ flake }}
+[doc('Update root flake inputs only')]
+update *args:
+    {{ nix }} flake update --flake {{ flake }} {{ args }}
+
+[group('flake')]
+[doc('Update one flakes/<name> adapter and refresh its root path input')]
+update-adapter name *args:
+    #!/usr/bin/env bash
+    set -euo pipefail
+    adapter_name={{ quote(name) }}
+    if [[ ! "$adapter_name" =~ ^[a-z0-9][a-z0-9-]*$ ]]; then
+      echo "invalid adapter name: $adapter_name" >&2
+      exit 1
+    fi
+    adapter_dir="{{ flake }}/flakes/$adapter_name"
+    if [[ ! -f "$adapter_dir/flake.nix" ]]; then
+      echo "unknown adapter: $adapter_name" >&2
+      exit 1
+    fi
+    {{ nix }} flake update --flake "$adapter_dir" {{ args }}
+    {{ nix }} flake update "$adapter_name-adapter" --flake {{ flake }} {{ args }}
+
+[group('flake')]
+[doc('Update every flakes/ adapter, then all root flake inputs')]
+update-all *args:
+    #!/usr/bin/env bash
+    set -euo pipefail
+    for adapter_flake in "{{ flake }}"/flakes/*/flake.nix; do
+      {{ nix }} flake update --flake "$(dirname "$adapter_flake")" {{ args }}
+    done
+    {{ nix }} flake update --flake {{ flake }} {{ args }}
 
 [group('flake')]
 [doc('Update one or more flake inputs, e.g. `just update-input nixpkgs home-manager`')]
@@ -73,9 +101,41 @@ update-input +inputs:
     {{ nix }} flake update {{ inputs }} --flake {{ flake }}
 
 [group('flake')]
-[doc('Show what would change if flake.lock were updated')]
+[doc('Show pending updates for adapter and root lock files without changing them')]
 outdated:
-    {{ nix }} flake update --flake {{ flake }} --dry-run
+    #!/usr/bin/env bash
+    set -euo pipefail
+    update_tmp="$(mktemp -d)"
+    trap 'rm -rf -- "$update_tmp"' EXIT
+    changed=0
+
+    check_updates() {
+      local flake_dir="$1"
+      local label="$2"
+      local candidate_lock="$update_tmp/$label.lock"
+
+      echo "Checking $label"
+      {{ nix }} flake update \
+        --flake "$flake_dir" \
+        --reference-lock-file "$flake_dir/flake.lock" \
+        --output-lock-file "$candidate_lock"
+
+      if ! cmp -s "$flake_dir/flake.lock" "$candidate_lock"; then
+        changed=1
+      fi
+    }
+
+    for adapter_flake in "{{ flake }}"/flakes/*/flake.nix; do
+      adapter_dir="$(dirname "$adapter_flake")"
+      check_updates "$adapter_dir" "$(basename "$adapter_dir")"
+    done
+    check_updates "{{ flake }}" root
+
+    if [[ "$changed" -eq 0 ]]; then
+      echo "All lock files are up to date"
+    else
+      echo "Updates are available; run 'just update-all' to apply them"
+    fi
 
 # ── system ───────────────────────────────────────────────────────────────────
 
