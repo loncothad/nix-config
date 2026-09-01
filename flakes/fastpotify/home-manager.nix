@@ -11,7 +11,7 @@ let
 in
 {
   options.programs.fastpotify = {
-    enable = lib.mkEnableOption "Fastpotify, a native Spotify client";
+    enable = lib.mkEnableOption "Fastpotify, a native Spotify client (documentation: https://fastpotify.rocks)";
 
     package = lib.mkOption {
       type = lib.types.package;
@@ -23,7 +23,7 @@ in
       default = { };
       description = ''
         Settings written to {file}`$XDG_CONFIG_HOME/fastpotify/settings.json`.
-        See Fastpotify's upstream documentation for supported keys.
+        See https://fastpotify.rocks for supported keys.
       '';
     };
   };

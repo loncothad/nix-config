@@ -20,7 +20,7 @@ let
 in
 {
   options.virtualisation.oci-containers.namedContainers.usesend = {
-    enable = lib.mkEnableOption "useSend email platform (https://github.com/usesend/useSend)";
+    enable = lib.mkEnableOption "useSend email platform (documentation: https://github.com/usesend/useSend#readme)";
 
     image = lib.mkOption {
       type = lib.types.str;
@@ -47,6 +47,12 @@ in
         Secret environment file shared by the app and its PostgreSQL, Redis,
         and MinIO dependencies. See README.md for required variables.
       '';
+    };
+
+    environment = lib.mkOption {
+      type = lib.types.attrsOf lib.types.str;
+      default = { };
+      description = "Additional non-secret environment variables for useSend.";
     };
 
     openFirewall = lib.mkEnableOption "the useSend port in the firewall";
@@ -106,12 +112,14 @@ in
         environment = {
           PORT = toString cfg.port;
           NEXT_PUBLIC_IS_CLOUD = "false";
-        };
+        }
+        // cfg.environment;
         labels = updateLabels;
       };
     };
 
     systemd.services = lib.genAttrs (map (name: "podman-${name}") containerNames) (_: {
+      documentation = [ "https://github.com/usesend/useSend#readme" ];
       after = [ "selfhosted-podman-network.service" ];
       requires = [ "selfhosted-podman-network.service" ];
     });

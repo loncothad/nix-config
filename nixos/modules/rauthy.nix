@@ -10,7 +10,7 @@ let
 in
 {
   options.services.rauthy = {
-    enable = lib.mkEnableOption "Rauthy identity provider (https://github.com/sebadob/rauthy)";
+    enable = lib.mkEnableOption "Rauthy identity provider (documentation: https://sebadob.github.io/rauthy/config/config.html)";
     package = lib.mkPackageOption pkgs "rauthy" { };
 
     environmentFile = lib.mkOption {
@@ -47,6 +47,10 @@ in
 
     systemd.services.rauthy = {
       description = "Rauthy identity provider";
+      documentation = [
+        "https://sebadob.github.io/rauthy/config/config.html"
+        "https://github.com/sebadob/rauthy"
+      ];
       wantedBy = [ "multi-user.target" ];
       after = [ "network-online.target" ];
       wants = [ "network-online.target" ];

@@ -10,7 +10,7 @@ let
 in
 {
   options.services.convertx = {
-    enable = lib.mkEnableOption "ConvertX file converter (https://github.com/C4illin/ConvertX)";
+    enable = lib.mkEnableOption "ConvertX file converter (documentation: https://github.com/C4illin/ConvertX#readme)";
     package = lib.mkPackageOption pkgs "convertx" { };
 
     port = lib.mkOption {
@@ -46,6 +46,7 @@ in
 
     systemd.services.convertx = {
       description = "ConvertX file converter";
+      documentation = [ "https://github.com/C4illin/ConvertX#readme" ];
       wantedBy = [ "multi-user.target" ];
       after = [ "network-online.target" ];
       wants = [ "network-online.target" ];

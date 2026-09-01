@@ -32,7 +32,7 @@ let
 in
 {
   options.programs.autolith = {
-    enable = lib.mkEnableOption "Autolith, a live Common Lisp agent";
+    enable = lib.mkEnableOption "Autolith, a live Common Lisp agent (documentation: https://github.com/lambda-symbolics/autolith#readme)";
 
     package = lib.mkOption {
       type = lib.types.package;

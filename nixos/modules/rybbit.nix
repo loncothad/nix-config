@@ -21,7 +21,7 @@ let
 in
 {
   options.virtualisation.oci-containers.namedContainers.rybbit = {
-    enable = lib.mkEnableOption "Rybbit web analytics (https://github.com/rybbit-io/rybbit)";
+    enable = lib.mkEnableOption "Rybbit web analytics (documentation: https://rybbit.com/docs/self-hosting)";
 
     backendImage = lib.mkOption {
       type = lib.types.str;
@@ -59,6 +59,16 @@ in
       description = ''
         Secret environment file shared by Rybbit and its databases. See
         README.md for the required credentials and public URL.
+      '';
+    };
+
+    environment = lib.mkOption {
+      type = lib.types.attrsOf lib.types.str;
+      default = { };
+      example.DISABLE_TELEMETRY = "true";
+      description = ''
+        Additional non-secret environment variables for the Rybbit backend and
+        client. See https://rybbit.com/docs/self-hosting-guides/self-hosting-advanced.
       '';
     };
 
@@ -119,7 +129,8 @@ in
           POSTGRES_PORT = "5432";
           REDIS_HOST = "rybbit-redis";
           REDIS_PORT = "6379";
-        };
+        }
+        // cfg.environment;
         labels = updateLabels;
       };
 
@@ -129,12 +140,16 @@ in
         networks = [ "selfhosted" ];
         dependsOn = [ "rybbit-backend" ];
         environmentFiles = [ cfg.environmentFile ];
-        environment.NODE_ENV = "production";
+        environment = {
+          NODE_ENV = "production";
+        }
+        // cfg.environment;
         labels = updateLabels;
       };
     };
 
     systemd.services = lib.genAttrs (map (name: "podman-${name}") containerNames) (_: {
+      documentation = [ "https://rybbit.com/docs/self-hosting" ];
       after = [ "selfhosted-podman-network.service" ];
       requires = [ "selfhosted-podman-network.service" ];
     });

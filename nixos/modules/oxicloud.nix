@@ -10,7 +10,7 @@ let
 in
 {
   options.services.oxicloud = {
-    enable = lib.mkEnableOption "OxiCloud file server (https://github.com/AtalayaLabs/OxiCloud)";
+    enable = lib.mkEnableOption "OxiCloud file server (documentation: https://github.com/AtalayaLabs/OxiCloud#readme)";
     package = lib.mkPackageOption pkgs "oxicloud" { };
 
     host = lib.mkOption {
@@ -51,6 +51,7 @@ in
 
     systemd.services.oxicloud = {
       description = "OxiCloud file server";
+      documentation = [ "https://github.com/AtalayaLabs/OxiCloud#readme" ];
       wantedBy = [ "multi-user.target" ];
       after = [ "network-online.target" ];
       wants = [ "network-online.target" ];

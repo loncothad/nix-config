@@ -22,6 +22,7 @@ let
       "--key"
       cfg.key
     ]
+    ++ cfg.extraArgs
   );
 in
 {
@@ -60,6 +61,12 @@ in
       example = "/run/agenix/zellij.key";
       description = "Runtime path to the TLS private key.";
     };
+
+    extraArgs = lib.mkOption {
+      type = lib.types.listOf lib.types.str;
+      default = [ ];
+      description = "Additional arguments passed to zellij web --start.";
+    };
   };
 
   config = lib.mkIf cfg.enable {
@@ -81,7 +88,7 @@ in
     systemd.user.services.zellij-daemon = {
       Unit = {
         Description = "Zellij web daemon";
-        Documentation = "https://zellij.dev/documentation/web-client.html";
+        Documentation = [ "https://zellij.dev/documentation/web-client.html" ];
       };
       Service = {
         ExecStart = command;

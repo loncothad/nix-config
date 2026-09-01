@@ -65,7 +65,7 @@ in
 {
   options = {
     programs.mpv.xdgIntegration = {
-      enable = lib.mkEnableOption "XDG MIME associations for MPV";
+      enable = lib.mkEnableOption "XDG MIME associations for MPV (documentation: https://mpv.io/manual/master/)";
     };
   };
 

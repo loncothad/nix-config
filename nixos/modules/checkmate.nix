@@ -14,7 +14,7 @@ let
 in
 {
   options.virtualisation.oci-containers.namedContainers.checkmate = {
-    enable = lib.mkEnableOption "Checkmate uptime monitor (https://github.com/bluewave-labs/Checkmate)";
+    enable = lib.mkEnableOption "Checkmate uptime monitor (documentation: https://checkmate.so/docs/getting-started/installation)";
 
     image = lib.mkOption {
       type = lib.types.str;
@@ -89,10 +89,12 @@ in
 
     systemd.services = {
       podman-checkmate-mongodb = {
+        documentation = [ "https://checkmate.so/docs/getting-started/installation" ];
         after = [ "selfhosted-podman-network.service" ];
         requires = [ "selfhosted-podman-network.service" ];
       };
       podman-checkmate = {
+        documentation = [ "https://checkmate.so/docs/getting-started/installation" ];
         after = [ "selfhosted-podman-network.service" ];
         requires = [ "selfhosted-podman-network.service" ];
       };

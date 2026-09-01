@@ -7,11 +7,18 @@
 
 let
   cfg = config.services.ferron;
-  configFile = pkgs.writeText "ferron.kdl" cfg.config;
+  configFile = pkgs.writeText "ferron.kdl" (
+    lib.concatStringsSep "\n" (
+      lib.filter (part: part != "") [
+        cfg.config
+        cfg.extraConfig
+      ]
+    )
+  );
 in
 {
   options.services.ferron = {
-    enable = lib.mkEnableOption "Ferron web server (https://github.com/ferronweb/ferron)";
+    enable = lib.mkEnableOption "Ferron web server (documentation: https://ferron.sh/docs)";
 
     package = lib.mkPackageOption pkgs "ferron" { };
 
@@ -29,7 +36,18 @@ in
       '';
       description = ''
         Ferron KDL configuration. Use environment placeholders with
-        environmentFiles for values that must not enter the Nix store.
+        environmentFiles for values that must not enter the Nix store. See
+        https://ferron.sh/docs/configuration/fundamentals for the configuration
+        reference.
+      '';
+    };
+
+    extraConfig = lib.mkOption {
+      type = lib.types.lines;
+      default = "";
+      description = ''
+        Additional raw KDL appended to services.ferron.config. This is useful
+        for directives not represented by higher-level module options.
       '';
     };
 
@@ -91,8 +109,6 @@ in
   };
 
   config = lib.mkIf cfg.enable {
-    environment.etc."ferron.kdl".source = configFile;
-
     users.users = lib.optionalAttrs (cfg.user == "ferron") {
       ferron = {
         isSystemUser = true;
@@ -110,7 +126,10 @@ in
 
     systemd.services.ferron = {
       description = "Ferron web server";
-      documentation = [ "https://ferron.sh/docs" ];
+      documentation = [
+        "https://ferron.sh/docs"
+        "https://github.com/ferronweb/ferron"
+      ];
       wantedBy = [ "multi-user.target" ];
       after = [ "network.target" ];
       reloadTriggers = [ configFile ];
@@ -122,7 +141,7 @@ in
       // cfg.environment;
       serviceConfig = {
         Type = "simple";
-        ExecStart = "${lib.getExe cfg.package} --config /etc/ferron.kdl";
+        ExecStart = "${lib.getExe cfg.package} --config ${configFile}";
         ExecReload = "${pkgs.coreutils}/bin/kill -HUP $MAINPID";
         User = cfg.user;
         Group = cfg.group;

@@ -9,10 +9,17 @@ with lib;
 
 let
   cfg = config.services.xwayland-satellite;
+  command = escapeShellArgs (
+    [
+      (getExe cfg.package)
+      cfg.display
+    ]
+    ++ cfg.extraArgs
+  );
 in
 {
   options.services.xwayland-satellite = {
-    enable = mkEnableOption "xwayland-satellite, Xwayland outside your Wayland compositor";
+    enable = mkEnableOption "xwayland-satellite, Xwayland outside your Wayland compositor (documentation: https://github.com/Supreeeme/xwayland-satellite#readme)";
 
     package = mkPackageOption pkgs "xwayland-satellite" { };
 
@@ -21,6 +28,12 @@ in
       default = ":12";
       example = ":0";
       description = "X11 display the satellite should own (passed as the first argument).";
+    };
+
+    extraArgs = mkOption {
+      type = types.listOf types.str;
+      default = [ ];
+      description = "Additional command-line arguments passed to xwayland-satellite.";
     };
   };
 
@@ -32,11 +45,12 @@ in
     systemd.user.services.xwayland-satellite = {
       Unit = {
         Description = "Xwayland outside your Wayland compositor";
+        Documentation = [ "https://github.com/Supreeeme/xwayland-satellite#readme" ];
         PartOf = [ "graphical-session.target" ];
         After = [ "graphical-session.target" ];
       };
       Service = {
-        ExecStart = "${getExe cfg.package} ${cfg.display}";
+        ExecStart = command;
         Restart = "on-failure";
         RestartSec = 3;
       };

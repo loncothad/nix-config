@@ -11,7 +11,7 @@ let
 in
 {
   options.virtualisation.oci-containers.namedContainers.homarr = {
-    enable = lib.mkEnableOption "Homarr dashboard (https://github.com/homarr-labs/homarr)";
+    enable = lib.mkEnableOption "Homarr dashboard (documentation: https://homarr.dev/docs/getting-started/installation/docker/)";
 
     image = lib.mkOption {
       type = lib.types.str;
@@ -37,6 +37,12 @@ in
       description = "Secret environment file containing SECRET_ENCRYPTION_KEY.";
     };
 
+    environment = lib.mkOption {
+      type = lib.types.attrsOf lib.types.str;
+      default = { };
+      description = "Additional non-secret environment variables for Homarr.";
+    };
+
     dockerSocket = lib.mkEnableOption "access to the host Podman API socket";
     openFirewall = lib.mkEnableOption "the Homarr port in the firewall";
   };
@@ -50,6 +56,7 @@ in
       ports = [ "${cfg.host}:${toString cfg.port}:7575" ];
       networks = [ "selfhosted" ];
       environmentFiles = [ cfg.environmentFile ];
+      environment = cfg.environment;
       volumes = [
         "homarr-appdata:/appdata"
       ]
@@ -62,6 +69,7 @@ in
     virtualisation.podman.dockerSocket.enable = lib.mkIf cfg.dockerSocket true;
 
     systemd.services.podman-homarr = {
+      documentation = [ "https://homarr.dev/docs/getting-started/installation/docker/" ];
       after = [ "selfhosted-podman-network.service" ];
       requires = [ "selfhosted-podman-network.service" ];
     };

@@ -246,7 +246,7 @@ let
 in
 {
   options.virtualisation.oci-containers.namedContainers.appflowy = {
-    enable = lib.mkEnableOption "the self-hosted AppFlowy Cloud stack (https://github.com/AppFlowy-IO/AppFlowy-Cloud)";
+    enable = lib.mkEnableOption "the self-hosted AppFlowy Cloud stack (documentation: https://docs.appflowy.io/docs/documentation/appflowy-cloud/deployment)";
 
     environmentFile = lib.mkOption {
       type = lib.types.path;
@@ -515,6 +515,7 @@ in
 
     systemd.services =
       lib.genAttrs (map (name: "podman-${name}") containerNames) (_: {
+        documentation = [ "https://docs.appflowy.io/docs/documentation/appflowy-cloud/deployment" ];
         after = [
           "selfhosted-podman-network.service"
           "appflowy-environment.service"
@@ -527,6 +528,7 @@ in
       // {
         appflowy-environment = {
           description = "Prepare the AppFlowy Cloud runtime environment";
+          documentation = [ "https://docs.appflowy.io/docs/documentation/appflowy-cloud/deployment" ];
           wantedBy = [ "multi-user.target" ];
           before = containerUnits;
           serviceConfig = {

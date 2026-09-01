@@ -14,7 +14,7 @@ in
 {
   options = {
     programs.mark-shot = {
-      enable = mkEnableOption "mark-shot, a high-performance screenshot and annotation tool";
+      enable = mkEnableOption "mark-shot, a high-performance screenshot and annotation tool (documentation: https://github.com/jswysnemc/mark-shot#readme)";
 
       package = mkOption {
         type = types.package;
@@ -42,7 +42,7 @@ in
         '';
         description = ''
           Configuration options written directly to ~/.config/mark-shot/config.json.
-          See upstream documentation for all supported keys.
+          See https://github.com/jswysnemc/mark-shot#readme for supported keys.
         '';
       };
 

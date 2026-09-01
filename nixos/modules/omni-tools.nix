@@ -11,7 +11,7 @@ let
 in
 {
   options.virtualisation.oci-containers.namedContainers.omni-tools = {
-    enable = lib.mkEnableOption "OmniTools web application (https://github.com/iib0011/omni-tools)";
+    enable = lib.mkEnableOption "OmniTools web application (documentation: https://github.com/iib0011/omni-tools#readme)";
 
     image = lib.mkOption {
       type = lib.types.str;
@@ -48,6 +48,7 @@ in
     };
 
     systemd.services.podman-omni-tools = {
+      documentation = [ "https://github.com/iib0011/omni-tools#readme" ];
       after = [ "selfhosted-podman-network.service" ];
       requires = [ "selfhosted-podman-network.service" ];
     };

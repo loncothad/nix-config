@@ -105,6 +105,7 @@ let
     nameValuePair "xdg-dbus-proxy-${name}" {
       Unit = {
         Description = "D-Bus proxy ${name}";
+        Documentation = [ "https://github.com/flatpak/xdg-dbus-proxy#readme" ];
         After = [ "dbus.service" ];
       };
 
@@ -124,7 +125,7 @@ let
 in
 {
   options.services.xdg-dbus-proxy = {
-    enable = mkEnableOption "filtered user D-Bus proxies";
+    enable = mkEnableOption "filtered user D-Bus proxies (documentation: https://github.com/flatpak/xdg-dbus-proxy#readme)";
 
     package = mkPackageOption pkgs "xdg-dbus-proxy" { };
 

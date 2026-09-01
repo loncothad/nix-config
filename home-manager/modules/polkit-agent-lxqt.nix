@@ -13,7 +13,7 @@ in
 {
   options = {
     services.polkit-agent-lxqt = {
-      enable = mkEnableOption "Polkit graphical authentication agent";
+      enable = mkEnableOption "the LXQt PolicyKit authentication agent (documentation: https://github.com/lxqt/lxqt-policykit#readme)";
       package = mkOption {
         type = types.package;
         default = pkgs.lxqt.lxqt-policykit;
@@ -26,6 +26,7 @@ in
     systemd.user.services.polkit-agent-lxqt = {
       Unit = {
         Description = "Polkit graphical authentication agent";
+        Documentation = [ "https://github.com/lxqt/lxqt-policykit#readme" ];
         After = [ "graphical-session.target" ];
       };
       Service = {

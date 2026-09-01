@@ -28,7 +28,7 @@ in
 {
   options = {
     programs.qimgv.xdgIntegration = {
-      enable = lib.mkEnableOption "XDG MIME associations for the qimgv image viewer";
+      enable = lib.mkEnableOption "XDG MIME associations for the qimgv image viewer (documentation: https://github.com/easymodo/qimgv#readme)";
     };
   };
 

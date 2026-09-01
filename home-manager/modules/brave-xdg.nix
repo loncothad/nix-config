@@ -59,7 +59,7 @@ in
 
   options = {
     programs.brave-origin.xdgIntegration = {
-      enable = lib.mkEnableOption "XDG MIME associations for Brave Origin";
+      enable = lib.mkEnableOption "XDG MIME associations for Brave Origin (documentation: https://support.brave.com/hc/en-us/categories/360001053072-Desktop-Browser)";
 
       documents = lib.mkOption {
         type = lib.types.bool;

@@ -80,7 +80,7 @@ let
 in
 {
   options.virtualisation.oci-containers.namedContainers.sub2api = {
-    enable = lib.mkEnableOption "Sub2API AI API gateway (https://github.com/Wei-Shaw/sub2api)";
+    enable = lib.mkEnableOption "Sub2API AI API gateway (documentation: https://github.com/Wei-Shaw/sub2api#readme)";
 
     environmentFile = lib.mkOption {
       type = lib.types.path;
@@ -211,6 +211,7 @@ in
 
     systemd.services =
       lib.genAttrs (map (name: "podman-${name}") containerNames) (_: {
+        documentation = [ "https://github.com/Wei-Shaw/sub2api#readme" ];
         after = [
           "selfhosted-podman-network.service"
           "sub2api-environment.service"
@@ -223,6 +224,7 @@ in
       // {
         sub2api-environment = {
           description = "Prepare the Sub2API runtime environment";
+          documentation = [ "https://github.com/Wei-Shaw/sub2api#readme" ];
           wantedBy = [ "multi-user.target" ];
           before = containerUnits;
           serviceConfig = {

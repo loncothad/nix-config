@@ -37,7 +37,7 @@ let
 in
 {
   options.services.celld = {
-    enable = lib.mkEnableOption "Celld distributed Durable Objects runtime";
+    enable = lib.mkEnableOption "Celld distributed Durable Objects runtime (documentation: https://github.com/denoland/celld/blob/main/docs/README.md)";
 
     package = lib.mkPackageOption pkgs "celld" { };
 
@@ -157,6 +157,10 @@ in
 
     systemd.services.celld = {
       description = "Celld distributed Durable Objects runtime";
+      documentation = [
+        "https://github.com/denoland/celld/blob/main/docs/README.md"
+        "https://github.com/denoland/celld"
+      ];
       wantedBy = [ "multi-user.target" ];
       wants = [ "network-online.target" ];
       after = [ "network-online.target" ];
