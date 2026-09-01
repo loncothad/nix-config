@@ -1,5 +1,13 @@
 { inputs, ... }:
 
+let
+  # Determinate's documented opt-outs for aggregate telemetry and Sentry crash reports.
+  determinateTelemetryEnvironment = {
+    DETSYS_IDS_TELEMETRY = "disabled";
+    NIX_SENTRY_ENDPOINT = "";
+  };
+in
+
 # nh
 # nixd
 # nixfmt
@@ -15,6 +23,8 @@
   };
 
   config = {
+    environment.variables = determinateTelemetryEnvironment;
+
     nix = {
       registry.s.flake = inputs.self;
 
@@ -46,6 +56,8 @@
         "electron-39.8.10"
       ];
     };
+
+    systemd.services.nix-daemon.environment = determinateTelemetryEnvironment;
 
     programs.nix-ld.enable = true;
   };
