@@ -54,6 +54,7 @@ Declare Nix packages the script needs in a TOML BOM so
 ```
 
 - `dependencies` is a list of **nixpkgs attribute names** (`pkgs.${name}`).
+- Indent all Nushell files with two spaces. Do not use tabs.
 - Every non-empty line inside the block must be a Nushell comment (`# …`).
 - `# BOM-START` must be followed by a newline immediately (the start tag is
   `# BOM-START\n`).
