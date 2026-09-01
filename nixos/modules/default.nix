@@ -21,6 +21,7 @@
     ./debloat.nix
     ./external-device-rules.nix
     ./fast-networking.nix
+    ./ferron.nix
     ./greetd-tuigreet.nix
     ./logs-small.nix
     ./nixos-compat.nix

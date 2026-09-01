@@ -4,6 +4,7 @@
   flake = {
     nixosModules = {
       celld = inputs.celld-adapter.nixosModules.default;
+      ferron = ../nixos/modules/ferron.nix;
       sub2api = inputs.sub2api-adapter.nixosModules.default;
       default = {
         imports = [
