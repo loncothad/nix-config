@@ -1,6 +1,8 @@
 { pkgs, inputs, ... }:
 
 {
+  users.users.loncothad.linger = true;
+
   users.profiles.loncothad = {
     enable = true;
 

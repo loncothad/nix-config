@@ -26,6 +26,7 @@
       wayland-compatibility = ../home-manager/modules/wayland-compatibility.nix;
       xdg-dbus-proxy = ../home-manager/modules/xdg-dbus-proxy.nix;
       xwayland-satellite = ../home-manager/modules/xwayland-satellite.nix;
+      zellij-daemon = ../home-manager/modules/zellij-daemon.nix;
     };
   };
 }

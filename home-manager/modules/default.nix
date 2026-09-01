@@ -16,6 +16,7 @@
     ./xdg-dbus-proxy.nix
     ./xwayland-satellite.nix
     ./mark-shot.nix
+    ./zellij-daemon.nix
     ./debloat.nix
   ];
 }
