@@ -1,10 +1,9 @@
 # Fastpotify adapter
 
-This flake keeps the repository's package repair and Home Manager integration
-for [Fastpotify](https://github.com/crmne/fastpotify) together. Upstream
-already exports a flake; the local adapter consumes it as
-`fastpotify-upstream`, preserves its package set, and replaces the Fastpotify
-derivation with the repaired build used by this configuration.
+This flake keeps the upstream package set and this repository's Home Manager
+integration for [Fastpotify](https://github.com/crmne/fastpotify) together.
+Upstream already exports a flake; the local adapter consumes it as
+`fastpotify-upstream` and passes its packages through unchanged.
 
 ## Project links
 
@@ -23,11 +22,10 @@ overlays.default
 homeModules.default
 ```
 
-The package output adds the native libraries required by the desktop client,
-uses a repository-owned Cargo vendor hash, and corrects projectM's library
-search path. The Home Manager module defines `programs.fastpotify`; the
-standalone `homeModules.default` output defaults its package to this flake's
-repaired build.
+The package and overlay outputs pass through upstream's package set unchanged.
+The Home Manager module defines `programs.fastpotify`; the standalone
+`homeModules.default` output defaults its package to the upstream Fastpotify
+build exposed by this flake.
 
 The root consumes this directory as the `fastpotify-adapter` path input and
 exposes the package as
@@ -37,6 +35,5 @@ explicitly.
 
 ## Updating
 
-Update `fastpotify-upstream`, refresh this flake's lock, and replace the Cargo
-vendor hash when the dependency graph changes. Evaluate this flake before
-refreshing the root lock.
+Update `fastpotify-upstream` and refresh this flake's lock. Evaluate this flake
+before refreshing the root lock.
