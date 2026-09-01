@@ -45,8 +45,8 @@ in
     environment.systemPackages = [
       pkgs.rage
       pkgs.age-plugin-fido2-hmac
-      inputs.agenix.packages.${pkgs.system}.default
-      inputs.agenix-rekey.packages.${pkgs.system}.default
+      pkgs.fromFlakes.agenix
+      pkgs.fromFlakes.agenix-rekey
     ];
 
 #    age = {

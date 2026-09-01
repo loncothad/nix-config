@@ -7,6 +7,8 @@ let
 in
 {
   fromFlakes = {
+    agenix = inputs.agenix.packages.${system}.default;
+    agenix-rekey = inputs.agenix-rekey.packages.${system}.default;
     autolith = inputs.autolith.packages.${system}.default;
     fastpotify = fastpotify.overrideAttrs (oldAttrs: {
       cargoDeps = final.rustPlatform.fetchCargoVendor {
