@@ -1024,6 +1024,7 @@
         "nixpkgs-stable": "nixpkgs-stable",
         "quadlet-nix": "quadlet-nix",
         "stylix": "stylix",
+        "sub2api-adapter": "sub2api-adapter",
         "treefmt": "treefmt",
         "wine4office-adapter": "wine4office-adapter"
       }
@@ -1119,6 +1120,42 @@
       "original": {
         "owner": "nix-community",
         "repo": "stylix",
+        "type": "github"
+      }
+    },
+    "sub2api-adapter": {
+      "inputs": {
+        "flake-parts": [
+          "flake-parts"
+        ],
+        "nixpkgs": [
+          "nixpkgs"
+        ],
+        "sub2api-src": "sub2api-src"
+      },
+      "locked": {
+        "path": "./flakes/sub2api",
+        "type": "path"
+      },
+      "original": {
+        "path": "./flakes/sub2api",
+        "type": "path"
+      },
+      "parent": []
+    },
+    "sub2api-src": {
+      "flake": false,
+      "locked": {
+        "lastModified": 1788256054,
+        "narHash": "sha256-zTwr83iyg8ObV4MjOt71eoxqj9Z9QxZWH4WGsYEqvuc=",
+        "owner": "Wei-Shaw",
+        "repo": "sub2api",
+        "rev": "0d27f45ead1b58908548ec21afd923ecaf7339bc",
+        "type": "github"
+      },
+      "original": {
+        "owner": "Wei-Shaw",
+        "repo": "sub2api",
         "type": "github"
       }
     },

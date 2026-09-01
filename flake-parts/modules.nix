@@ -4,11 +4,13 @@
   flake = {
     nixosModules = {
       celld = inputs.celld-adapter.nixosModules.default;
+      sub2api = inputs.sub2api-adapter.nixosModules.default;
       default = {
         imports = [
           ../nixos/modules
           inputs.appflowy-adapter.nixosModules.default
           inputs.celld-adapter.nixosModules.default
+          inputs.sub2api-adapter.nixosModules.default
         ];
       };
     };

@@ -43,6 +43,12 @@
       inputs.flake-parts.follows = "flake-parts";
     };
 
+    sub2api-adapter = {
+      url = "path:./flakes/sub2api";
+      inputs.nixpkgs.follows = "nixpkgs";
+      inputs.flake-parts.follows = "flake-parts";
+    };
+
     celld-adapter = {
       url = "path:./flakes/celld";
       inputs.nixpkgs.follows = "nixpkgs";
