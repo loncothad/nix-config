@@ -57,6 +57,16 @@
 
   programs.notesnook.enable = true;
 
+  home.mutableConfigFiles = {
+    enable = true;
+    paths = [
+      ".config"
+      ".gtkrc-2.0"
+      ".local/share/applications/mimeapps.list"
+      ".ssh/config"
+    ];
+  };
+
   xdg.mimeApps.resetOnActivation = true;
 
   services.polkit-agent-lxqt = {
