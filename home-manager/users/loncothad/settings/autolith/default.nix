@@ -28,7 +28,7 @@ in
   programs.autolith = {
     enable = true;
     model = "openrouter/openrouter/free";
-    reasoningEffort = "medium";
+    reasoningEffort = "none";
     extraConfig = builtins.readFile (configDirectory + "/init.lisp");
     extensions = extensionFiles;
     configFiles = otherConfigFiles;
