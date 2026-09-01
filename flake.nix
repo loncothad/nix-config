@@ -27,10 +27,13 @@
       inputs.nixpkgs-lib.follows = "nixpkgs";
     };
 
-    pi = {
-      url = "path:./flakes/pi";
+    autolith = {
+      url = "github:lambda-symbolics/autolith";
+    };
+
+    fastpotify = {
+      url = "github:crmne/fastpotify";
       inputs.nixpkgs.follows = "nixpkgs";
-      inputs.flake-parts.follows = "flake-parts";
     };
 
     xwayland-satellite = {

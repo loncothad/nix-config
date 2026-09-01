@@ -10,12 +10,14 @@
     ./tldr.nix
     ./zoxide.nix
 
+    ./autolith.nix
+    ./celld.nix
     ./opencode
-    ./pi.nix
     ./nushell
     ./zellij
 
     ./gui/mark-shot.nix
+    ./gui/fastpotify.nix
     ./gui/mpv.nix
     ./gui/obs.nix
     ./gui/pidgin.nix

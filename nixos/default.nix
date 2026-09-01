@@ -6,7 +6,7 @@ let
   overlaysModule = { ... }: {
     nixpkgs.overlays = [
       inputs.nix-cachyos-kernel.overlays.default
-      (import ../pkgs)
+      (import ../pkgs { inherit inputs; })
     ];
   };
 
@@ -29,10 +29,10 @@ let
         ./modules/user-profiles/by-name/loncothad.nix
 
         overlaysModule
-        
+
         inputs.disko.nixosModules.disko
         inputs.home-manager.nixosModules.home-manager
-        
+
         ({ ... }: { system.stateVersion = latestRecognizedNixOsVersion; })
       ]
       ++ extraModules;
