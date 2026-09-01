@@ -1025,8 +1025,7 @@
         "quadlet-nix": "quadlet-nix",
         "stylix": "stylix",
         "treefmt": "treefmt",
-        "wine4office": "wine4office",
-        "xwayland-satellite": "xwayland-satellite"
+        "wine4office": "wine4office"
       }
     },
     "rust-overlay": {
@@ -1310,25 +1309,6 @@
         "repo": "wine4office",
         "type": "github"
       }
-    },
-    "xwayland-satellite": {
-      "inputs": {
-        "flake-parts": [
-          "flake-parts"
-        ],
-        "nixpkgs": [
-          "nixpkgs"
-        ]
-      },
-      "locked": {
-        "path": "./flakes/xwayland-satellite",
-        "type": "path"
-      },
-      "original": {
-        "path": "./flakes/xwayland-satellite",
-        "type": "path"
-      },
-      "parent": []
     }
   },
   "root": "root",

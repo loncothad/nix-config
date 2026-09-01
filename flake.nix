@@ -49,12 +49,6 @@
       inputs.flake-parts.follows = "flake-parts";
     };
 
-    xwayland-satellite = {
-      url = "path:./flakes/xwayland-satellite";
-      inputs.nixpkgs.follows = "nixpkgs";
-      inputs.flake-parts.follows = "flake-parts";
-    };
-
     wine4office = {
       url = "path:./flakes/wine4office";
       inputs.nixpkgs.follows = "nixpkgs";
