@@ -15,8 +15,6 @@ in
 
     package = lib.mkOption {
       type = lib.types.package;
-      default = pkgs.fromFlakes.fastpotify.fastpotify;
-      defaultText = lib.literalExpression "pkgs.fromFlakes.fastpotify.fastpotify";
       description = "The Fastpotify package to install.";
     };
 

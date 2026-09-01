@@ -4,7 +4,7 @@
   imports = [
     ./autolith.nix
     ./brave-xdg.nix
-    ./fastpotify.nix
+    ../../flakes/fastpotify/home-manager.nix
     ./gtk-prefer-dark-theme.nix
     ./qt-dark-theme.nix
     ./mpv-xdg.nix

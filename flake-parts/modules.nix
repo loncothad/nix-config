@@ -16,7 +16,7 @@
     homeModules = {
       autolith = ../home-manager/modules/autolith.nix;
       default = ../home-manager/modules;
-      fastpotify = ../home-manager/modules/fastpotify.nix;
+      fastpotify = inputs.fastpotify-adapter.homeModules.default;
       nushell-bom = ../home-manager/modules/nushell-bom.nix;
       polkit-agent-lxqt = ../home-manager/modules/polkit-agent-lxqt.nix;
       wayland-compatibility = ../home-manager/modules/wayland-compatibility.nix;

@@ -31,9 +31,10 @@
       url = "github:lambda-symbolics/autolith";
     };
 
-    fastpotify = {
-      url = "github:crmne/fastpotify";
+    fastpotify-adapter = {
+      url = "path:./flakes/fastpotify";
       inputs.nixpkgs.follows = "nixpkgs";
+      inputs.flake-parts.follows = "flake-parts";
     };
 
     appflowy = {

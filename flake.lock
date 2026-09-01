@@ -285,9 +285,30 @@
         "type": "github"
       }
     },
-    "fastpotify": {
+    "fastpotify-adapter": {
+      "inputs": {
+        "fastpotify-upstream": "fastpotify-upstream",
+        "flake-parts": [
+          "flake-parts"
+        ],
+        "nixpkgs": [
+          "nixpkgs"
+        ]
+      },
+      "locked": {
+        "path": "./flakes/fastpotify",
+        "type": "path"
+      },
+      "original": {
+        "path": "./flakes/fastpotify",
+        "type": "path"
+      },
+      "parent": []
+    },
+    "fastpotify-upstream": {
       "inputs": {
         "nixpkgs": [
+          "fastpotify-adapter",
           "nixpkgs"
         ],
         "rust-overlay": "rust-overlay"
@@ -988,7 +1009,7 @@
         "autolith": "autolith",
         "celld": "celld",
         "disko": "disko",
-        "fastpotify": "fastpotify",
+        "fastpotify-adapter": "fastpotify-adapter",
         "flake-parts": "flake-parts_3",
         "freesm-launcher": "freesm-launcher",
         "home-manager": "home-manager_2",
@@ -1011,7 +1032,8 @@
     "rust-overlay": {
       "inputs": {
         "nixpkgs": [
-          "fastpotify",
+          "fastpotify-adapter",
+          "fastpotify-upstream",
           "nixpkgs"
         ]
       },
