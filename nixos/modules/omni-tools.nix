@@ -11,7 +11,7 @@ let
 in
 {
   options.virtualisation.oci-containers.namedContainers.omni-tools = {
-    enable = lib.mkEnableOption "OmniTools web application";
+    enable = lib.mkEnableOption "OmniTools web application (https://github.com/iib0011/omni-tools)";
 
     image = lib.mkOption {
       type = lib.types.str;

@@ -14,7 +14,7 @@ let
 in
 {
   options.virtualisation.oci-containers.namedContainers.checkmate = {
-    enable = lib.mkEnableOption "Checkmate uptime monitor";
+    enable = lib.mkEnableOption "Checkmate uptime monitor (https://github.com/bluewave-labs/Checkmate)";
 
     image = lib.mkOption {
       type = lib.types.str;

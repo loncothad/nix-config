@@ -10,7 +10,7 @@ let
 in
 {
   options.services.convertx = {
-    enable = lib.mkEnableOption "ConvertX file converter";
+    enable = lib.mkEnableOption "ConvertX file converter (https://github.com/C4illin/ConvertX)";
     package = lib.mkPackageOption pkgs "convertx" { };
 
     port = lib.mkOption {

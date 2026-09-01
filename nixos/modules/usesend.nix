@@ -20,7 +20,7 @@ let
 in
 {
   options.virtualisation.oci-containers.namedContainers.usesend = {
-    enable = lib.mkEnableOption "useSend email platform";
+    enable = lib.mkEnableOption "useSend email platform (https://github.com/usesend/useSend)";
 
     image = lib.mkOption {
       type = lib.types.str;

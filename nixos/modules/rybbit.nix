@@ -21,7 +21,7 @@ let
 in
 {
   options.virtualisation.oci-containers.namedContainers.rybbit = {
-    enable = lib.mkEnableOption "Rybbit web analytics";
+    enable = lib.mkEnableOption "Rybbit web analytics (https://github.com/rybbit-io/rybbit)";
 
     backendImage = lib.mkOption {
       type = lib.types.str;

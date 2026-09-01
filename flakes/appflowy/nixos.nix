@@ -246,7 +246,7 @@ let
 in
 {
   options.virtualisation.oci-containers.namedContainers.appflowy = {
-    enable = lib.mkEnableOption "the self-hosted AppFlowy Cloud stack";
+    enable = lib.mkEnableOption "the self-hosted AppFlowy Cloud stack (https://github.com/AppFlowy-IO/AppFlowy-Cloud)";
 
     environmentFile = lib.mkOption {
       type = lib.types.path;

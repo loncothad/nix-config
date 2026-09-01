@@ -10,7 +10,7 @@ let
 in
 {
   options.services.oxicloud = {
-    enable = lib.mkEnableOption "OxiCloud file server";
+    enable = lib.mkEnableOption "OxiCloud file server (https://github.com/AtalayaLabs/OxiCloud)";
     package = lib.mkPackageOption pkgs "oxicloud" { };
 
     host = lib.mkOption {

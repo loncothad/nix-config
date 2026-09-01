@@ -10,7 +10,7 @@ let
 in
 {
   options.services.rauthy = {
-    enable = lib.mkEnableOption "Rauthy identity provider";
+    enable = lib.mkEnableOption "Rauthy identity provider (https://github.com/sebadob/rauthy)";
     package = lib.mkPackageOption pkgs "rauthy" { };
 
     environmentFile = lib.mkOption {

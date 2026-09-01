@@ -11,7 +11,7 @@ let
 in
 {
   options.virtualisation.oci-containers.namedContainers.homarr = {
-    enable = lib.mkEnableOption "Homarr dashboard";
+    enable = lib.mkEnableOption "Homarr dashboard (https://github.com/homarr-labs/homarr)";
 
     image = lib.mkOption {
       type = lib.types.str;
