@@ -9,6 +9,7 @@
 
     ./apparmor-profiles.nix
     ./bluetooth-kill-before-sleep.nix
+    ./celld.nix
     ./debloat.nix
     ./external-device-rules.nix
     ./fast-networking.nix

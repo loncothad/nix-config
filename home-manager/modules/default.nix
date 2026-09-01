@@ -2,7 +2,9 @@
 
 {
   imports = [
+    ./autolith.nix
     ./brave-xdg.nix
+    ./fastpotify.nix
     ./gtk-prefer-dark-theme.nix
     ./qt-dark-theme.nix
     ./mpv-xdg.nix

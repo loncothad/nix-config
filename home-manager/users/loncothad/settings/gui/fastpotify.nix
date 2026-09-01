@@ -1,5 +1,5 @@
-{ pkgs, ... }:
+{ ... }:
 
 {
-  home.packages = [ pkgs.fromFlakes.fastpotify ];
+  programs.fastpotify.enable = true;
 }
