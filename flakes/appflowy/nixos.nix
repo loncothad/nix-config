@@ -22,6 +22,25 @@ let
     else
       "ws://${cfg.baseUrl}/ws/v2";
 
+  ownsPostgres = cfg.postgres.mode == "owned";
+  ownsRedis = cfg.redis.mode == "owned";
+  ownsObjectStorage = cfg.objectStorage.mode == "owned";
+  postgresHost = if ownsPostgres then "appflowy-postgres" else cfg.postgres.shared.host;
+  postgresPort = if ownsPostgres then 5432 else cfg.postgres.shared.port;
+  postgresUser = if ownsPostgres then cfg.postgres.owned.user else cfg.postgres.shared.user;
+  postgresDatabase =
+    if ownsPostgres then cfg.postgres.owned.database else cfg.postgres.shared.database;
+  redisUri = if ownsRedis then "redis://appflowy-redis:6379" else cfg.redis.shared.uri;
+  objectStorageEndpoint =
+    if ownsObjectStorage then "http://appflowy-minio:9000" else cfg.objectStorage.shared.endpoint;
+  objectStorageUsesMinio = ownsObjectStorage || cfg.objectStorage.shared.useMinio;
+  objectStorageCreatesBucket = ownsObjectStorage || cfg.objectStorage.shared.createBucket;
+  presignedUrlEndpoint =
+    if ownsObjectStorage then
+      "${cfg.baseUrl}/minio-api"
+    else
+      cfg.objectStorage.shared.presignedUrlEndpoint;
+
   updateLabels = lib.optionalAttrs runtime.autoUpdate.enable {
     "io.containers.autoupdate" = "registry";
   };
@@ -87,7 +106,8 @@ let
           proxy_set_header X-Forwarded-Proto $scheme;
         }
 
-        location /minio/ {
+        ${lib.optionalString ownsObjectStorage ''
+          location /minio/ {
           proxy_pass http://appflowy-minio:9001;
           rewrite ^/minio/(.*) /$1 break;
           proxy_set_header Host $http_host;
@@ -99,9 +119,9 @@ let
           proxy_set_header Connection "upgrade";
           proxy_connect_timeout 300s;
           chunked_transfer_encoding off;
-        }
+          }
 
-        location /minio-api/ {
+          location /minio-api/ {
           proxy_pass http://appflowy-minio:9000;
           proxy_set_header Host "appflowy-minio:9000";
           proxy_set_header X-Real-IP $remote_addr;
@@ -116,7 +136,8 @@ let
           proxy_set_header Connection "";
           chunked_transfer_encoding off;
           client_max_body_size 0;
-        }
+          }
+        ''}
 
         location /console {
           proxy_pass http://appflowy-admin:3000;
@@ -153,33 +174,38 @@ let
     database_password="''${POSTGRES_PASSWORD_URL_ENCODED:-$POSTGRES_PASSWORD}"
     base_url=${lib.escapeShellArg cfg.baseUrl}
     websocket_base_url=${lib.escapeShellArg websocketBaseUrl}
-    postgres_user=${lib.escapeShellArg cfg.postgres.user}
-    postgres_database=${lib.escapeShellArg cfg.postgres.database}
-    s3_bucket=${lib.escapeShellArg cfg.s3Bucket}
-    s3_region=${lib.escapeShellArg cfg.s3Region}
+    postgres_user=${lib.escapeShellArg postgresUser}
+    postgres_database=${lib.escapeShellArg postgresDatabase}
+    postgres_host=${lib.escapeShellArg postgresHost}
+    postgres_port=${lib.escapeShellArg (toString postgresPort)}
+    redis_uri=${lib.escapeShellArg redisUri}
+    minio_endpoint=${lib.escapeShellArg objectStorageEndpoint}
+    presigned_url_endpoint=${lib.escapeShellArg presignedUrlEndpoint}
+    s3_bucket=${lib.escapeShellArg cfg.objectStorage.bucket}
+    s3_region=${lib.escapeShellArg cfg.objectStorage.region}
 
     cat > ${runtimeEnvironment} <<EOF
-    POSTGRES_HOST=appflowy-postgres
-    POSTGRES_PORT=5432
+    POSTGRES_HOST=$postgres_host
+    POSTGRES_PORT=$postgres_port
     POSTGRES_USER=$postgres_user
     POSTGRES_DB=$postgres_database
     POSTGRES_PASSWORD=$POSTGRES_PASSWORD
-    PGPORT=5432
+    PGPORT=$postgres_port
     MINIO_ROOT_USER=$APPFLOWY_S3_ACCESS_KEY
     MINIO_ROOT_PASSWORD=$APPFLOWY_S3_SECRET_KEY
     MINIO_BROWSER_REDIRECT_URL=$base_url/minio
-    APPFLOWY_DATABASE_URL=postgres://$postgres_user:$database_password@appflowy-postgres:5432/$postgres_database
-    APPFLOWY_REDIS_URI=redis://appflowy-redis:6379
+    APPFLOWY_DATABASE_URL=postgres://$postgres_user:$database_password@$postgres_host:$postgres_port/$postgres_database
+    APPFLOWY_REDIS_URI=$redis_uri
     APPFLOWY_GOTRUE_BASE_URL=http://appflowy-gotrue:9999
     APPFLOWY_GOTRUE_JWT_SECRET=$GOTRUE_JWT_SECRET
-    APPFLOWY_S3_CREATE_BUCKET=true
-    APPFLOWY_S3_USE_MINIO=true
-    APPFLOWY_S3_MINIO_URL=http://appflowy-minio:9000
+    APPFLOWY_S3_CREATE_BUCKET=${lib.boolToString objectStorageCreatesBucket}
+    APPFLOWY_S3_USE_MINIO=${lib.boolToString objectStorageUsesMinio}
+    APPFLOWY_S3_MINIO_URL=$minio_endpoint
     APPFLOWY_S3_ACCESS_KEY=$APPFLOWY_S3_ACCESS_KEY
     APPFLOWY_S3_SECRET_KEY=$APPFLOWY_S3_SECRET_KEY
     APPFLOWY_S3_BUCKET=$s3_bucket
     APPFLOWY_S3_REGION=$s3_region
-    APPFLOWY_S3_PRESIGNED_URL_ENDPOINT=$base_url/minio-api
+    APPFLOWY_S3_PRESIGNED_URL_ENDPOINT=$presigned_url_endpoint
     APPFLOWY_ACCESS_CONTROL=true
     APPFLOWY_DATABASE_MAX_CONNECTIONS=40
     APPFLOWY_BASE_URL=$base_url
@@ -187,8 +213,8 @@ let
     APPFLOWY_WEBSOCKET_BASE_URL=$websocket_base_url
     APPFLOWY_WS_BASE_URL=$websocket_base_url
     API_EXTERNAL_URL=$base_url/gotrue
-    DATABASE_URL=postgres://$postgres_user:$database_password@appflowy-postgres:5432/$postgres_database?search_path=auth
-    GOTRUE_DATABASE_URL=postgres://$postgres_user:$database_password@appflowy-postgres:5432/$postgres_database?search_path=auth
+    DATABASE_URL=postgres://$postgres_user:$database_password@$postgres_host:$postgres_port/$postgres_database?search_path=auth
+    GOTRUE_DATABASE_URL=postgres://$postgres_user:$database_password@$postgres_host:$postgres_port/$postgres_database?search_path=auth
     GOTRUE_ADMIN_EMAIL=$GOTRUE_ADMIN_EMAIL
     GOTRUE_ADMIN_PASSWORD=$GOTRUE_ADMIN_PASSWORD
     GOTRUE_JWT_SECRET=$GOTRUE_JWT_SECRET
@@ -207,19 +233,19 @@ let
     AI_ENABLED=${lib.boolToString cfg.ai.enable}
     AI_SERVER_HOST=appflowy-ai
     AI_SERVER_PORT=5001
-    AI_DATABASE_URL=postgresql+psycopg://$postgres_user:$database_password@appflowy-postgres:5432/$postgres_database
-    AI_REDIS_URL=redis://appflowy-redis:6379
-    AI_USE_MINIO=true
-    AI_MINIO_URL=http://appflowy-minio:9000
+    AI_DATABASE_URL=postgresql+psycopg://$postgres_user:$database_password@$postgres_host:$postgres_port/$postgres_database
+    AI_REDIS_URL=$redis_uri
+    AI_USE_MINIO=${lib.boolToString objectStorageUsesMinio}
+    AI_MINIO_URL=$minio_endpoint
     AI_APPFLOWY_HOST=$base_url
     OPENAI_API_KEY=''${AI_OPENAI_API_KEY:-}
-    APPFLOWY_WORKER_REDIS_URL=redis://appflowy-redis:6379
-    APPFLOWY_WORKER_DATABASE_URL=postgres://$postgres_user:$database_password@appflowy-postgres:5432/$postgres_database
+    APPFLOWY_WORKER_REDIS_URL=$redis_uri
+    APPFLOWY_WORKER_DATABASE_URL=postgres://$postgres_user:$database_password@$postgres_host:$postgres_port/$postgres_database
     APPFLOWY_WORKER_DATABASE_NAME=$postgres_database
     APPFLOWY_SEARCH_HOST=[::]
     APPFLOWY_SEARCH_PORT=4002
-    APPFLOWY_SEARCH_DATABASE_URL=postgres://$postgres_user:$database_password@appflowy-postgres:5432/$postgres_database
-    APPFLOWY_SEARCH_REDIS_URL=redis://appflowy-redis:6379
+    APPFLOWY_SEARCH_DATABASE_URL=postgres://$postgres_user:$database_password@$postgres_host:$postgres_port/$postgres_database
+    APPFLOWY_SEARCH_REDIS_URL=$redis_uri
     APPFLOWY_SEARCH_SERVICE_URL=http://appflowy-search:4002
     APPFLOWY_BACKGROUND_INDEXER_ENABLED=true
     APPFLOWY_KEYWORD_SEARCH_ENABLED=true
@@ -228,10 +254,12 @@ let
     EOF
   '';
 
-  coreContainerNames = [
-    "appflowy-postgres"
-    "appflowy-redis"
-    "appflowy-minio"
+  dependencyNames =
+    lib.optional ownsPostgres "appflowy-postgres"
+    ++ lib.optional ownsRedis "appflowy-redis"
+    ++ lib.optional ownsObjectStorage "appflowy-minio";
+
+  coreContainerNames = dependencyNames ++ [
     "appflowy-gotrue"
     "appflowy-cloud"
     "appflowy-admin"
@@ -284,29 +312,127 @@ in
       description = "Public WebSocket URL, derived from baseUrl when null.";
     };
 
-    s3Bucket = lib.mkOption {
-      type = lib.types.str;
-      default = "appflowy";
-      description = "MinIO bucket used by AppFlowy services.";
-    };
-
-    s3Region = lib.mkOption {
-      type = lib.types.str;
-      default = "us-east-1";
-      description = "S3 region reported to AppFlowy services.";
-    };
-
     postgres = {
-      user = lib.mkOption {
-        type = lib.types.str;
-        default = "postgres";
-        description = "PostgreSQL user used by AppFlowy.";
+      mode = lib.mkOption {
+        type = lib.types.enum [
+          "owned"
+          "shared"
+        ];
+        default = "owned";
+        description = "Whether AppFlowy owns PostgreSQL or connects to a shared instance.";
       };
 
-      database = lib.mkOption {
+      owned = {
+        image = lib.mkOption {
+          type = lib.types.str;
+          default = "docker.io/pgvector/pgvector:pg16";
+          description = "OCI image used for the owned PostgreSQL instance.";
+        };
+        user = lib.mkOption {
+          type = lib.types.str;
+          default = "postgres";
+          description = "PostgreSQL user created in the owned instance.";
+        };
+        database = lib.mkOption {
+          type = lib.types.str;
+          default = "postgres";
+          description = "PostgreSQL database created in the owned instance.";
+        };
+      };
+
+      shared = {
+        host = lib.mkOption {
+          type = lib.types.str;
+          example = "postgres.internal";
+          description = "Host of the shared PostgreSQL instance.";
+        };
+        port = lib.mkOption {
+          type = lib.types.port;
+          default = 5432;
+          description = "Port of the shared PostgreSQL instance.";
+        };
+        user = lib.mkOption {
+          type = lib.types.str;
+          default = "appflowy";
+          description = "PostgreSQL user allocated to AppFlowy.";
+        };
+        database = lib.mkOption {
+          type = lib.types.str;
+          default = "appflowy";
+          description = "PostgreSQL database allocated to AppFlowy.";
+        };
+      };
+    };
+
+    redis = {
+      mode = lib.mkOption {
+        type = lib.types.enum [
+          "owned"
+          "shared"
+        ];
+        default = "owned";
+        description = "Whether AppFlowy owns Redis or connects to a shared instance.";
+      };
+      owned.image = lib.mkOption {
         type = lib.types.str;
-        default = "postgres";
-        description = "PostgreSQL database used by AppFlowy.";
+        default = "docker.io/library/redis:latest";
+        description = "OCI image used for the owned Redis instance.";
+      };
+      shared.uri = lib.mkOption {
+        type = lib.types.str;
+        example = "rediss://redis.internal:6379";
+        description = ''
+          URI of the shared Redis instance. This is stored in the Nix store,
+          so credentials should remain in environmentFile.
+        '';
+      };
+    };
+
+    objectStorage = {
+      mode = lib.mkOption {
+        type = lib.types.enum [
+          "owned"
+          "shared"
+        ];
+        default = "owned";
+        description = "Whether AppFlowy owns MinIO or uses shared S3-compatible storage.";
+      };
+      bucket = lib.mkOption {
+        type = lib.types.str;
+        default = "appflowy";
+        description = "Object-storage bucket used by AppFlowy services.";
+      };
+      region = lib.mkOption {
+        type = lib.types.str;
+        default = "us-east-1";
+        description = "Object-storage region used by AppFlowy services.";
+      };
+      owned.image = lib.mkOption {
+        type = lib.types.str;
+        default = "docker.io/minio/minio:latest";
+        description = "OCI image used for the owned MinIO instance.";
+      };
+      shared = {
+        endpoint = lib.mkOption {
+          type = lib.types.str;
+          example = "https://s3.internal";
+          description = "API endpoint of the shared S3-compatible service.";
+        };
+        presignedUrlEndpoint = lib.mkOption {
+          type = lib.types.str;
+          example = "https://objects.example.com";
+          description = "Public endpoint used in generated presigned object URLs.";
+        };
+        useMinio = lib.mkOption {
+          type = lib.types.bool;
+          default = true;
+          description = "Whether the shared service uses MinIO semantics.";
+        };
+        createBucket = lib.mkOption {
+          type = lib.types.bool;
+          default = false;
+          description = "Whether AppFlowy should create its bucket in shared storage.";
+        };
       };
     };
 
@@ -328,9 +454,6 @@ in
       type = lib.types.attrsOf lib.types.str;
       default = {
         nginx = "docker.io/library/nginx:latest";
-        minio = "docker.io/minio/minio:latest";
-        postgres = "docker.io/pgvector/pgvector:pg16";
-        redis = "docker.io/library/redis:latest";
         gotrue = "docker.io/appflowyinc/gotrue:latest";
         cloud = "docker.io/appflowyinc/appflowy_cloud:latest";
         admin = "docker.io/appflowyinc/admin_frontend:latest";
@@ -363,44 +486,10 @@ in
     networking.firewall.allowedTCPPorts = lib.mkIf cfg.openFirewall [ cfg.port ];
 
     virtualisation.oci-containers.containers = {
-      appflowy-postgres = {
-        image = cfg.images.postgres;
-        networks = [ "selfhosted" ];
-        environmentFiles = commonEnvironmentFiles;
-        volumes = [ "appflowy-postgres:/var/lib/postgresql/data" ];
-        cmd = [
-          "postgres"
-          "-c"
-          "port=5432"
-        ];
-        labels = updateLabels;
-      };
-
-      appflowy-redis = {
-        image = cfg.images.redis;
-        networks = [ "selfhosted" ];
-        volumes = [ "appflowy-redis:/data" ];
-        labels = updateLabels;
-      };
-
-      appflowy-minio = {
-        image = cfg.images.minio;
-        networks = [ "selfhosted" ];
-        environmentFiles = commonEnvironmentFiles;
-        volumes = [ "appflowy-minio:/data" ];
-        cmd = [
-          "server"
-          "/data"
-          "--console-address"
-          ":9001"
-        ];
-        labels = updateLabels;
-      };
-
       appflowy-gotrue = {
         image = cfg.images.gotrue;
         networks = [ "selfhosted" ];
-        dependsOn = [ "appflowy-postgres" ];
+        dependsOn = lib.optional ownsPostgres "appflowy-postgres";
         environmentFiles = commonEnvironmentFiles;
         environment = cfg.environment;
         labels = updateLabels;
@@ -409,12 +498,7 @@ in
       appflowy-cloud = {
         image = cfg.images.cloud;
         networks = [ "selfhosted" ];
-        dependsOn = [
-          "appflowy-postgres"
-          "appflowy-redis"
-          "appflowy-minio"
-          "appflowy-gotrue"
-        ];
+        dependsOn = dependencyNames ++ [ "appflowy-gotrue" ];
         environmentFiles = commonEnvironmentFiles;
         environment = {
           RUST_LOG = "info";
@@ -443,10 +527,7 @@ in
       appflowy-worker = {
         image = cfg.images.worker;
         networks = [ "selfhosted" ];
-        dependsOn = [
-          "appflowy-postgres"
-          "appflowy-cloud"
-        ];
+        dependsOn = lib.optional ownsPostgres "appflowy-postgres" ++ [ "appflowy-cloud" ];
         environmentFiles = commonEnvironmentFiles;
         environment = {
           RUST_LOG = "info";
@@ -461,11 +542,7 @@ in
       appflowy-search = {
         image = cfg.images.search;
         networks = [ "selfhosted" ];
-        dependsOn = [
-          "appflowy-postgres"
-          "appflowy-redis"
-          "appflowy-minio"
-        ];
+        dependsOn = dependencyNames;
         environmentFiles = commonEnvironmentFiles;
         environment = {
           RUST_LOG = "info";
@@ -488,8 +565,7 @@ in
         image = cfg.images.nginx;
         ports = [ "${cfg.host}:${toString cfg.port}:80" ];
         networks = [ "selfhosted" ];
-        dependsOn = [
-          "appflowy-minio"
+        dependsOn = lib.optional ownsObjectStorage "appflowy-minio" ++ [
           "appflowy-gotrue"
           "appflowy-cloud"
           "appflowy-admin"
@@ -503,12 +579,46 @@ in
       appflowy-ai = {
         image = cfg.images.ai;
         networks = [ "selfhosted" ];
-        dependsOn = [
-          "appflowy-postgres"
-          "appflowy-cloud"
-        ];
+        dependsOn = dependencyNames ++ [ "appflowy-cloud" ];
         environmentFiles = commonEnvironmentFiles;
         environment = cfg.environment;
+        labels = updateLabels;
+      };
+    }
+    // lib.optionalAttrs ownsPostgres {
+      appflowy-postgres = {
+        image = cfg.postgres.owned.image;
+        networks = [ "selfhosted" ];
+        environmentFiles = commonEnvironmentFiles;
+        volumes = [ "appflowy-postgres:/var/lib/postgresql/data" ];
+        cmd = [
+          "postgres"
+          "-c"
+          "port=5432"
+        ];
+        labels = updateLabels;
+      };
+    }
+    // lib.optionalAttrs ownsRedis {
+      appflowy-redis = {
+        image = cfg.redis.owned.image;
+        networks = [ "selfhosted" ];
+        volumes = [ "appflowy-redis:/data" ];
+        labels = updateLabels;
+      };
+    }
+    // lib.optionalAttrs ownsObjectStorage {
+      appflowy-minio = {
+        image = cfg.objectStorage.owned.image;
+        networks = [ "selfhosted" ];
+        environmentFiles = commonEnvironmentFiles;
+        volumes = [ "appflowy-minio:/data" ];
+        cmd = [
+          "server"
+          "/data"
+          "--console-address"
+          ":9001"
+        ];
         labels = updateLabels;
       };
     };

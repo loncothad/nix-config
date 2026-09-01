@@ -23,9 +23,17 @@ virtualisation.oci-containers.namedContainers.appflowy
 
 Enabling it creates Podman containers for the Nginx entry point, AppFlowy Web,
 AppFlowy Cloud API, GoTrue authentication, admin frontend, background worker,
-search service, PostgreSQL with pgvector, Redis, and MinIO. AppFlowy AI is
-optional. Named volumes persist the database, object storage, Redis data, and
-search index.
+and search service. AppFlowy AI is optional. PostgreSQL with pgvector, Redis,
+and MinIO default to `mode = "owned"`; the module then creates their containers
+and persistent volumes. Set a dependency to `mode = "shared"` to omit its
+container and use the connection settings under that dependency's `shared`
+submodule instead.
+
+For shared PostgreSQL, provision the database, the `auth` schema, and AppFlowy's
+required extensions before starting the stack. Shared object storage must be
+S3-compatible. Credentials remain in `environmentFile` in both modes;
+connection coordinates and other non-secret values belong in the typed module
+options.
 
 The proxy binds to `127.0.0.1:8000` by default. Put it behind a TLS reverse
 proxy for a public deployment, set `baseUrl` to that public URL, and override
@@ -57,6 +65,33 @@ virtualisation.oci-containers.namedContainers.appflowy = {
   environmentFile = "/run/agenix/appflowy.env";
   baseUrl = "https://appflowy.example.com";
   ai.enable = true;
+};
+```
+
+A deployment that reuses existing services can select each dependency
+independently:
+
+```nix
+virtualisation.oci-containers.namedContainers.appflowy = {
+  postgres = {
+    mode = "shared";
+    shared = {
+      host = "postgres.internal";
+      user = "appflowy";
+      database = "appflowy";
+    };
+  };
+  redis = {
+    mode = "shared";
+    shared.uri = "rediss://redis.internal:6379";
+  };
+  objectStorage = {
+    mode = "shared";
+    shared = {
+      endpoint = "https://s3.internal";
+      presignedUrlEndpoint = "https://objects.example.com";
+    };
+  };
 };
 ```
 
