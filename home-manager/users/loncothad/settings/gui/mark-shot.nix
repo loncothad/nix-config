@@ -3,7 +3,7 @@
 {
   programs.mark-shot = {
     enable = true;
-    package = pkgs.fromFlakes.mark-shot;
+    package = pkgs.fromFlakes.mark-shot.default;
 
     settings = {
       ui = {

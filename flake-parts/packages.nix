@@ -14,12 +14,10 @@
     {
       packages = {
         inherit (pkgs) celld;
-        inherit (pkgs.fromFlakes)
-          autolith
-          fastpotify
-          mark-shot
-          wine4office
-          wine4office-wine;
+        autolith = pkgs.fromFlakes.autolith.autolith;
+        fastpotify = pkgs.fromFlakes.fastpotify.fastpotify;
+        mark-shot = pkgs.fromFlakes.mark-shot.default;
+        inherit (pkgs.fromFlakes.wine4office) wine4office wine4office-wine;
       };
     };
 }
