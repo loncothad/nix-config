@@ -1,5 +1,10 @@
-{ ... }:
+{ inputs, ... }:
 
 {
-  flake.nixosModules.sub2api = ./nixos.nix;
+  flake.nixosModules.sub2api = {
+    imports = [
+      inputs.quadlet-nix.nixosModules.quadlet
+      ./nixos.nix
+    ];
+  };
 }

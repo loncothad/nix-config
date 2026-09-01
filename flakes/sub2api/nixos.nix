@@ -8,17 +8,15 @@
 let
   root = config.virtualisation.oci-containers.namedContainers;
   cfg = root.sub2api;
-  runtime = root;
+  runtime = config.virtualisation.quadlet;
+  quadlet = config.virtualisation.quadlet;
+  selfhostedNetwork = quadlet.networks.selfhosted.ref;
 
   runtimeEnvironment = "/run/sub2api/environment";
   environmentFiles = [
     cfg.environmentFile
     runtimeEnvironment
   ];
-
-  updateLabels = lib.optionalAttrs runtime.autoUpdate.enable {
-    "io.containers.autoupdate" = "registry";
-  };
 
   ownsPostgres = cfg.postgres.mode == "owned";
   ownsRedis = cfg.redis.mode == "owned";
@@ -89,8 +87,9 @@ let
 
   dependencyNames =
     lib.optional ownsPostgres "sub2api-postgres" ++ lib.optional ownsRedis "sub2api-redis";
+  dependencyRefs = map (name: quadlet.containers.${name}.ref) dependencyNames;
   containerNames = dependencyNames ++ [ "sub2api" ];
-  containerUnits = map (name: "podman-${name}.service") containerNames;
+  containerUnits = map (name: "${name}.service") containerNames;
 in
 {
   options.virtualisation.oci-containers.namedContainers.sub2api = {
@@ -253,79 +252,87 @@ in
   };
 
   config = lib.mkIf cfg.enable {
-    virtualisation.oci-containers.namedContainers.enable = true;
+    virtualisation.quadlet.networks.selfhosted.networkConfig = {
+      name = "selfhosted";
+      interfaceName = "selfhosted0";
+    };
+    networking.firewall.interfaces.selfhosted0.allowedUDPPorts = [ 53 ];
     networking.firewall.allowedTCPPorts = lib.mkIf cfg.openFirewall [ cfg.port ];
 
-    virtualisation.oci-containers.containers = {
+    virtualisation.quadlet.containers = {
       sub2api = {
-        image = cfg.images.app;
-        ports = [ "${cfg.host}:${toString cfg.port}:8080" ];
-        networks = [ "selfhosted" ];
-        dependsOn = dependencyNames;
-        environmentFiles = environmentFiles;
-        environment = cfg.environment;
-        volumes = [ "sub2api-data:/app/data" ];
-        labels = updateLabels;
-        extraOptions = [
-          "--security-opt=no-new-privileges"
-          "--ulimit=nofile=100000:100000"
-        ];
+        unitConfig = {
+          Documentation = [ "https://github.com/Wei-Shaw/sub2api#readme" ];
+          Requires = [ "sub2api-environment.service" ] ++ dependencyRefs;
+          After = [ "sub2api-environment.service" ] ++ dependencyRefs;
+        };
+        containerConfig = {
+          image = cfg.images.app;
+          publishPorts = [ "${cfg.host}:${toString cfg.port}:8080" ];
+          networks = [ selfhostedNetwork ];
+          environmentFiles = map toString environmentFiles;
+          environments = cfg.environment;
+          volumes = [ "sub2api-data:/app/data" ];
+          autoUpdate = if runtime.autoUpdate.enable then "registry" else null;
+          noNewPrivileges = true;
+          ulimits = [ "nofile=100000:100000" ];
+        };
       };
     }
     // lib.optionalAttrs ownsPostgres {
       sub2api-postgres = {
-        image = cfg.postgres.owned.image;
-        networks = [ "selfhosted" ];
-        environmentFiles = environmentFiles;
-        volumes = [ "sub2api-postgres:/var/lib/postgresql/data" ];
-        cmd = postgresCommand;
-        labels = updateLabels;
-        extraOptions = [ "--ulimit=nofile=100000:100000" ];
+        unitConfig = {
+          Documentation = [ "https://github.com/Wei-Shaw/sub2api#readme" ];
+          Requires = [ "sub2api-environment.service" ];
+          After = [ "sub2api-environment.service" ];
+        };
+        containerConfig = {
+          image = cfg.postgres.owned.image;
+          networks = [ selfhostedNetwork ];
+          environmentFiles = map toString environmentFiles;
+          volumes = [ "sub2api-postgres:/var/lib/postgresql/data" ];
+          exec = postgresCommand;
+          autoUpdate = if runtime.autoUpdate.enable then "registry" else null;
+          ulimits = [ "nofile=100000:100000" ];
+        };
       };
     }
     // lib.optionalAttrs ownsRedis {
       sub2api-redis = {
-        image = cfg.redis.owned.image;
-        networks = [ "selfhosted" ];
-        environmentFiles = environmentFiles;
-        volumes = [ "sub2api-redis:/data" ];
-        cmd = [
-          "sh"
-          "-c"
-          ''exec redis-server --save 60 1 --appendonly yes --appendfsync everysec ''${REDIS_PASSWORD:+--requirepass "$REDIS_PASSWORD"}''
-        ];
-        labels = updateLabels;
-        extraOptions = [ "--ulimit=nofile=100000:100000" ];
+        unitConfig = {
+          Documentation = [ "https://github.com/Wei-Shaw/sub2api#readme" ];
+          Requires = [ "sub2api-environment.service" ];
+          After = [ "sub2api-environment.service" ];
+        };
+        containerConfig = {
+          image = cfg.redis.owned.image;
+          networks = [ selfhostedNetwork ];
+          environmentFiles = map toString environmentFiles;
+          volumes = [ "sub2api-redis:/data" ];
+          exec = [
+            "sh"
+            "-c"
+            ''exec redis-server --save 60 1 --appendonly yes --appendfsync everysec ''${REDIS_PASSWORD:+--requirepass "$REDIS_PASSWORD"}''
+          ];
+          autoUpdate = if runtime.autoUpdate.enable then "registry" else null;
+          ulimits = [ "nofile=100000:100000" ];
+        };
       };
     };
 
-    systemd.services =
-      lib.genAttrs (map (name: "podman-${name}") containerNames) (_: {
-        documentation = [ "https://github.com/Wei-Shaw/sub2api#readme" ];
-        after = [
-          "selfhosted-podman-network.service"
-          "sub2api-environment.service"
-        ];
-        requires = [
-          "selfhosted-podman-network.service"
-          "sub2api-environment.service"
-        ];
-      })
-      // {
-        sub2api-environment = {
-          description = "Prepare the Sub2API runtime environment";
-          documentation = [ "https://github.com/Wei-Shaw/sub2api#readme" ];
-          wantedBy = [ "multi-user.target" ];
-          before = containerUnits;
-          serviceConfig = {
-            Type = "oneshot";
-            RemainAfterExit = true;
-            EnvironmentFile = cfg.environmentFile;
-            RuntimeDirectory = "sub2api";
-            RuntimeDirectoryMode = "0700";
-            ExecStart = environmentSetup;
-          };
-        };
+    systemd.services.sub2api-environment = {
+      description = "Prepare the Sub2API runtime environment";
+      documentation = [ "https://github.com/Wei-Shaw/sub2api#readme" ];
+      wantedBy = [ "multi-user.target" ];
+      before = containerUnits;
+      serviceConfig = {
+        Type = "oneshot";
+        RemainAfterExit = true;
+        EnvironmentFile = cfg.environmentFile;
+        RuntimeDirectory = "sub2api";
+        RuntimeDirectoryMode = "0700";
+        ExecStart = environmentSetup;
       };
+    };
   };
 }

@@ -15,13 +15,14 @@ is tracked as the non-flake `appflowy-cloud-src` input.
 ## Outputs and services
 
 The adapter exports `nixosModules.default`, `nixosModules.appflowy`, and
-`flakeModules.default`. The NixOS module defines:
+`flakeModules.default`. Both NixOS outputs include the `quadlet-nix` module and
+define:
 
 ```nix
 virtualisation.oci-containers.namedContainers.appflowy
 ```
 
-Enabling it creates Podman containers for the Nginx entry point, AppFlowy Web,
+Enabling it creates Podman Quadlets for the Nginx entry point, AppFlowy Web,
 AppFlowy Cloud API, GoTrue authentication, admin frontend, background worker,
 and search service. AppFlowy AI is optional. PostgreSQL with pgvector, Redis,
 and MinIO default to `mode = "owned"`; the module then creates their containers

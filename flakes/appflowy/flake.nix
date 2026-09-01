@@ -9,6 +9,8 @@
       inputs.nixpkgs-lib.follows = "nixpkgs";
     };
 
+    quadlet-nix.url = "github:SEIAROTg/quadlet-nix";
+
     appflowy-cloud-src = {
       url = "github:AppFlowy-IO/AppFlowy-Cloud";
       flake = false;
@@ -29,7 +31,12 @@
 
       flake = {
         flakeModules.default = ./flake-parts.nix;
-        nixosModules.default = ./nixos.nix;
+        nixosModules.default = {
+          imports = [
+            inputs.quadlet-nix.nixosModules.quadlet
+            ./nixos.nix
+          ];
+        };
       };
     };
 }

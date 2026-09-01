@@ -1,5 +1,10 @@
-{ ... }:
+{ inputs, ... }:
 
 {
-  flake.nixosModules.appflowy = ./nixos.nix;
+  flake.nixosModules.appflowy = {
+    imports = [
+      inputs.quadlet-nix.nixosModules.quadlet
+      ./nixos.nix
+    ];
+  };
 }

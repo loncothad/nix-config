@@ -8,7 +8,9 @@
 let
   root = config.virtualisation.oci-containers.namedContainers;
   cfg = root.appflowy;
-  runtime = root;
+  runtime = config.virtualisation.quadlet;
+  quadlet = config.virtualisation.quadlet;
+  selfhostedNetwork = quadlet.networks.selfhosted.ref;
 
   runtimeEnvironment = "/run/appflowy/environment";
 
@@ -40,10 +42,6 @@ let
       "${cfg.baseUrl}/minio-api"
     else
       cfg.objectStorage.shared.presignedUrlEndpoint;
-
-  updateLabels = lib.optionalAttrs runtime.autoUpdate.enable {
-    "io.containers.autoupdate" = "registry";
-  };
 
   commonEnvironmentFiles = [
     cfg.environmentFile
@@ -270,7 +268,37 @@ let
   ];
 
   containerNames = coreContainerNames ++ lib.optional cfg.ai.enable "appflowy-ai";
-  containerUnits = map (name: "podman-${name}.service") containerNames;
+  containerUnits = map (name: "${name}.service") containerNames;
+
+  mkContainer =
+    {
+      image,
+      dependencies ? [ ],
+      environment ? cfg.environment,
+      environmentFiles ? commonEnvironmentFiles,
+      publishPorts ? [ ],
+      volumes ? [ ],
+      exec ? null,
+    }:
+    let
+      dependencyRefs = map (name: quadlet.containers.${name}.ref) dependencies;
+    in
+    {
+      unitConfig = {
+        Documentation = [ "https://docs.appflowy.io/docs/documentation/appflowy-cloud/deployment" ];
+        Requires = [ "appflowy-environment.service" ] ++ dependencyRefs;
+        After = [ "appflowy-environment.service" ] ++ dependencyRefs;
+      };
+      containerConfig = {
+        inherit image volumes;
+        networks = [ selfhostedNetwork ];
+        environmentFiles = map toString environmentFiles;
+        environments = environment;
+        publishPorts = publishPorts;
+        autoUpdate = if runtime.autoUpdate.enable then "registry" else null;
+      }
+      // lib.optionalAttrs (exec != null) { inherit exec; };
+    };
 in
 {
   options.virtualisation.oci-containers.namedContainers.appflowy = {
@@ -482,53 +510,46 @@ in
       }
     ];
 
-    virtualisation.oci-containers.namedContainers.enable = true;
+    virtualisation.quadlet.networks.selfhosted.networkConfig = {
+      name = "selfhosted";
+      interfaceName = "selfhosted0";
+    };
+    networking.firewall.interfaces.selfhosted0.allowedUDPPorts = [ 53 ];
     networking.firewall.allowedTCPPorts = lib.mkIf cfg.openFirewall [ cfg.port ];
 
-    virtualisation.oci-containers.containers = {
-      appflowy-gotrue = {
+    virtualisation.quadlet.containers = {
+      appflowy-gotrue = mkContainer {
         image = cfg.images.gotrue;
-        networks = [ "selfhosted" ];
-        dependsOn = lib.optional ownsPostgres "appflowy-postgres";
-        environmentFiles = commonEnvironmentFiles;
+        dependencies = lib.optional ownsPostgres "appflowy-postgres";
         environment = cfg.environment;
-        labels = updateLabels;
       };
 
-      appflowy-cloud = {
+      appflowy-cloud = mkContainer {
         image = cfg.images.cloud;
-        networks = [ "selfhosted" ];
-        dependsOn = dependencyNames ++ [ "appflowy-gotrue" ];
-        environmentFiles = commonEnvironmentFiles;
+        dependencies = dependencyNames ++ [ "appflowy-gotrue" ];
         environment = {
           RUST_LOG = "info";
           APPFLOWY_ENVIRONMENT = "production";
         }
         // cfg.environment;
-        labels = updateLabels;
       };
 
-      appflowy-admin = {
+      appflowy-admin = mkContainer {
         image = cfg.images.admin;
-        networks = [ "selfhosted" ];
-        dependsOn = [
+        dependencies = [
           "appflowy-gotrue"
           "appflowy-cloud"
         ];
-        environmentFiles = commonEnvironmentFiles;
         environment = {
           APPFLOWY_GOTRUE_BASE_URL = "http://appflowy-gotrue:9999";
           APPFLOWY_BASE_URL = "http://appflowy-cloud:8000";
         }
         // cfg.environment;
-        labels = updateLabels;
       };
 
-      appflowy-worker = {
+      appflowy-worker = mkContainer {
         image = cfg.images.worker;
-        networks = [ "selfhosted" ];
-        dependsOn = lib.optional ownsPostgres "appflowy-postgres" ++ [ "appflowy-cloud" ];
-        environmentFiles = commonEnvironmentFiles;
+        dependencies = lib.optional ownsPostgres "appflowy-postgres" ++ [ "appflowy-cloud" ];
         environment = {
           RUST_LOG = "info";
           APPFLOWY_ENVIRONMENT = "production";
@@ -536,120 +557,86 @@ in
           APPFLOWY_WORKER_IMPORT_TICK_INTERVAL = "30";
         }
         // cfg.environment;
-        labels = updateLabels;
       };
 
-      appflowy-search = {
+      appflowy-search = mkContainer {
         image = cfg.images.search;
-        networks = [ "selfhosted" ];
-        dependsOn = dependencyNames;
-        environmentFiles = commonEnvironmentFiles;
+        dependencies = dependencyNames;
         environment = {
           RUST_LOG = "info";
         }
         // cfg.environment;
         volumes = [ "appflowy-search:/var/lib/appflowy/keyword_index" ];
-        labels = updateLabels;
       };
 
-      appflowy-web = {
+      appflowy-web = mkContainer {
         image = cfg.images.web;
-        networks = [ "selfhosted" ];
-        dependsOn = [ "appflowy-cloud" ];
-        environmentFiles = commonEnvironmentFiles;
+        dependencies = [ "appflowy-cloud" ];
         environment = cfg.environment;
-        labels = updateLabels;
       };
 
-      appflowy-nginx = {
+      appflowy-nginx = mkContainer {
         image = cfg.images.nginx;
-        ports = [ "${cfg.host}:${toString cfg.port}:80" ];
-        networks = [ "selfhosted" ];
-        dependsOn = lib.optional ownsObjectStorage "appflowy-minio" ++ [
+        publishPorts = [ "${cfg.host}:${toString cfg.port}:80" ];
+        dependencies = lib.optional ownsObjectStorage "appflowy-minio" ++ [
           "appflowy-gotrue"
           "appflowy-cloud"
           "appflowy-admin"
           "appflowy-web"
         ];
         volumes = [ "${nginxConfig}:/etc/nginx/nginx.conf:ro" ];
-        labels = updateLabels;
       };
     }
     // lib.optionalAttrs cfg.ai.enable {
-      appflowy-ai = {
+      appflowy-ai = mkContainer {
         image = cfg.images.ai;
-        networks = [ "selfhosted" ];
-        dependsOn = dependencyNames ++ [ "appflowy-cloud" ];
-        environmentFiles = commonEnvironmentFiles;
+        dependencies = dependencyNames ++ [ "appflowy-cloud" ];
         environment = cfg.environment;
-        labels = updateLabels;
       };
     }
     // lib.optionalAttrs ownsPostgres {
-      appflowy-postgres = {
+      appflowy-postgres = mkContainer {
         image = cfg.postgres.owned.image;
-        networks = [ "selfhosted" ];
-        environmentFiles = commonEnvironmentFiles;
         volumes = [ "appflowy-postgres:/var/lib/postgresql/data" ];
-        cmd = [
+        exec = [
           "postgres"
           "-c"
           "port=5432"
         ];
-        labels = updateLabels;
       };
     }
     // lib.optionalAttrs ownsRedis {
-      appflowy-redis = {
+      appflowy-redis = mkContainer {
         image = cfg.redis.owned.image;
-        networks = [ "selfhosted" ];
         volumes = [ "appflowy-redis:/data" ];
-        labels = updateLabels;
       };
     }
     // lib.optionalAttrs ownsObjectStorage {
-      appflowy-minio = {
+      appflowy-minio = mkContainer {
         image = cfg.objectStorage.owned.image;
-        networks = [ "selfhosted" ];
-        environmentFiles = commonEnvironmentFiles;
         volumes = [ "appflowy-minio:/data" ];
-        cmd = [
+        exec = [
           "server"
           "/data"
           "--console-address"
           ":9001"
         ];
-        labels = updateLabels;
       };
     };
 
-    systemd.services =
-      lib.genAttrs (map (name: "podman-${name}") containerNames) (_: {
-        documentation = [ "https://docs.appflowy.io/docs/documentation/appflowy-cloud/deployment" ];
-        after = [
-          "selfhosted-podman-network.service"
-          "appflowy-environment.service"
-        ];
-        requires = [
-          "selfhosted-podman-network.service"
-          "appflowy-environment.service"
-        ];
-      })
-      // {
-        appflowy-environment = {
-          description = "Prepare the AppFlowy Cloud runtime environment";
-          documentation = [ "https://docs.appflowy.io/docs/documentation/appflowy-cloud/deployment" ];
-          wantedBy = [ "multi-user.target" ];
-          before = containerUnits;
-          serviceConfig = {
-            Type = "oneshot";
-            RemainAfterExit = true;
-            EnvironmentFile = cfg.environmentFile;
-            RuntimeDirectory = "appflowy";
-            RuntimeDirectoryMode = "0700";
-            ExecStart = environmentSetup;
-          };
-        };
+    systemd.services.appflowy-environment = {
+      description = "Prepare the AppFlowy Cloud runtime environment";
+      documentation = [ "https://docs.appflowy.io/docs/documentation/appflowy-cloud/deployment" ];
+      wantedBy = [ "multi-user.target" ];
+      before = containerUnits;
+      serviceConfig = {
+        Type = "oneshot";
+        RemainAfterExit = true;
+        EnvironmentFile = cfg.environmentFile;
+        RuntimeDirectory = "appflowy";
+        RuntimeDirectoryMode = "0700";
+        ExecStart = environmentSetup;
       };
+    };
   };
 }

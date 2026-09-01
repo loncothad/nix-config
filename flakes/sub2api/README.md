@@ -15,14 +15,15 @@ environment, persistence, and service-graph changes.
 ## Outputs and services
 
 The adapter exports `nixosModules.default`, `nixosModules.sub2api`, and
-`flakeModules.default`. The NixOS module defines:
+`flakeModules.default`. Both NixOS outputs include the `quadlet-nix` module and
+define:
 
 ```nix
 virtualisation.oci-containers.namedContainers.sub2api
 ```
 
 Enabling it creates the Sub2API application, PostgreSQL 18, and Redis 8 as
-Podman containers on the shared `selfhosted` network. Named volumes preserve
+Podman Quadlets on the shared `selfhosted` network. Named volumes preserve
 application, database, and Redis data. The application binds to
 `127.0.0.1:8080` by default; use a TLS reverse proxy for public deployment and
 enable direct firewall access only when intended.
