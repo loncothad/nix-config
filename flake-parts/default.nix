@@ -8,6 +8,7 @@
   imports = [
     inputs.treefmt.flakeModule
     inputs.fastpotify-adapter.flakeModules.default
+    inputs.notesnook-sync-server-adapter.flakeModules.default
     inputs.sub2api-adapter.flakeModules.default
     ./home-modules.nix
     ./treefmt.nix

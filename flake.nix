@@ -48,6 +48,13 @@
       inputs.quadlet-nix.follows = "quadlet-nix";
     };
 
+    notesnook-sync-server-adapter = {
+      url = "path:./flakes/notesnook-sync-server";
+      inputs.nixpkgs.follows = "nixpkgs";
+      inputs.flake-parts.follows = "flake-parts";
+      inputs.quadlet-nix.follows = "quadlet-nix";
+    };
+
     celld-adapter = {
       url = "path:./flakes/celld";
       inputs.nixpkgs.follows = "nixpkgs";

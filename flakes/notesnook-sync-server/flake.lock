@@ -1,0 +1,81 @@
+{
+  "nodes": {
+    "flake-parts": {
+      "inputs": {
+        "nixpkgs-lib": [
+          "nixpkgs"
+        ]
+      },
+      "locked": {
+        "lastModified": 1787559586,
+        "narHash": "sha256-onL0VLf9vPllmT0H/OlURIU5r5t5WIEl7t4tVNKT0Nw=",
+        "owner": "hercules-ci",
+        "repo": "flake-parts",
+        "rev": "9d0d87172c374f89da73c1cfe6d81ae62feac1f1",
+        "type": "github"
+      },
+      "original": {
+        "owner": "hercules-ci",
+        "repo": "flake-parts",
+        "type": "github"
+      }
+    },
+    "nixpkgs": {
+      "locked": {
+        "lastModified": 1788179007,
+        "narHash": "sha256-hn1oU2rue2SYK8dAr8+WNZWtbsz1S2W5mnHlSEuh3bo=",
+        "owner": "NixOS",
+        "repo": "nixpkgs",
+        "rev": "34ab99075ac4f7e40cf037eef32cb1c360bb85e9",
+        "type": "github"
+      },
+      "original": {
+        "owner": "NixOS",
+        "ref": "nixos-unstable",
+        "repo": "nixpkgs",
+        "type": "github"
+      }
+    },
+    "notesnook-sync-server-src": {
+      "flake": false,
+      "locked": {
+        "lastModified": 1787026532,
+        "narHash": "sha256-L7TvAnrLZFyDHNoUeGAVj+pNT8dBsCNjFsgmFNDUfd8=",
+        "owner": "streetwriters",
+        "repo": "notesnook-sync-server",
+        "rev": "8b610e0952a0b23134a581a5e8787d98bb693600",
+        "type": "github"
+      },
+      "original": {
+        "owner": "streetwriters",
+        "repo": "notesnook-sync-server",
+        "type": "github"
+      }
+    },
+    "quadlet-nix": {
+      "locked": {
+        "lastModified": 1785695563,
+        "narHash": "sha256-kE3JCUeQA4CXlLl5TglmKceOJP+ZF/CwkHngiZ3yS00=",
+        "owner": "SEIAROTg",
+        "repo": "quadlet-nix",
+        "rev": "b6ff6c4d6b36b8e29bce417b668597fab3e03160",
+        "type": "github"
+      },
+      "original": {
+        "owner": "SEIAROTg",
+        "repo": "quadlet-nix",
+        "type": "github"
+      }
+    },
+    "root": {
+      "inputs": {
+        "flake-parts": "flake-parts",
+        "nixpkgs": "nixpkgs",
+        "notesnook-sync-server-src": "notesnook-sync-server-src",
+        "quadlet-nix": "quadlet-nix"
+      }
+    }
+  },
+  "root": "root",
+  "version": 7
+}

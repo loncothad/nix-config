@@ -1076,6 +1076,45 @@
         "type": "github"
       }
     },
+    "notesnook-sync-server-adapter": {
+      "inputs": {
+        "flake-parts": [
+          "flake-parts"
+        ],
+        "nixpkgs": [
+          "nixpkgs"
+        ],
+        "notesnook-sync-server-src": "notesnook-sync-server-src",
+        "quadlet-nix": [
+          "quadlet-nix"
+        ]
+      },
+      "locked": {
+        "path": "./flakes/notesnook-sync-server",
+        "type": "path"
+      },
+      "original": {
+        "path": "./flakes/notesnook-sync-server",
+        "type": "path"
+      },
+      "parent": []
+    },
+    "notesnook-sync-server-src": {
+      "flake": false,
+      "locked": {
+        "lastModified": 1787026532,
+        "narHash": "sha256-L7TvAnrLZFyDHNoUeGAVj+pNT8dBsCNjFsgmFNDUfd8=",
+        "owner": "streetwriters",
+        "repo": "notesnook-sync-server",
+        "rev": "8b610e0952a0b23134a581a5e8787d98bb693600",
+        "type": "github"
+      },
+      "original": {
+        "owner": "streetwriters",
+        "repo": "notesnook-sync-server",
+        "type": "github"
+      }
+    },
     "nur": {
       "inputs": {
         "flake-parts": [
@@ -1183,6 +1222,7 @@
         "nixpkgs": "nixpkgs_6",
         "nixpkgs-master": "nixpkgs-master",
         "nixpkgs-stable": "nixpkgs-stable",
+        "notesnook-sync-server-adapter": "notesnook-sync-server-adapter",
         "quadlet-nix": "quadlet-nix",
         "stylix": "stylix",
         "sub2api-adapter": "sub2api-adapter",

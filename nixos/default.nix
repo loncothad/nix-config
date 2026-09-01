@@ -31,6 +31,7 @@ let
         overlaysModule
 
         inputs.celld-adapter.nixosModules.default
+        inputs.notesnook-sync-server-adapter.nixosModules.default
         inputs.sub2api-adapter.nixosModules.default
         inputs.determinate.nixosModules.default
         inputs.disko.nixosModules.disko
