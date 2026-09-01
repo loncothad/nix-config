@@ -70,7 +70,7 @@ in
   };
 
   config = mkIf cfg.enable {
-    # tuigreet has no name denylist — only a UID window. Nix/Lix build
+    # tuigreet has no name denylist — only a UID window. Nix build
     # users start at ids.uids.nixbld (30000), so keep the menu below that.
     services.greetd.tuigreet.settings = {
       user_menu = {

@@ -27,6 +27,10 @@
       inputs.nixpkgs-lib.follows = "nixpkgs";
     };
 
+    determinate = {
+      url = "https://flakehub.com/f/DeterminateSystems/determinate/3";
+    };
+
     autolith = {
       url = "github:lambda-symbolics/autolith";
     };

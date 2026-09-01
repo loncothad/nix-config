@@ -88,8 +88,10 @@ Commit as you go. Do not pile unrelated edits into one commit at the end.
   `nixos/default.nix`.
 - New files must be `git add`ed or Nix will not see them (`Path … is not
   tracked by Git`).
-- Nix daemon is **Lix** (`nixos/modules/preferences/nix.nix`). Do not reintroduce
-  CppNix-only settings (`configurable-impure-env`, `impure-env`).
+- Nix daemon is **Determinate Nix**, supplied by the upstream `determinate`
+  NixOS module. Do not set `nix.package` in repository modules; configure local
+  daemon additions through `nix.settings`, which the Determinate module writes
+  to its supported `nix.custom.conf` path.
 
 ## Project adapter flakes (`flakes/`)
 

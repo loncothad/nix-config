@@ -1,4 +1,4 @@
-{ inputs, pkgs, ... }:
+{ inputs, ... }:
 
 # nh
 # nixd
@@ -16,7 +16,6 @@
 
   config = {
     nix = {
-      package = pkgs.lix;
       registry.s.flake = inputs.self;
 
       settings = {
