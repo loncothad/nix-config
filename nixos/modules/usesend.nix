@@ -11,12 +11,11 @@ let
   updateLabels = lib.optionalAttrs runtime.autoUpdate.enable {
     "io.containers.autoupdate" = "registry";
   };
-  containerNames = [
-    "usesend-postgres"
-    "usesend-redis"
-    "usesend-minio"
-    "usesend"
-  ];
+  dependencyNames =
+    lib.optional cfg.postgres.createLocally "usesend-postgres"
+    ++ lib.optional cfg.redis.createLocally "usesend-redis"
+    ++ lib.optional cfg.minio.createLocally "usesend-minio";
+  containerNames = dependencyNames ++ [ "usesend" ];
 in
 {
   options.virtualisation.oci-containers.namedContainers.usesend = {
@@ -55,6 +54,33 @@ in
       description = "Additional non-secret environment variables for useSend.";
     };
 
+    postgres.createLocally = lib.mkOption {
+      type = lib.types.bool;
+      default = true;
+      description = ''
+        Whether to run a dedicated PostgreSQL container. When false, configure
+        the external database through environmentFile.
+      '';
+    };
+
+    redis.createLocally = lib.mkOption {
+      type = lib.types.bool;
+      default = true;
+      description = ''
+        Whether to run a dedicated Redis container. When false, configure the
+        external cache through environmentFile.
+      '';
+    };
+
+    minio.createLocally = lib.mkOption {
+      type = lib.types.bool;
+      default = true;
+      description = ''
+        Whether to run a dedicated MinIO container. When false, configure
+        reusable S3-compatible storage through environmentFile.
+      '';
+    };
+
     openFirewall = lib.mkEnableOption "the useSend port in the firewall";
   };
 
@@ -63,6 +89,21 @@ in
     networking.firewall.allowedTCPPorts = lib.mkIf cfg.openFirewall [ cfg.port ];
 
     virtualisation.oci-containers.containers = {
+      usesend = {
+        image = cfg.image;
+        ports = [ "${cfg.host}:${toString cfg.port}:${toString cfg.port}" ];
+        networks = [ "selfhosted" ];
+        dependsOn = dependencyNames;
+        environmentFiles = [ cfg.environmentFile ];
+        environment = {
+          PORT = toString cfg.port;
+          NEXT_PUBLIC_IS_CLOUD = "false";
+        }
+        // cfg.environment;
+        labels = updateLabels;
+      };
+    }
+    // lib.optionalAttrs cfg.postgres.createLocally {
       usesend-postgres = {
         image = "docker.io/library/postgres:16";
         networks = [ "selfhosted" ];
@@ -70,7 +111,8 @@ in
         volumes = [ "usesend-postgres:/var/lib/postgresql/data" ];
         labels = updateLabels;
       };
-
+    }
+    // lib.optionalAttrs cfg.redis.createLocally {
       usesend-redis = {
         image = "docker.io/library/redis:7";
         networks = [ "selfhosted" ];
@@ -82,7 +124,8 @@ in
         ];
         labels = updateLabels;
       };
-
+    }
+    // lib.optionalAttrs cfg.minio.createLocally {
       usesend-minio = {
         image = "docker.io/minio/minio:latest";
         networks = [ "selfhosted" ];
@@ -96,24 +139,6 @@ in
           "--address"
           ":9002"
         ];
-        labels = updateLabels;
-      };
-
-      usesend = {
-        image = cfg.image;
-        ports = [ "${cfg.host}:${toString cfg.port}:${toString cfg.port}" ];
-        networks = [ "selfhosted" ];
-        dependsOn = [
-          "usesend-postgres"
-          "usesend-redis"
-          "usesend-minio"
-        ];
-        environmentFiles = [ cfg.environmentFile ];
-        environment = {
-          PORT = toString cfg.port;
-          NEXT_PUBLIC_IS_CLOUD = "false";
-        }
-        // cfg.environment;
         labels = updateLabels;
       };
     };

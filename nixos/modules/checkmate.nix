@@ -28,6 +28,16 @@ in
       description = "OCI image used for Checkmate's MongoDB.";
     };
 
+    mongodb.createLocally = lib.mkOption {
+      type = lib.types.bool;
+      default = true;
+      description = ''
+        Whether to run a dedicated MongoDB container. When false,
+        environmentFile or environment must define DB_CONNECTION_STRING for a
+        reusable external MongoDB instance.
+      '';
+    };
+
     host = lib.mkOption {
       type = lib.types.str;
       default = "127.0.0.1";
@@ -60,6 +70,23 @@ in
     networking.firewall.allowedTCPPorts = lib.mkIf cfg.openFirewall [ cfg.port ];
 
     virtualisation.oci-containers.containers = {
+      checkmate = {
+        image = cfg.image;
+        ports = [ "${cfg.host}:${toString cfg.port}:52345" ];
+        networks = [ "selfhosted" ];
+        dependsOn = lib.optional cfg.mongodb.createLocally "checkmate-mongodb";
+        environmentFiles = [ cfg.environmentFile ];
+        environment = {
+          CLIENT_HOST = "http://${cfg.host}:${toString cfg.port}";
+        }
+        // lib.optionalAttrs cfg.mongodb.createLocally {
+          DB_CONNECTION_STRING = "mongodb://checkmate-mongodb:27017/uptime_db";
+        }
+        // cfg.environment;
+        labels = updateLabels;
+      };
+    }
+    // lib.optionalAttrs cfg.mongodb.createLocally {
       checkmate-mongodb = {
         image = cfg.mongoImage;
         networks = [ "selfhosted" ];
@@ -71,29 +98,17 @@ in
         ];
         labels = updateLabels;
       };
-
-      checkmate = {
-        image = cfg.image;
-        ports = [ "${cfg.host}:${toString cfg.port}:52345" ];
-        networks = [ "selfhosted" ];
-        dependsOn = [ "checkmate-mongodb" ];
-        environmentFiles = [ cfg.environmentFile ];
-        environment = {
-          DB_CONNECTION_STRING = "mongodb://checkmate-mongodb:27017/uptime_db";
-          CLIENT_HOST = "http://${cfg.host}:${toString cfg.port}";
-        }
-        // cfg.environment;
-        labels = updateLabels;
-      };
     };
 
     systemd.services = {
-      podman-checkmate-mongodb = {
+      podman-checkmate = {
         documentation = [ "https://checkmate.so/docs/getting-started/installation" ];
         after = [ "selfhosted-podman-network.service" ];
         requires = [ "selfhosted-podman-network.service" ];
       };
-      podman-checkmate = {
+    }
+    // lib.optionalAttrs cfg.mongodb.createLocally {
+      podman-checkmate-mongodb = {
         documentation = [ "https://checkmate.so/docs/getting-started/installation" ];
         after = [ "selfhosted-podman-network.service" ];
         requires = [ "selfhosted-podman-network.service" ];

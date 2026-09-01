@@ -11,10 +11,11 @@ let
   updateLabels = lib.optionalAttrs runtime.autoUpdate.enable {
     "io.containers.autoupdate" = "registry";
   };
-  containerNames = [
-    "rybbit-clickhouse"
-    "rybbit-postgres"
-    "rybbit-redis"
+  dependencyNames =
+    lib.optional cfg.clickhouse.createLocally "rybbit-clickhouse"
+    ++ lib.optional cfg.postgres.createLocally "rybbit-postgres"
+    ++ lib.optional cfg.redis.createLocally "rybbit-redis";
+  containerNames = dependencyNames ++ [
     "rybbit-backend"
     "rybbit-client"
   ];
@@ -72,6 +73,61 @@ in
       '';
     };
 
+    clickhouse = {
+      createLocally = lib.mkOption {
+        type = lib.types.bool;
+        default = true;
+        description = "Whether to run a dedicated ClickHouse container.";
+      };
+
+      url = lib.mkOption {
+        type = lib.types.str;
+        default = "http://rybbit-clickhouse:8123";
+        example = "https://clickhouse.internal:8443";
+        description = "ClickHouse HTTP endpoint used by the Rybbit backend.";
+      };
+    };
+
+    postgres = {
+      createLocally = lib.mkOption {
+        type = lib.types.bool;
+        default = true;
+        description = "Whether to run a dedicated PostgreSQL container.";
+      };
+
+      host = lib.mkOption {
+        type = lib.types.str;
+        default = "rybbit-postgres";
+        description = "PostgreSQL host used by the Rybbit backend.";
+      };
+
+      port = lib.mkOption {
+        type = lib.types.port;
+        default = 5432;
+        description = "PostgreSQL port used by the Rybbit backend.";
+      };
+    };
+
+    redis = {
+      createLocally = lib.mkOption {
+        type = lib.types.bool;
+        default = true;
+        description = "Whether to run a dedicated Redis container.";
+      };
+
+      host = lib.mkOption {
+        type = lib.types.str;
+        default = "rybbit-redis";
+        description = "Redis host used by the Rybbit backend.";
+      };
+
+      port = lib.mkOption {
+        type = lib.types.port;
+        default = 6379;
+        description = "Redis port used by the Rybbit backend.";
+      };
+    };
+
     openFirewall = lib.mkEnableOption "the Rybbit frontend and backend ports in the firewall";
   };
 
@@ -83,52 +139,19 @@ in
     ];
 
     virtualisation.oci-containers.containers = {
-      rybbit-clickhouse = {
-        image = "docker.io/clickhouse/clickhouse-server:26.3.17.4";
-        networks = [ "selfhosted" ];
-        environmentFiles = [ cfg.environmentFile ];
-        volumes = [ "rybbit-clickhouse:/var/lib/clickhouse" ];
-        labels = updateLabels;
-      };
-
-      rybbit-postgres = {
-        image = "docker.io/library/postgres:17.4";
-        networks = [ "selfhosted" ];
-        environmentFiles = [ cfg.environmentFile ];
-        volumes = [ "rybbit-postgres:/var/lib/postgresql/data" ];
-        labels = updateLabels;
-      };
-
-      rybbit-redis = {
-        image = "docker.io/library/redis:8.6.4-alpine";
-        networks = [ "selfhosted" ];
-        environmentFiles = [ cfg.environmentFile ];
-        volumes = [ "rybbit-redis:/data" ];
-        cmd = [
-          "sh"
-          "-c"
-          ''exec redis-server --requirepass "$REDIS_PASSWORD" --appendonly yes --appendfsync everysec --maxmemory-policy noeviction''
-        ];
-        labels = updateLabels;
-      };
-
       rybbit-backend = {
         image = cfg.backendImage;
         ports = [ "${cfg.host}:${toString cfg.backendPort}:3001" ];
         networks = [ "selfhosted" ];
-        dependsOn = [
-          "rybbit-clickhouse"
-          "rybbit-postgres"
-          "rybbit-redis"
-        ];
+        dependsOn = dependencyNames;
         environmentFiles = [ cfg.environmentFile ];
         environment = {
           NODE_ENV = "production";
-          CLICKHOUSE_HOST = "http://rybbit-clickhouse:8123";
-          POSTGRES_HOST = "rybbit-postgres";
-          POSTGRES_PORT = "5432";
-          REDIS_HOST = "rybbit-redis";
-          REDIS_PORT = "6379";
+          CLICKHOUSE_HOST = cfg.clickhouse.url;
+          POSTGRES_HOST = cfg.postgres.host;
+          POSTGRES_PORT = toString cfg.postgres.port;
+          REDIS_HOST = cfg.redis.host;
+          REDIS_PORT = toString cfg.redis.port;
         }
         // cfg.environment;
         labels = updateLabels;
@@ -144,6 +167,38 @@ in
           NODE_ENV = "production";
         }
         // cfg.environment;
+        labels = updateLabels;
+      };
+    }
+    // lib.optionalAttrs cfg.clickhouse.createLocally {
+      rybbit-clickhouse = {
+        image = "docker.io/clickhouse/clickhouse-server:26.3.17.4";
+        networks = [ "selfhosted" ];
+        environmentFiles = [ cfg.environmentFile ];
+        volumes = [ "rybbit-clickhouse:/var/lib/clickhouse" ];
+        labels = updateLabels;
+      };
+    }
+    // lib.optionalAttrs cfg.postgres.createLocally {
+      rybbit-postgres = {
+        image = "docker.io/library/postgres:17.4";
+        networks = [ "selfhosted" ];
+        environmentFiles = [ cfg.environmentFile ];
+        volumes = [ "rybbit-postgres:/var/lib/postgresql/data" ];
+        labels = updateLabels;
+      };
+    }
+    // lib.optionalAttrs cfg.redis.createLocally {
+      rybbit-redis = {
+        image = "docker.io/library/redis:8.6.4-alpine";
+        networks = [ "selfhosted" ];
+        environmentFiles = [ cfg.environmentFile ];
+        volumes = [ "rybbit-redis:/data" ];
+        cmd = [
+          "sh"
+          "-c"
+          ''exec redis-server --requirepass "$REDIS_PASSWORD" --appendonly yes --appendfsync everysec --maxmemory-policy noeviction''
+        ];
         labels = updateLabels;
       };
     };
