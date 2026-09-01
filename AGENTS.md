@@ -11,7 +11,8 @@ This file is only the working contract for agents.
 2. `justfile` — recipes for eval/rebuild/validate
 3. The host you are touching under `nixos/hosts/<name>/`
 4. `home-manager/users/loncothad/` if the change is user-facing
-5. `flakes/<name>/` if the change touches an external project adapter
+5. `flakes/README.md`, then `flakes/<name>/README.md`, if the change touches an
+   external project adapter
 
 ## Commands
 
@@ -90,20 +91,12 @@ Commit as you go. Do not pile unrelated edits into one commit at the end.
 
 ## Project adapter flakes (`flakes/`)
 
-`flakes/<name>/` is the ownership boundary for imported projects without an
-upstream flake. It can also hold a reusable module adapter for a native-flake or
-nixpkgs project. Adapters are independently locked flake-parts flakes. Their
-shape follows what they export:
-
-```
-flakes/<name>/
-  flake.nix          inputs and flake-parts entry
-  flake-parts.nix    packages, overlays, and module exports
-  package.nix        optional package implementation
-  nixos.nix          optional NixOS module
-  home-manager.nix   optional Home Manager module
-  flake.lock
-```
+Read **[`flakes/README.md`](./flakes/README.md)** before adding or changing an
+adapter. It is the authoritative specification for adapter selection, concrete
+layouts, output contracts, root wiring, naming, locking, and validation. Each
+adapter must also have a README that records its role, upstream repository,
+website and documentation when available, outputs, root integration, and
+update procedure.
 
 - Use flake-parts. Do not add a second module system or a one-off `outputs =`.
 - File is `flake-parts.nix`, not `flake-module.nix`.
@@ -130,8 +123,6 @@ flakes/<name>/
 - A module's default package should come from the adapter's own package output
   (or be an explicit package option), so the adapter remains usable outside
   this repository's overlay.
-- Not every adapter is a core input (`flakes/mark-shot` is currently
-  barrel-only).
 - `git add` new adapter files before locking, then run
   `nix flake lock ./flakes/<name>` followed by `nix flake lock` at the root.
   Path inputs are invisible until Git tracks them.

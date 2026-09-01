@@ -28,23 +28,11 @@ wiring.
 
 ## Project integration boundary
 
-An external project is integrated according to its upstream shape:
-
-1. If upstream provides a usable `flake.nix`, consume it as a root input.
-2. If upstream has no flake, create `flakes/<project>/` as a flake-parts
-   adapter. Track upstream there as an input with `flake = false`; keep the
-   package and project-specific NixOS or Home Manager modules in that adapter.
-3. If this repository only adds a module around a package already in nixpkgs,
-   the integration may be a module-only adapter or a small repository module.
-
-An adapter flake is independently evaluable and locked. Depending on what it
-owns, it exports some combination of:
-
-- `packages.<system>.<package>` and `packages.<system>.default`;
-- `overlays.default`;
-- `nixosModules.default`;
-- `homeModules.default`;
-- a flake-parts module when it contributes named outputs to another flake.
+External projects with usable upstream flakes are direct inputs. Packaging for
+an upstream without a flake, along with modules specific to that project, lives
+in an independently locked adapter under `flakes/`. Reusable module-only
+adapters may also live there when nixpkgs or a separate native flake owns the
+package.
 
 The root overlay mirrors package-producing inputs without flattening them:
 
@@ -55,17 +43,8 @@ pkgs.fromFlakes.<flake-name>.<flake-package-name>
 The root `packages` output may provide convenient flat entry points, but NixOS
 and Home Manager configuration uses the two-level `fromFlakes` namespace.
 
-### Current project integrations
-
-| Project | Upstream shape | Local boundary | Current use |
-| --- | --- | --- | --- |
-| Autolith | native flake | direct input plus small HM module | package and `programs.autolith` |
-| Fastpotify | native flake | direct input, root package fixup, small HM module | package and `programs.fastpotify` |
-| Celld | no upstream flake | `flakes/celld/` adapter with `celld-src` | package and `services.celld` NixOS module |
-| Wine4Office | no upstream flake | `flakes/wine4office/` adapter with `wine4office-src` | application and Wine packages |
-| mark-shot | native flake | direct package input plus module adapter | package and `programs.mark-shot` |
-| xwayland-satellite | nixpkgs package | module-only adapter | Home Manager service integration |
-| xdg-dbus-proxy | nixpkgs package | small repository HM module | named user proxy services |
+The concrete adapter layouts, output contracts, and root wiring are maintained
+in [`flakes/README.md`](./flakes/README.md).
 
 ## NixOS composition
 
@@ -114,8 +93,9 @@ selected by system composition. Scripts are Nushell programs under
   barrel.
 - New native-flake project: add the input and mirror its package set under
   `pkgs.fromFlakes.<input>`.
-- New non-flake project: create and lock an adapter under `flakes/`, then wire
-  its exported packages and modules at the root boundaries.
+- New non-flake project: follow the package-adapter contract in
+  `flakes/README.md`, then wire its exported packages and modules at the root
+  boundaries.
 - New user-facing choice: keep the reusable option in a module and enable it in
   the user's settings tree.
 
