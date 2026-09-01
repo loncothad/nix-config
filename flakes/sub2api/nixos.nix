@@ -41,6 +41,11 @@ let
 
     postgres_user=${lib.escapeShellArg cfg.postgres.user}
     postgres_database=${lib.escapeShellArg cfg.postgres.database}
+    postgres_host=${lib.escapeShellArg cfg.postgres.host}
+    postgres_port=${lib.escapeShellArg (toString cfg.postgres.port)}
+    postgres_sslmode=${lib.escapeShellArg cfg.postgres.sslMode}
+    redis_host=${lib.escapeShellArg cfg.redis.host}
+    redis_port=${lib.escapeShellArg (toString cfg.redis.port)}
     admin_email=${lib.escapeShellArg cfg.adminEmail}
     timezone=${lib.escapeShellArg cfg.timezone}
 
@@ -49,18 +54,18 @@ let
     SERVER_HOST=0.0.0.0
     SERVER_PORT=8080
     SERVER_MODE=release
-    DATABASE_HOST=sub2api-postgres
-    DATABASE_PORT=5432
+    DATABASE_HOST=$postgres_host
+    DATABASE_PORT=$postgres_port
     DATABASE_USER=$postgres_user
     DATABASE_PASSWORD=$POSTGRES_PASSWORD
     DATABASE_DBNAME=$postgres_database
-    DATABASE_SSLMODE=disable
+    DATABASE_SSLMODE=$postgres_sslmode
     POSTGRES_USER=$postgres_user
     POSTGRES_PASSWORD=$POSTGRES_PASSWORD
     POSTGRES_DB=$postgres_database
     PGDATA=/var/lib/postgresql/data
-    REDIS_HOST=sub2api-redis
-    REDIS_PORT=6379
+    REDIS_HOST=$redis_host
+    REDIS_PORT=$redis_port
     REDIS_PASSWORD=''${REDIS_PASSWORD:-}
     REDISCLI_AUTH=''${REDIS_PASSWORD:-}
     ADMIN_EMAIL=$admin_email
@@ -71,11 +76,10 @@ let
     EOF
   '';
 
-  containerNames = [
-    "sub2api-postgres"
-    "sub2api-redis"
-    "sub2api"
-  ];
+  dependencyNames =
+    lib.optional cfg.postgres.createLocally "sub2api-postgres"
+    ++ lib.optional cfg.redis.createLocally "sub2api-redis";
+  containerNames = dependencyNames ++ [ "sub2api" ];
   containerUnits = map (name: "podman-${name}.service") containerNames;
 in
 {
@@ -128,6 +132,25 @@ in
     };
 
     postgres = {
+      createLocally = lib.mkOption {
+        type = lib.types.bool;
+        default = true;
+        description = "Whether to run a dedicated PostgreSQL container for Sub2API.";
+      };
+
+      host = lib.mkOption {
+        type = lib.types.str;
+        default = "sub2api-postgres";
+        example = "postgres.internal";
+        description = "PostgreSQL host used by Sub2API.";
+      };
+
+      port = lib.mkOption {
+        type = lib.types.port;
+        default = 5432;
+        description = "PostgreSQL port used by Sub2API.";
+      };
+
       user = lib.mkOption {
         type = lib.types.str;
         default = "sub2api";
@@ -140,6 +163,13 @@ in
         description = "PostgreSQL database used by Sub2API.";
       };
 
+      sslMode = lib.mkOption {
+        type = lib.types.str;
+        default = "disable";
+        example = "require";
+        description = "PostgreSQL SSL mode used by Sub2API.";
+      };
+
       settings = lib.mkOption {
         type = lib.types.attrsOf lib.types.str;
         default = {
@@ -149,6 +179,27 @@ in
           maintenance_work_mem = "64MB";
         };
         description = "PostgreSQL server settings passed with -c.";
+      };
+    };
+
+    redis = {
+      createLocally = lib.mkOption {
+        type = lib.types.bool;
+        default = true;
+        description = "Whether to run a dedicated Redis container for Sub2API.";
+      };
+
+      host = lib.mkOption {
+        type = lib.types.str;
+        default = "sub2api-redis";
+        example = "redis.internal";
+        description = "Redis host used by Sub2API.";
+      };
+
+      port = lib.mkOption {
+        type = lib.types.port;
+        default = 6379;
+        description = "Redis port used by Sub2API.";
       };
     };
 
@@ -166,6 +217,22 @@ in
     networking.firewall.allowedTCPPorts = lib.mkIf cfg.openFirewall [ cfg.port ];
 
     virtualisation.oci-containers.containers = {
+      sub2api = {
+        image = cfg.images.app;
+        ports = [ "${cfg.host}:${toString cfg.port}:8080" ];
+        networks = [ "selfhosted" ];
+        dependsOn = dependencyNames;
+        environmentFiles = environmentFiles;
+        environment = cfg.environment;
+        volumes = [ "sub2api-data:/app/data" ];
+        labels = updateLabels;
+        extraOptions = [
+          "--security-opt=no-new-privileges"
+          "--ulimit=nofile=100000:100000"
+        ];
+      };
+    }
+    // lib.optionalAttrs cfg.postgres.createLocally {
       sub2api-postgres = {
         image = cfg.images.postgres;
         networks = [ "selfhosted" ];
@@ -175,7 +242,8 @@ in
         labels = updateLabels;
         extraOptions = [ "--ulimit=nofile=100000:100000" ];
       };
-
+    }
+    // lib.optionalAttrs cfg.redis.createLocally {
       sub2api-redis = {
         image = cfg.images.redis;
         networks = [ "selfhosted" ];
@@ -188,24 +256,6 @@ in
         ];
         labels = updateLabels;
         extraOptions = [ "--ulimit=nofile=100000:100000" ];
-      };
-
-      sub2api = {
-        image = cfg.images.app;
-        ports = [ "${cfg.host}:${toString cfg.port}:8080" ];
-        networks = [ "selfhosted" ];
-        dependsOn = [
-          "sub2api-postgres"
-          "sub2api-redis"
-        ];
-        environmentFiles = environmentFiles;
-        environment = cfg.environment;
-        volumes = [ "sub2api-data:/app/data" ];
-        labels = updateLabels;
-        extraOptions = [
-          "--security-opt=no-new-privileges"
-          "--ulimit=nofile=100000:100000"
-        ];
       };
     };
 

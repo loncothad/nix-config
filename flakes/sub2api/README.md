@@ -27,6 +27,11 @@ application, database, and Redis data. The application binds to
 `127.0.0.1:8080` by default; use a TLS reverse proxy for public deployment and
 enable direct firewall access only when intended.
 
+PostgreSQL and Redis use `createLocally = true` by default. Disable either
+local dependency to reuse a shared service, then set its `host` and `port`.
+PostgreSQL additionally exposes `user`, `database`, and `sslMode`; passwords
+remain in `environmentFile`.
+
 ## Secrets and configuration
 
 Set `environmentFile` to a root-readable runtime secret file containing:
