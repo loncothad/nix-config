@@ -1,18 +1,36 @@
 { lib, ... }:
 
 let
+  configDirectory = ./config;
   extensionDirectory = ./extensions;
-  extensionFiles = lib.pipe (builtins.readDir extensionDirectory) [
-    (lib.filterAttrs (name: type: type == "regular" && lib.hasSuffix ".lisp" name))
-    builtins.attrNames
-    (map (name: extensionDirectory + "/${name}"))
+  relativePath = file: lib.removePrefix "${toString configDirectory}/" (toString file);
+  configFiles = builtins.sort (left: right: toString left < toString right) (
+    lib.filesystem.listFilesRecursive configDirectory
+  );
+  configEntries = map (file: {
+    inherit file;
+    path = relativePath file;
+  }) configFiles;
+  isDocumentation = entry: builtins.baseNameOf entry.path == "README.md";
+
+  extensionFiles = builtins.sort (left: right: toString left < toString right) (
+    builtins.filter (file: lib.hasSuffix ".lisp" (toString file)) (
+      lib.filesystem.listFilesRecursive extensionDirectory
+    )
+  );
+  otherConfigFiles = lib.pipe configEntries [
+    (builtins.filter (entry: entry.path != "init.lisp" && !(isDocumentation entry)))
+    (map (entry: lib.nameValuePair entry.path entry.file))
+    builtins.listToAttrs
   ];
 in
 {
   programs.autolith = {
     enable = true;
-    model = "openrouter/qwen/qwen3.8-27b";
+    model = "openrouter/openrouter/free";
     reasoningEffort = "medium";
+    extraConfig = builtins.readFile (configDirectory + "/init.lisp");
     extensions = extensionFiles;
+    configFiles = otherConfigFiles;
   };
 }
