@@ -62,9 +62,10 @@ virtualisation.oci-containers.namedContainers.appflowy = {
 
 ## Root integration and updates
 
-The root consumes this directory as the `appflowy-adapter` path input, imports its
-flake-parts module for the named output, and composes `nixosModules.default`
-into every NixOS system. No host enables the service by default.
+The root consumes this directory as the `appflowy-adapter` path input, imports
+its flake-parts module for the named output, and composes
+`nixosModules.default` into every NixOS system. No host enables the service by
+default.
 
 Update `appflowy-cloud-src` in this flake's lock after reviewing upstream's
 Compose file, deployment environment, and proxy configuration for changes to

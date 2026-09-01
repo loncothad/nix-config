@@ -28,16 +28,23 @@ wiring.
 
 ## Project integration boundary
 
-External projects with usable upstream flakes are direct inputs. Packaging for
-an upstream without a flake, along with modules specific to that project, lives
-in an independently locked adapter under `flakes/`. Reusable module-only
-adapters may also live there when nixpkgs or a separate native flake owns the
-package.
+An integration gets an independently locked adapter under `flakes/` only when
+it directly consumes an external flake or Git repository, or when it owns more
+than one integration concern that must travel together. Package repair plus a
+module, a package plus both NixOS and Home Manager modules, and a pinned
+non-flake source plus a deployment module all meet that boundary.
+
+A single repository-owned NixOS or Home Manager module stays in the respective
+main module directory when it uses nixpkgs or accepts its package from the
+caller. An upstream project with a usable flake is a direct root input when the
+root only consumes its existing outputs. Local path inputs use the
+`<project>-adapter` suffix so they cannot be mistaken for native upstream
+flakes.
 
 The root overlay mirrors package-producing inputs without flattening them:
 
 ```
-pkgs.fromFlakes.<flake-name>.<flake-package-name>
+pkgs.fromFlakes.<input-name>.<flake-package-name>
 ```
 
 The root `packages` output may provide convenient flat entry points, but NixOS
@@ -58,8 +65,10 @@ in [`flakes/README.md`](./flakes/README.md).
 - enabled user profiles.
 
 `nixos/modules/default.nix` is a barrel for repository-owned behavior only.
-Project-owned modules stay with their adapter and are composed at the system or
-root-export boundary.
+Simple project modules are repository-owned behavior and live in this barrel.
+Modules stay with an adapter only when the integration crosses the project
+adapter boundary above; those modules are composed at the system or root-export
+boundary.
 
 The currently constructed systems are `kepler` and `vega-small`. A directory
 under `nixos/hosts/` becomes a system only when `nixos/default.nix` lists it.
@@ -67,8 +76,9 @@ under `nixos/hosts/` becomes a system only when `nixos/default.nix` lists it.
 ## Home Manager composition
 
 `home-manager/modules/default.nix` is the reusable repository module set.
-Project adapters may also export Home Manager modules; the root `homeModules`
-output combines named project modules with the repository default barrel.
+Project adapters may also export Home Manager modules when they meet the
+adapter boundary. The root `homeModules` output combines named adapter modules
+with the repository default barrel.
 
 `users.profiles.<name>` connects a NixOS user to a Home Manager configuration.
 The currently enabled profile is `loncothad`, sourced from
@@ -91,11 +101,11 @@ selected by system composition. Scripts are Nushell programs under
 - New host: add its directory, then list it in `nixos/default.nix`.
 - New repository feature: add a reusable module and import it from the relevant
   barrel.
-- New native-flake project: add the input and mirror its package set under
-  `pkgs.fromFlakes.<input>`.
-- New non-flake project: follow the appropriate adapter contract in
-  `flakes/README.md`, then wire its exported packages and modules at the root
-  boundaries.
+- New upstream project consumed as-is: add its native flake input and mirror
+  its package set under `pkgs.fromFlakes.<input>`.
+- New project adapter: first apply the boundary above, then follow the concrete
+  contract in `flakes/README.md` and wire its exported packages and modules at
+  the root boundaries.
 - New user-facing choice: keep the reusable option in a module and enable it in
   the user's settings tree.
 

@@ -74,9 +74,11 @@ Commit as you go. Do not pile unrelated edits into one commit at the end.
 ## Edit rules
 
 - Keep host diffs in `nixos/hosts/<name>` and `…/niri/by-hostname/<hostname>.kdl`.
-- Repository-owned shared behavior goes in `nixos/modules` or
-  `home-manager/modules`. For an imported project without an upstream flake,
-  its package and project-specific modules stay together in `flakes/<name>/`.
+- Repository-owned shared behavior and single project modules go in
+  `nixos/modules` or `home-manager/modules`. Create `flakes/<name>/` only when
+  the integration directly depends on an external flake or Git repository, or
+  owns more than one concern that must travel together (for example, a package
+  plus both NixOS and Home Manager modules).
 - `loncothad` is imported on every system. Do not dump laptop-only packages into
   shared modules. Slim a host with `lib.mkForce` on
   `users.profiles.loncothad.homeManagerConfig`.
@@ -107,14 +109,20 @@ update procedure.
 - Keep a project's package and project-specific modules in the same adapter.
   Root `pkgs/`, `nixos/modules/`, and `home-manager/modules/` must not become
   alternate homes for non-flake upstream integrations.
-- If upstream already provides a usable flake, consume it directly. A local
-  supplemental module may still use a module-only adapter when it is large or
-  intended for reuse.
+- If upstream already provides a usable flake and no local adapter is needed,
+  consume it directly. A supplemental module by itself belongs in the main
+  NixOS or Home Manager module directory. Use an adapter only when the local
+  integration itself consumes that external flake or combines multiple
+  integration concerns.
 - Core `path:` inputs follow the root `nixpkgs` and `flake-parts`. The adapter
   must still be evaluable on its own with its own lock.
+- Name core local path inputs `<project>-adapter`; reserve the unqualified
+  project name for an upstream-provided flake input. Name a nested external
+  flake input `<project>-upstream` and a non-flake Git input with a clear
+  `-src` suffix.
 - Package-producing inputs are mirrored as
-  `pkgs.fromFlakes.<flake-name>.<flake-provided-package>`. Do not flatten them
-  inside the overlay. Flat names are allowed only in the root `packages`
+  `pkgs.fromFlakes.<root-input-name>.<flake-provided-package>`. Do not flatten
+  them inside the overlay. Flat names are allowed only in the root `packages`
   output as convenience entry points.
 - Export reusable modules from the adapter (`nixosModules.default` and/or
   `homeModules.default`). Wire project modules into system/HM composition and

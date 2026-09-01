@@ -7,16 +7,20 @@ the boundary between project flakes and the rest of the repository.
 
 ## When a project belongs here
 
-Use one of these integration paths:
+Create an adapter here only when at least one of these conditions holds:
 
-1. An upstream project with a usable `flake.nix` is a direct root input. Do not
-   wrap its packages in another local flake.
-2. An upstream project without a flake gets an adapter here. Its source is a
-   non-flake input of that adapter. Locally built packages and project-specific
-   modules stay together; an image-based deployment may instead use the
-   container-service shape below.
-3. A reusable module for a native-flake or nixpkgs project may use a
-   module-only adapter here. It does not duplicate the upstream package.
+1. The local integration directly consumes an external flake or Git
+   repository. An upstream repository without a flake is therefore pinned as a
+   non-flake input here; an upstream flake may be wrapped when the adapter
+   modifies or extends its outputs.
+2. The integration owns more than one concern that must travel together, such
+   as package repair plus a Home Manager module or reusable modules for both
+   NixOS and Home Manager.
+
+A single NixOS or Home Manager module that uses a nixpkgs package, an OCI
+image, or a caller-provided package belongs in the corresponding main module
+directory. An upstream flake consumed without local adaptation is a direct root
+input. Neither case gets a directory here.
 
 Every directory has a `README.md` explaining which case it implements, its
 outputs, its root integration, and how its upstream pin is updated. It also
@@ -51,15 +55,17 @@ is always `flake-parts.nix`. Core `path:` inputs follow the root `nixpkgs` and
 
 Names have distinct meanings:
 
-- `<flake-name>` is the directory and root input name.
-- `<source-name>-src` is a non-flake upstream source input.
+- `<project>` is the adapter directory name.
+- `<project>-adapter` is its local path input name in the root flake.
+- `<project>-upstream` is an external flake consumed by the adapter.
+- `<source-name>-src` is a non-flake upstream Git input.
 - `<flake-provided-package>` is exactly an attribute exported from the
   adapter's `packages.<system>` output.
 
 Root configurations address imported packages as:
 
 ```nix
-pkgs.fromFlakes.<flake-name>.<flake-provided-package>
+pkgs.fromFlakes.<project>-adapter.<flake-provided-package>
 ```
 
 The root overlay preserves the entire package set under the flake name. It
@@ -109,31 +115,13 @@ A module must expose a `package` option. Its default is closed over the
 adapter's own `packages` output, so importing the module does not require the
 root `fromFlakes` overlay.
 
-### Module-only adapter
+### Upstream-flake adapter
 
-Use this shape when the package comes from nixpkgs or a separate native flake:
-
-```text
-flakes/<name>/
-  README.md
-  flake.nix
-  flake-parts.nix
-  home-manager.nix   # or nixos.nix
-  flake.lock
-```
-
-The adapter exports both the directly consumable module and a flake-parts
-module that contributes the stable named output:
-
-```text
-flakeModules.default
-homeModules.default
-homeModules.<name>   # contributed by flakeModules.default
-```
-
-Use the corresponding `nixosModules` names for a NixOS-only adapter. The
-service/program module uses `lib.mkPackageOption` when nixpkgs owns the package,
-or requires an explicit package when a separate upstream flake owns it.
+Use this shape only when local integration needs to modify or extend an
+upstream flake. Name that nested input `<name>-upstream`, preserve relevant
+upstream outputs, and keep every related local concern in the adapter. For
+example, a repaired package and its Home Manager module are exported together
+as `packages`, `overlays.default`, and `homeModules.default`.
 
 ### Container-service adapter
 
@@ -166,7 +154,7 @@ ordering, and make direct firewall exposure opt-in.
 A core local adapter is added to root `flake.nix` as a path input:
 
 ```nix
-inputs.<name> = {
+inputs.example-adapter = {
   url = "path:./flakes/<name>";
   inputs.nixpkgs.follows = "nixpkgs";
   inputs.flake-parts.follows = "flake-parts";
@@ -175,18 +163,15 @@ inputs.<name> = {
 
 Then wire only the boundaries the adapter exports:
 
-- mirror `inputs.<name>.packages.${system}` at
-  `pkgs.fromFlakes.<name>` in `pkgs/default.nix`;
+- mirror `inputs.<name>-adapter.packages.${system}` at
+  `pkgs.fromFlakes.<name>-adapter` in `pkgs/default.nix`;
 - import and re-export NixOS modules in `flake-parts/modules.nix` and compose
   them in `nixos/default.nix` or the root default NixOS module;
 - import Home Manager implementations in `home-manager/modules/default.nix`
   so the default barrel remains self-contained;
-- import `inputs.<name>.flakeModules.default` in `flake-parts/default.nix` when
-  the root should expose the adapter's named module outputs.
-
-A module-only adapter may be barrel-only when the root does not need it as an
-input. It remains independently evaluable, while the relevant root barrel
-imports its implementation file directly.
+- import `inputs.<name>-adapter.flakeModules.default` in
+  `flake-parts/default.nix` when the root should expose the adapter's named
+  module outputs.
 
 ## Updating and validation
 

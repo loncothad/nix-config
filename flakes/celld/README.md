@@ -34,9 +34,10 @@ repository overlay.
   options.
 - `flake-parts.nix` connects the source, package, overlay, and module outputs.
 
-The root consumes this directory as the `celld-adapter` path input. Its package is
-available as `pkgs.fromFlakes.celld-adapter.celld`, and its module is re-exported as
-`nixosModules.celld` and included in the root default NixOS module.
+The root consumes this directory as the `celld-adapter` path input. Its package
+is available as `pkgs.fromFlakes.celld-adapter.celld`, and its module is
+re-exported as `nixosModules.celld` and included in the root default NixOS
+module.
 
 ## Updating
 
