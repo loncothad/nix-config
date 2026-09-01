@@ -30,7 +30,6 @@
       };
       mark-shot = ../home-manager/modules/mark-shot.nix;
       mutable-config-files = ../home-manager/modules/mutable-config-files.nix;
-      notesnook = ../home-manager/modules/notesnook.nix;
       nushell-bom = ../home-manager/modules/nushell-bom.nix;
       polkit-agent-lxqt = ../home-manager/modules/polkit-agent-lxqt.nix;
       wayland-compatibility = ../home-manager/modules/wayland-compatibility.nix;

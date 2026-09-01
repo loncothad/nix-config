@@ -55,8 +55,6 @@
     enable = true;
   };
 
-  programs.notesnook.enable = true;
-
   home.mutableConfigFiles = {
     enable = true;
     paths = [
@@ -94,5 +92,6 @@
     pcmanfm-qt
     qdirstat
     onlyoffice-desktopeditors
+    notesnook
   ];
 }

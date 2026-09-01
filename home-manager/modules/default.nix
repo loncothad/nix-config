@@ -9,7 +9,6 @@
     ./qt-dark-theme.nix
     ./mpv-xdg.nix
     ./mutable-config-files.nix
-    ./notesnook.nix
     ./nushell-bom.nix
     ./polkit-agent-lxqt.nix
     ./profile.nix
