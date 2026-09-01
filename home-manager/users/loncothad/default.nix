@@ -55,6 +55,8 @@
     enable = true;
   };
 
+  programs.notesnook.enable = true;
+
   services.polkit-agent-lxqt = {
     enable = true;
   };
