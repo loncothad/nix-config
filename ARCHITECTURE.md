@@ -18,7 +18,7 @@ home-manager/users/<name> user profiles and settings
 pkgs/                     root overlay composition
 disko/                    reusable disk layouts
 misc/                     scripts, keys, and assets
-justfile                  supported command surface
+tasks.nu                  supported Nushell command surface
 ```
 
 The root exports `nixosConfigurations`, `nixosModules`, `homeModules`,
@@ -110,4 +110,4 @@ selected by system composition. Scripts are Nushell programs under
   the user's settings tree.
 
 Operational commands and repository invariants are defined in `AGENTS.md` and
-the `justfile`.
+`tasks.nu`.

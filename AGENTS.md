@@ -8,7 +8,7 @@ This file is only the working contract for agents.
 ## First reads
 
 1. `ARCHITECTURE.md`
-2. `justfile` — recipes for eval/rebuild/validate
+2. `tasks.nu` — Nushell commands for eval/rebuild/validate
 3. The host you are touching under `nixos/hosts/<name>/`
 4. `home-manager/users/loncothad/` if the change is user-facing
 5. `flakes/README.md`, then `flakes/<name>/README.md`, if the change touches an
@@ -16,23 +16,23 @@ This file is only the working contract for agents.
 
 ## Commands
 
-Run from the repo root. Flakes are forced on in the justfile even if `nix.conf`
+Run from the repo root. Flakes are forced on in `tasks.nu` even if `nix.conf`
 does not enable them.
 
 ```bash
-just                  # list recipes
-just hosts            # flake nixosConfigurations
-just host=kepler eval-host
-just niri-validate    # loncothad niri KDL (HOST selects by-hostname)
-just update-adapter celld
-just update-all       # nested adapter locks, then the root lock
-just switch           # nixos-rebuild switch for current hostname
+./tasks.nu                  # list commands
+./tasks.nu hosts            # flake nixosConfigurations
+./tasks.nu eval-host --host kepler
+./tasks.nu niri-validate    # loncothad niri KDL (HOST selects by-hostname)
+./tasks.nu update-adapter celld
+./tasks.nu update-all       # nested adapter locks, then the root lock
+./tasks.nu switch           # nixos-rebuild switch for current hostname
 ```
 
-Override host with `HOST=kepler` or `just host=kepler …`.
+Override host with `HOST=kepler` or a host-aware command's `--host kepler`.
 
 Do not invent a second command surface. If a recipe is missing, add it to the
-justfile instead of documenting a one-off `nix` invocation.
+Nushell script instead of documenting a one-off `nix` invocation.
 
 ## Scripts
 
@@ -136,8 +136,9 @@ update procedure.
   (or be an explicit package option), so the adapter remains usable outside
   this repository's overlay.
 - `git add` new adapter files before locking, then run
-  `just update-adapter <name>` to update its nested lock and corresponding root
-  path input. Use `just update-all` to update every adapter before the root.
+  `./tasks.nu update-adapter <name>` to update its nested lock and corresponding
+  root path input. Use `./tasks.nu update-all` to update every adapter before
+  the root.
   Path inputs are invisible until Git tracks them.
 
 ## Out of scope unless asked

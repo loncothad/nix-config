@@ -181,22 +181,23 @@ second:
 
 ```console
 git add flakes/<name>
-just update-adapter <name>
+./tasks.nu update-adapter <name>
 ```
 
 For an existing non-flake source, update the source input in the nested flake,
 then use the same command after verifying any source or dependency hashes.
-`just update` updates only root inputs; `just update-all` updates every nested
-adapter and then all root inputs. Update recipes also accept flags supported by
-`nix flake update`; use `just outdated` for a non-mutating update check.
+`./tasks.nu update` updates only root inputs; `./tasks.nu update-all` updates
+every nested adapter and then all root inputs. Update commands also accept flags
+supported by `nix flake update`; use `./tasks.nu outdated` for a non-mutating
+update check.
 
 Use the repository command surface for validation:
 
 ```console
-just show
-just check
-just host=kepler eval-host
-just build-package <package>
+./tasks.nu show
+./tasks.nu check
+./tasks.nu eval-host --host kepler
+./tasks.nu build-package <package>
 ```
 
 Run the commands relevant to the changed outputs; package-only documentation
