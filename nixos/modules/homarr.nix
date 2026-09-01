@@ -7,7 +7,8 @@
 let
   root = config.virtualisation.oci-containers.namedContainers;
   cfg = root.homarr;
-  runtime = root;
+  runtime = config.virtualisation.quadlet;
+  selfhostedNetwork = config.virtualisation.quadlet.networks.selfhosted.ref;
 in
 {
   options.virtualisation.oci-containers.namedContainers.homarr = {
@@ -48,30 +49,24 @@ in
   };
 
   config = lib.mkIf cfg.enable {
-    virtualisation.oci-containers.namedContainers.enable = true;
     networking.firewall.allowedTCPPorts = lib.mkIf cfg.openFirewall [ cfg.port ];
 
-    virtualisation.oci-containers.containers.homarr = {
-      image = cfg.image;
-      ports = [ "${cfg.host}:${toString cfg.port}:7575" ];
-      networks = [ "selfhosted" ];
-      environmentFiles = [ cfg.environmentFile ];
-      environment = cfg.environment;
-      volumes = [
-        "homarr-appdata:/appdata"
-      ]
-      ++ lib.optional cfg.dockerSocket "/run/podman/podman.sock:/var/run/docker.sock:ro";
-      labels = lib.optionalAttrs runtime.autoUpdate.enable {
-        "io.containers.autoupdate" = "registry";
+    virtualisation.quadlet.containers.homarr = {
+      unitConfig.Documentation = [ "https://homarr.dev/docs/getting-started/installation/docker/" ];
+      containerConfig = {
+        image = cfg.image;
+        publishPorts = [ "${cfg.host}:${toString cfg.port}:7575" ];
+        networks = [ selfhostedNetwork ];
+        environmentFiles = [ (toString cfg.environmentFile) ];
+        environments = cfg.environment;
+        volumes = [
+          "homarr-appdata:/appdata"
+        ]
+        ++ lib.optional cfg.dockerSocket "/run/podman/podman.sock:/var/run/docker.sock:ro";
+        autoUpdate = if runtime.autoUpdate.enable then "registry" else null;
       };
     };
 
     virtualisation.podman.dockerSocket.enable = lib.mkIf cfg.dockerSocket true;
-
-    systemd.services.podman-homarr = {
-      documentation = [ "https://homarr.dev/docs/getting-started/installation/docker/" ];
-      after = [ "selfhosted-podman-network.service" ];
-      requires = [ "selfhosted-podman-network.service" ];
-    };
   };
 }

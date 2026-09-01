@@ -143,11 +143,15 @@ specific revision. The adapter exports `nixosModules.default`, a stable named
 `nixosModules.<name>`, and `flakeModules.default`; it does not invent a package
 or overlay for container images.
 
-Container services follow the shared
-`virtualisation.oci-containers.namedContainers` runtime in this repository.
-Their module must expose image overrides, bind to loopback by default, keep
-secrets in runtime environment files, declare persistent volumes and service
-ordering, and make direct firewall exposure opt-in.
+Container services expose project settings under
+`virtualisation.oci-containers.namedContainers`, then define their runtime
+resources through `quadlet-nix`'s `virtualisation.quadlet` module. Their adapter
+must follow the root `quadlet-nix` input and include its NixOS module so the
+adapter remains usable independently. Project modules must reference the
+declarative shared network and other Quadlet resources, expose image overrides,
+bind to loopback by default, keep secrets in runtime environment files, declare
+persistent volumes and service ordering, and make direct firewall exposure
+opt-in.
 
 ## Root wiring
 
@@ -160,6 +164,9 @@ inputs.example-adapter = {
   inputs.flake-parts.follows = "flake-parts";
 };
 ```
+
+Container-service adapters additionally set
+`inputs.quadlet-nix.follows = "quadlet-nix"`.
 
 Then wire only the boundaries the adapter exports:
 

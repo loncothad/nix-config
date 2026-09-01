@@ -7,10 +7,9 @@
 let
   root = config.virtualisation.oci-containers.namedContainers;
   cfg = root.rybbit;
-  runtime = root;
-  updateLabels = lib.optionalAttrs runtime.autoUpdate.enable {
-    "io.containers.autoupdate" = "registry";
-  };
+  runtime = config.virtualisation.quadlet;
+  quadlet = config.virtualisation.quadlet;
+  selfhostedNetwork = quadlet.networks.selfhosted.ref;
   ownsClickHouse = cfg.clickhouse.mode == "owned";
   ownsPostgres = cfg.postgres.mode == "owned";
   ownsRedis = cfg.redis.mode == "owned";
@@ -24,10 +23,7 @@ let
     lib.optional ownsClickHouse "rybbit-clickhouse"
     ++ lib.optional ownsPostgres "rybbit-postgres"
     ++ lib.optional ownsRedis "rybbit-redis";
-  containerNames = dependencyNames ++ [
-    "rybbit-backend"
-    "rybbit-client"
-  ];
+  dependencyRefs = map (name: quadlet.containers.${name}.ref) dependencyNames;
 in
 {
   options.virtualisation.oci-containers.namedContainers.rybbit = {
@@ -167,81 +163,95 @@ in
   };
 
   config = lib.mkIf cfg.enable {
-    virtualisation.oci-containers.namedContainers.enable = true;
     networking.firewall.allowedTCPPorts = lib.mkIf cfg.openFirewall [
       cfg.backendPort
       cfg.clientPort
     ];
 
-    virtualisation.oci-containers.containers = {
+    virtualisation.quadlet.containers = {
       rybbit-backend = {
-        image = cfg.backendImage;
-        ports = [ "${cfg.host}:${toString cfg.backendPort}:3001" ];
-        networks = [ "selfhosted" ];
-        dependsOn = dependencyNames;
-        environmentFiles = [ cfg.environmentFile ];
-        environment = {
-          NODE_ENV = "production";
-          CLICKHOUSE_HOST = clickhouseUrl;
-          POSTGRES_HOST = postgresHost;
-          POSTGRES_PORT = toString postgresPort;
-          REDIS_HOST = redisHost;
-          REDIS_PORT = toString redisPort;
-        }
-        // cfg.environment;
-        labels = updateLabels;
+        unitConfig = {
+          Documentation = [ "https://rybbit.com/docs/self-hosting" ];
+          Requires = dependencyRefs;
+          After = dependencyRefs;
+        };
+        containerConfig = {
+          image = cfg.backendImage;
+          publishPorts = [ "${cfg.host}:${toString cfg.backendPort}:3001" ];
+          networks = [ selfhostedNetwork ];
+          environmentFiles = [ (toString cfg.environmentFile) ];
+          environments = {
+            NODE_ENV = "production";
+            CLICKHOUSE_HOST = clickhouseUrl;
+            POSTGRES_HOST = postgresHost;
+            POSTGRES_PORT = toString postgresPort;
+            REDIS_HOST = redisHost;
+            REDIS_PORT = toString redisPort;
+          }
+          // cfg.environment;
+          autoUpdate = if runtime.autoUpdate.enable then "registry" else null;
+        };
       };
 
       rybbit-client = {
-        image = cfg.clientImage;
-        ports = [ "${cfg.host}:${toString cfg.clientPort}:3002" ];
-        networks = [ "selfhosted" ];
-        dependsOn = [ "rybbit-backend" ];
-        environmentFiles = [ cfg.environmentFile ];
-        environment = {
-          NODE_ENV = "production";
-        }
-        // cfg.environment;
-        labels = updateLabels;
+        unitConfig = {
+          Documentation = [ "https://rybbit.com/docs/self-hosting" ];
+          Requires = [ quadlet.containers.rybbit-backend.ref ];
+          After = [ quadlet.containers.rybbit-backend.ref ];
+        };
+        containerConfig = {
+          image = cfg.clientImage;
+          publishPorts = [ "${cfg.host}:${toString cfg.clientPort}:3002" ];
+          networks = [ selfhostedNetwork ];
+          environmentFiles = [ (toString cfg.environmentFile) ];
+          environments = {
+            NODE_ENV = "production";
+          }
+          // cfg.environment;
+          autoUpdate = if runtime.autoUpdate.enable then "registry" else null;
+        };
       };
     }
     // lib.optionalAttrs ownsClickHouse {
       rybbit-clickhouse = {
-        image = cfg.clickhouse.owned.image;
-        networks = [ "selfhosted" ];
-        environmentFiles = [ cfg.environmentFile ];
-        volumes = [ "rybbit-clickhouse:/var/lib/clickhouse" ];
-        labels = updateLabels;
+        unitConfig.Documentation = [ "https://rybbit.com/docs/self-hosting" ];
+        containerConfig = {
+          image = cfg.clickhouse.owned.image;
+          networks = [ selfhostedNetwork ];
+          environmentFiles = [ (toString cfg.environmentFile) ];
+          volumes = [ "rybbit-clickhouse:/var/lib/clickhouse" ];
+          autoUpdate = if runtime.autoUpdate.enable then "registry" else null;
+        };
       };
     }
     // lib.optionalAttrs ownsPostgres {
       rybbit-postgres = {
-        image = cfg.postgres.owned.image;
-        networks = [ "selfhosted" ];
-        environmentFiles = [ cfg.environmentFile ];
-        volumes = [ "rybbit-postgres:/var/lib/postgresql/data" ];
-        labels = updateLabels;
+        unitConfig.Documentation = [ "https://rybbit.com/docs/self-hosting" ];
+        containerConfig = {
+          image = cfg.postgres.owned.image;
+          networks = [ selfhostedNetwork ];
+          environmentFiles = [ (toString cfg.environmentFile) ];
+          volumes = [ "rybbit-postgres:/var/lib/postgresql/data" ];
+          autoUpdate = if runtime.autoUpdate.enable then "registry" else null;
+        };
       };
     }
     // lib.optionalAttrs ownsRedis {
       rybbit-redis = {
-        image = cfg.redis.owned.image;
-        networks = [ "selfhosted" ];
-        environmentFiles = [ cfg.environmentFile ];
-        volumes = [ "rybbit-redis:/data" ];
-        cmd = [
-          "sh"
-          "-c"
-          ''exec redis-server --requirepass "$REDIS_PASSWORD" --appendonly yes --appendfsync everysec --maxmemory-policy noeviction''
-        ];
-        labels = updateLabels;
+        unitConfig.Documentation = [ "https://rybbit.com/docs/self-hosting" ];
+        containerConfig = {
+          image = cfg.redis.owned.image;
+          networks = [ selfhostedNetwork ];
+          environmentFiles = [ (toString cfg.environmentFile) ];
+          volumes = [ "rybbit-redis:/data" ];
+          exec = [
+            "sh"
+            "-c"
+            ''exec redis-server --requirepass "$REDIS_PASSWORD" --appendonly yes --appendfsync everysec --maxmemory-policy noeviction''
+          ];
+          autoUpdate = if runtime.autoUpdate.enable then "registry" else null;
+        };
       };
     };
-
-    systemd.services = lib.genAttrs (map (name: "podman-${name}") containerNames) (_: {
-      documentation = [ "https://rybbit.com/docs/self-hosting" ];
-      after = [ "selfhosted-podman-network.service" ];
-      requires = [ "selfhosted-podman-network.service" ];
-    });
   };
 }

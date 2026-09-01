@@ -45,12 +45,14 @@
       url = "path:./flakes/appflowy";
       inputs.nixpkgs.follows = "nixpkgs";
       inputs.flake-parts.follows = "flake-parts";
+      inputs.quadlet-nix.follows = "quadlet-nix";
     };
 
     sub2api-adapter = {
       url = "path:./flakes/sub2api";
       inputs.nixpkgs.follows = "nixpkgs";
       inputs.flake-parts.follows = "flake-parts";
+      inputs.quadlet-nix.follows = "quadlet-nix";
     };
 
     celld-adapter = {

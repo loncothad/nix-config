@@ -55,6 +55,9 @@
         ],
         "nixpkgs": [
           "nixpkgs"
+        ],
+        "quadlet-nix": [
+          "quadlet-nix"
         ]
       },
       "locked": {
@@ -1328,6 +1331,9 @@
         ],
         "nixpkgs": [
           "nixpkgs"
+        ],
+        "quadlet-nix": [
+          "quadlet-nix"
         ],
         "sub2api-src": "sub2api-src"
       },

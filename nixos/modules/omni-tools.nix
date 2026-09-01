@@ -7,7 +7,8 @@
 let
   root = config.virtualisation.oci-containers.namedContainers;
   cfg = root.omni-tools;
-  runtime = root;
+  runtime = config.virtualisation.quadlet;
+  selfhostedNetwork = config.virtualisation.quadlet.networks.selfhosted.ref;
 in
 {
   options.virtualisation.oci-containers.namedContainers.omni-tools = {
@@ -35,22 +36,16 @@ in
   };
 
   config = lib.mkIf cfg.enable {
-    virtualisation.oci-containers.namedContainers.enable = true;
     networking.firewall.allowedTCPPorts = lib.mkIf cfg.openFirewall [ cfg.port ];
 
-    virtualisation.oci-containers.containers.omni-tools = {
-      image = cfg.image;
-      ports = [ "${cfg.host}:${toString cfg.port}:80" ];
-      networks = [ "selfhosted" ];
-      labels = lib.optionalAttrs runtime.autoUpdate.enable {
-        "io.containers.autoupdate" = "registry";
+    virtualisation.quadlet.containers.omni-tools = {
+      unitConfig.Documentation = [ "https://github.com/iib0011/omni-tools#readme" ];
+      containerConfig = {
+        image = cfg.image;
+        publishPorts = [ "${cfg.host}:${toString cfg.port}:80" ];
+        networks = [ selfhostedNetwork ];
+        autoUpdate = if runtime.autoUpdate.enable then "registry" else null;
       };
-    };
-
-    systemd.services.podman-omni-tools = {
-      documentation = [ "https://github.com/iib0011/omni-tools#readme" ];
-      after = [ "selfhosted-podman-network.service" ];
-      requires = [ "selfhosted-podman-network.service" ];
     };
   };
 }

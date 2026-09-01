@@ -70,6 +70,14 @@ Modules stay with an adapter only when the integration crosses the project
 adapter boundary above; those modules are composed at the system or root-export
 boundary.
 
+Rootful application containers are expressed as Podman Quadlets through
+`quadlet-nix`. `nixos/modules/containers.nix` owns the declarative
+`selfhosted.network` resource and auto-update policy; individual project
+modules own their Quadlet container resources and dependencies. The public
+project configuration remains grouped under
+`virtualisation.oci-containers.namedContainers`, while generated runtime
+resources live under `virtualisation.quadlet`.
+
 The currently constructed systems are `kepler` and `vega-small`. A directory
 under `nixos/hosts/` becomes a system only when `nixos/default.nix` lists it.
 

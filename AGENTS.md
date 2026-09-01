@@ -96,6 +96,11 @@ Commit as you go. Do not pile unrelated edits into one commit at the end.
   NixOS module. Do not set `nix.package` in repository modules; configure local
   daemon additions through `nix.settings`, which the Determinate module writes
   to its supported `nix.custom.conf` path.
+- Define rootful OCI services with `virtualisation.quadlet`, using references
+  to the shared `selfhosted` network and other Quadlet resources. Do not add
+  containers through the nixpkgs `virtualisation.oci-containers.containers`
+  backend. Quadlet-generated units are named `<resource>.service`, without a
+  `podman-` prefix.
 
 ## Project adapter flakes (`flakes/`)
 

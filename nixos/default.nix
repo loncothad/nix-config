@@ -36,6 +36,7 @@ let
         inputs.determinate.nixosModules.default
         inputs.disko.nixosModules.disko
         inputs.home-manager.nixosModules.home-manager
+        inputs.quadlet-nix.nixosModules.quadlet
 
         ({ ... }: { system.stateVersion = latestRecognizedNixOsVersion; })
       ]

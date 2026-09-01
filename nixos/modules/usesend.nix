@@ -7,10 +7,9 @@
 let
   root = config.virtualisation.oci-containers.namedContainers;
   cfg = root.usesend;
-  runtime = root;
-  updateLabels = lib.optionalAttrs runtime.autoUpdate.enable {
-    "io.containers.autoupdate" = "registry";
-  };
+  runtime = config.virtualisation.quadlet;
+  quadlet = config.virtualisation.quadlet;
+  selfhostedNetwork = quadlet.networks.selfhosted.ref;
   ownsPostgres = cfg.postgres.mode == "owned";
   ownsRedis = cfg.redis.mode == "owned";
   ownsMinio = cfg.minio.mode == "owned";
@@ -22,7 +21,7 @@ let
     lib.optional (!ownsPostgres) cfg.postgres.shared.environmentFile
     ++ lib.optional (!ownsRedis) cfg.redis.shared.environmentFile
     ++ lib.optional (!ownsMinio) cfg.minio.shared.environmentFile;
-  containerNames = dependencyNames ++ [ "usesend" ];
+  dependencyRefs = map (name: quadlet.containers.${name}.ref) dependencyNames;
 in
 {
   options.virtualisation.oci-containers.namedContainers.usesend = {
@@ -125,68 +124,76 @@ in
   };
 
   config = lib.mkIf cfg.enable {
-    virtualisation.oci-containers.namedContainers.enable = true;
     networking.firewall.allowedTCPPorts = lib.mkIf cfg.openFirewall [ cfg.port ];
 
-    virtualisation.oci-containers.containers = {
+    virtualisation.quadlet.containers = {
       usesend = {
-        image = cfg.image;
-        ports = [ "${cfg.host}:${toString cfg.port}:${toString cfg.port}" ];
-        networks = [ "selfhosted" ];
-        dependsOn = dependencyNames;
-        environmentFiles = [ cfg.environmentFile ] ++ sharedEnvironmentFiles;
-        environment = {
-          PORT = toString cfg.port;
-          NEXT_PUBLIC_IS_CLOUD = "false";
-        }
-        // cfg.environment;
-        labels = updateLabels;
+        unitConfig = {
+          Documentation = [ "https://github.com/usesend/useSend#readme" ];
+          Requires = dependencyRefs;
+          After = dependencyRefs;
+        };
+        containerConfig = {
+          image = cfg.image;
+          publishPorts = [ "${cfg.host}:${toString cfg.port}:${toString cfg.port}" ];
+          networks = [ selfhostedNetwork ];
+          environmentFiles = map toString ([ cfg.environmentFile ] ++ sharedEnvironmentFiles);
+          environments = {
+            PORT = toString cfg.port;
+            NEXT_PUBLIC_IS_CLOUD = "false";
+          }
+          // cfg.environment;
+          autoUpdate = if runtime.autoUpdate.enable then "registry" else null;
+        };
       };
     }
     // lib.optionalAttrs ownsPostgres {
       usesend-postgres = {
-        image = cfg.postgres.owned.image;
-        networks = [ "selfhosted" ];
-        environmentFiles = [ cfg.environmentFile ];
-        volumes = [ "usesend-postgres:/var/lib/postgresql/data" ];
-        labels = updateLabels;
+        unitConfig.Documentation = [ "https://github.com/usesend/useSend#readme" ];
+        containerConfig = {
+          image = cfg.postgres.owned.image;
+          networks = [ selfhostedNetwork ];
+          environmentFiles = [ (toString cfg.environmentFile) ];
+          volumes = [ "usesend-postgres:/var/lib/postgresql/data" ];
+          autoUpdate = if runtime.autoUpdate.enable then "registry" else null;
+        };
       };
     }
     // lib.optionalAttrs ownsRedis {
       usesend-redis = {
-        image = cfg.redis.owned.image;
-        networks = [ "selfhosted" ];
-        volumes = [ "usesend-redis:/data" ];
-        cmd = [
-          "redis-server"
-          "--maxmemory-policy"
-          "noeviction"
-        ];
-        labels = updateLabels;
+        unitConfig.Documentation = [ "https://github.com/usesend/useSend#readme" ];
+        containerConfig = {
+          image = cfg.redis.owned.image;
+          networks = [ selfhostedNetwork ];
+          volumes = [ "usesend-redis:/data" ];
+          exec = [
+            "redis-server"
+            "--maxmemory-policy"
+            "noeviction"
+          ];
+          autoUpdate = if runtime.autoUpdate.enable then "registry" else null;
+        };
       };
     }
     // lib.optionalAttrs ownsMinio {
       usesend-minio = {
-        image = cfg.minio.owned.image;
-        networks = [ "selfhosted" ];
-        environmentFiles = [ cfg.environmentFile ];
-        volumes = [ "usesend-minio:/data" ];
-        cmd = [
-          "server"
-          "/data"
-          "--console-address"
-          ":9001"
-          "--address"
-          ":9002"
-        ];
-        labels = updateLabels;
+        unitConfig.Documentation = [ "https://github.com/usesend/useSend#readme" ];
+        containerConfig = {
+          image = cfg.minio.owned.image;
+          networks = [ selfhostedNetwork ];
+          environmentFiles = [ (toString cfg.environmentFile) ];
+          volumes = [ "usesend-minio:/data" ];
+          exec = [
+            "server"
+            "/data"
+            "--console-address"
+            ":9001"
+            "--address"
+            ":9002"
+          ];
+          autoUpdate = if runtime.autoUpdate.enable then "registry" else null;
+        };
       };
     };
-
-    systemd.services = lib.genAttrs (map (name: "podman-${name}") containerNames) (_: {
-      documentation = [ "https://github.com/usesend/useSend#readme" ];
-      after = [ "selfhosted-podman-network.service" ];
-      requires = [ "selfhosted-podman-network.service" ];
-    });
   };
 }

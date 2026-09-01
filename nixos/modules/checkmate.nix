@@ -7,11 +7,11 @@
 let
   root = config.virtualisation.oci-containers.namedContainers;
   cfg = root.checkmate;
-  runtime = root;
-  updateLabels = lib.optionalAttrs runtime.autoUpdate.enable {
-    "io.containers.autoupdate" = "registry";
-  };
+  runtime = config.virtualisation.quadlet;
+  quadlet = config.virtualisation.quadlet;
+  selfhostedNetwork = quadlet.networks.selfhosted.ref;
   ownsMongoDB = cfg.mongodb.mode == "owned";
+  dependencies = lib.optional ownsMongoDB quadlet.containers."checkmate-mongodb".ref;
 in
 {
   options.virtualisation.oci-containers.namedContainers.checkmate = {
@@ -76,55 +76,47 @@ in
   };
 
   config = lib.mkIf cfg.enable {
-    virtualisation.oci-containers.namedContainers.enable = true;
     networking.firewall.allowedTCPPorts = lib.mkIf cfg.openFirewall [ cfg.port ];
 
-    virtualisation.oci-containers.containers = {
+    virtualisation.quadlet.containers = {
       checkmate = {
-        image = cfg.image;
-        ports = [ "${cfg.host}:${toString cfg.port}:52345" ];
-        networks = [ "selfhosted" ];
-        dependsOn = lib.optional ownsMongoDB "checkmate-mongodb";
-        environmentFiles = [
-          cfg.environmentFile
-        ]
-        ++ lib.optional (!ownsMongoDB) cfg.mongodb.shared.environmentFile;
-        environment = {
-          CLIENT_HOST = "http://${cfg.host}:${toString cfg.port}";
-        }
-        // lib.optionalAttrs ownsMongoDB {
-          DB_CONNECTION_STRING = "mongodb://checkmate-mongodb:27017/uptime_db";
-        }
-        // cfg.environment;
-        labels = updateLabels;
+        unitConfig = {
+          Documentation = [ "https://checkmate.so/docs/getting-started/installation" ];
+          Requires = dependencies;
+          After = dependencies;
+        };
+        containerConfig = {
+          image = cfg.image;
+          publishPorts = [ "${cfg.host}:${toString cfg.port}:52345" ];
+          networks = [ selfhostedNetwork ];
+          environmentFiles = map toString (
+            [ cfg.environmentFile ] ++ lib.optional (!ownsMongoDB) cfg.mongodb.shared.environmentFile
+          );
+          environments = {
+            CLIENT_HOST = "http://${cfg.host}:${toString cfg.port}";
+          }
+          // lib.optionalAttrs ownsMongoDB {
+            DB_CONNECTION_STRING = "mongodb://checkmate-mongodb:27017/uptime_db";
+          }
+          // cfg.environment;
+          autoUpdate = if runtime.autoUpdate.enable then "registry" else null;
+        };
       };
     }
     // lib.optionalAttrs ownsMongoDB {
       checkmate-mongodb = {
-        image = cfg.mongodb.owned.image;
-        networks = [ "selfhosted" ];
-        volumes = [ "checkmate-mongodb:/data/db" ];
-        cmd = [
-          "mongod"
-          "--quiet"
-          "--bind_ip_all"
-        ];
-        labels = updateLabels;
-      };
-    };
-
-    systemd.services = {
-      podman-checkmate = {
-        documentation = [ "https://checkmate.so/docs/getting-started/installation" ];
-        after = [ "selfhosted-podman-network.service" ];
-        requires = [ "selfhosted-podman-network.service" ];
-      };
-    }
-    // lib.optionalAttrs ownsMongoDB {
-      podman-checkmate-mongodb = {
-        documentation = [ "https://checkmate.so/docs/getting-started/installation" ];
-        after = [ "selfhosted-podman-network.service" ];
-        requires = [ "selfhosted-podman-network.service" ];
+        unitConfig.Documentation = [ "https://checkmate.so/docs/getting-started/installation" ];
+        containerConfig = {
+          image = cfg.mongodb.owned.image;
+          networks = [ selfhostedNetwork ];
+          volumes = [ "checkmate-mongodb:/data/db" ];
+          exec = [
+            "mongod"
+            "--quiet"
+            "--bind_ip_all"
+          ];
+          autoUpdate = if runtime.autoUpdate.enable then "registry" else null;
+        };
       };
     };
   };

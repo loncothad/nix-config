@@ -9,6 +9,7 @@
       default = {
         imports = [
           ../nixos/modules
+          inputs.quadlet-nix.nixosModules.quadlet
           inputs.appflowy-adapter.nixosModules.default
           inputs.celld-adapter.nixosModules.default
           inputs.determinate.nixosModules.default
