@@ -60,6 +60,19 @@ def --wrapped run-nix [...args: string] {
     }
 }
 
+def --wrapped run-nh [...args: string] {
+    with-env {
+        NIX_CONFIG: $nix_config
+        NH_OS_FLAKE: $repo_root
+    } {
+        ^nh ...$args
+        let exit_code = $env.LAST_EXIT_CODE
+        if $exit_code != 0 {
+            error make { msg: $"nh failed with exit code ($exit_code)" }
+        }
+    }
+}
+
 def --wrapped run-rebuild [privileged: bool, ...args: string] {
     with-env { NIX_CONFIG: $nix_config } {
         let feature_args = ["--option" "extra-experimental-features" "nix-command flakes"]
@@ -241,26 +254,25 @@ def "main outdated" [] {
 # Build and switch to a host configuration.
 def --wrapped "main switch" [--host (-H): string, ...args: string] {
     let selected = resolve-host $host
-    run-rebuild true switch --flake (flake-ref $selected) ...$args
+    run-nh os switch $repo_root --hostname $selected ...$args
 }
 
 # Build and set a host as the boot default without switching now.
 def --wrapped "main boot" [--host (-H): string, ...args: string] {
     let selected = resolve-host $host
-    run-rebuild true boot --flake (flake-ref $selected) ...$args
+    run-nh os boot $repo_root --hostname $selected ...$args
 }
 
 # Activate a host without adding a bootloader generation.
 def --wrapped "main test" [--host (-H): string, ...args: string] {
     let selected = resolve-host $host
-    run-rebuild true test --flake (flake-ref $selected) ...$args
+    run-nh os test $repo_root --hostname $selected ...$args
 }
 
 # Build a host toplevel into ./result.
 def --wrapped "main build" [--host (-H): string, ...args: string] {
     let selected = resolve-host $host
-    cd $repo_root
-    run-rebuild false build --flake (flake-ref $selected) ...$args
+    run-nh os build $repo_root --hostname $selected --out-link ($repo_root | path join result) ...$args
 }
 
 # Evaluate a host configuration without building.
@@ -278,7 +290,7 @@ def --wrapped "main dry-activate" [--host (-H): string, ...args: string] {
 # Build a QEMU VM of a host configuration.
 def --wrapped "main build-vm" [--host (-H): string, ...args: string] {
     let selected = resolve-host $host
-    run-rebuild false build-vm --flake (flake-ref $selected) ...$args
+    run-nh os build-vm $repo_root --hostname $selected --out-link ($repo_root | path join result) ...$args
 }
 
 # Diff ./result against the running system.
@@ -297,13 +309,12 @@ def "main diff" [] {
 
 # List NixOS generations.
 def "main generations" [] {
-    ^sudo nix-env --list-generations --profile /nix/var/nix/profiles/system
+    run-nh os info
 }
 
 # Roll back to the previous NixOS generation.
-def "main rollback" [--host (-H): string] {
-    let selected = resolve-host $host
-    run-rebuild true rollback --flake (flake-ref $selected)
+def --wrapped "main rollback" [...args: string] {
+    run-nh os rollback ...$args
 }
 
 # Show why pkg-a depends on pkg-b in a host closure.
@@ -318,15 +329,8 @@ def "main gc" [] {
 }
 
 # Delete old generations, then collect garbage.
-def "main gc-old" [] {
-    with-env { NIX_CONFIG: $nix_config } {
-        ^sudo --preserve-env=NIX_CONFIG nix-collect-garbage -d
-        let exit_code = $env.LAST_EXIT_CODE
-        if $exit_code != 0 {
-            error make { msg: $"nix-collect-garbage failed with exit code ($exit_code)" }
-        }
-    }
-    run-nix store gc --verbose
+def --wrapped "main gc-old" [...args: string] {
+    run-nh clean all --no-gcroots ...$args
 }
 
 # Hard-link identical store files.

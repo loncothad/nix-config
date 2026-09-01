@@ -26,7 +26,7 @@ does not enable them.
 ./tasks.nu niri-validate    # loncothad niri KDL (HOST selects by-hostname)
 ./tasks.nu update-adapter celld
 ./tasks.nu update-all       # nested adapter locks, then the root lock
-./tasks.nu switch           # nixos-rebuild switch for current hostname
+./tasks.nu switch           # nh switch for current hostname
 ```
 
 Override host with `HOST=kepler` or a host-aware command's `--host kepler`.

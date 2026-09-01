@@ -59,6 +59,9 @@ in
 
     systemd.services.nix-daemon.environment = determinateTelemetryEnvironment;
 
-    programs.nix-ld.enable = true;
+    programs = {
+      nh.enable = true;
+      nix-ld.enable = true;
+    };
   };
 }
