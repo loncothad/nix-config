@@ -106,14 +106,20 @@ use systemd user units, not niri `spawn-at-startup`.
 Disk layouts live in `disko/configurations/` and are exported from
 `disko/default.nix`. Hosts import Disko through the shared NixOS module list.
 
-The package overlay groups applications sourced from package flakes under
-`pkgs.fromFlakes` (Autolith, Fastpotify, mark-shot, and wine4office). Locally
-packaged upstream releases such as Celld remain at the normal `pkgs.<name>`
-level. Application packages are also exported from the root `packages` output.
-Autolith keeps its upstream nixpkgs pin because its package couples an exact
-SBCL runtime and generated Quicklisp package set. The reusable
-`services.xdg-dbus-proxy` Home Manager module manages filtered per-user D-Bus
-proxy instances with nixpkgs' package.
+The package overlay mirrors flake package sets below
+`pkgs.fromFlakes.<flake-name>.<package-name>`, for example
+`pkgs.fromFlakes.autolith.autolith` and
+`pkgs.fromFlakes.wine4office.wine4office`. Locally packaged upstream releases
+such as Celld remain at the normal `pkgs.<name>` level. Application packages
+are also exported from the root `packages` output. Autolith keeps its upstream
+nixpkgs pin because its package couples an exact SBCL runtime and generated
+Quicklisp package set.
+
+The reusable Home Manager modules include `programs.autolith`,
+`programs.fastpotify`, and `services.xdg-dbus-proxy`. Celld is NixOS-only:
+`services.celld` runs the daemon with persistent systemd-managed state and
+cache directories, restart supervision, an external credentials environment
+file, and optional firewall opening.
 
 ## Conventions
 
