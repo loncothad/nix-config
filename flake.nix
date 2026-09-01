@@ -36,6 +36,12 @@
       inputs.nixpkgs.follows = "nixpkgs";
     };
 
+    appflowy = {
+      url = "path:./flakes/appflowy";
+      inputs.nixpkgs.follows = "nixpkgs";
+      inputs.flake-parts.follows = "flake-parts";
+    };
+
     celld = {
       url = "path:./flakes/celld";
       inputs.nixpkgs.follows = "nixpkgs";

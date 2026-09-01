@@ -2,7 +2,6 @@
 
 {
   imports = [
-    ./appflowy.nix
     ./auto-update.nix
     ./checkmate.nix
     ./containers.nix

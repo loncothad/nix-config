@@ -7,6 +7,7 @@
       default = {
         imports = [
           ../nixos/modules
+          inputs.appflowy.nixosModules.default
           inputs.celld.nixosModules.default
         ];
       };
