@@ -24,6 +24,10 @@ in
     };
 
   flake = {
+    flakeModules.default = {
+      flake.homeModules.fastpotify = inputs.self.homeModules.default;
+    };
+
     overlays.default = final: _prev: mkPackages final;
 
     homeModules.default =

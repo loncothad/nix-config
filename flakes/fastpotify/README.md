@@ -21,18 +21,21 @@ packages.x86_64-linux.fastpotify
 packages.x86_64-linux.default
 overlays.default
 homeModules.default
+flakeModules.default
 ```
 
 `package.nix` supplies the missing Cargo vendor hash and native desktop
 libraries, and corrects projectM's library search path. The Home Manager module
 defines `programs.fastpotify`; the standalone `homeModules.default` output
 defaults its package to the repaired build exposed by this flake.
+`flakeModules.default` contributes that module to a consuming root as the named
+`homeModules.fastpotify` output.
 
-The root consumes this directory as the `fastpotify-adapter` path input and
-exposes the package as
-`pkgs.fromFlakes.fastpotify-adapter.fastpotify`. The raw module implementation
-is imported by the root Home Manager barrel, where callers provide that package
-explicitly.
+The root consumes this directory as the `fastpotify-adapter` path input,
+exposes the package as `pkgs.fromFlakes.fastpotify-adapter.fastpotify`, imports
+the adapter's flake-parts module for its named Home Manager output, and composes
+`homeModules.default` for standalone consumers. NixOS-managed profiles receive
+the adapter output through `home-manager.sharedModules`.
 
 ## Updating
 

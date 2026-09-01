@@ -23,6 +23,7 @@ in
       useGlobalPkgs = true;
       useUserPackages = true;
       extraSpecialArgs = { inherit inputs; };
+      sharedModules = [ inputs.fastpotify-adapter.homeModules.default ];
     };
   };
 }

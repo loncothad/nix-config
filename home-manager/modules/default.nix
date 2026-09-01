@@ -5,7 +5,6 @@
     ./agents.nix
     ./autolith.nix
     ./brave-xdg.nix
-    ../../flakes/fastpotify/home-manager.nix
     ./gtk-prefer-dark-theme.nix
     ./qt-dark-theme.nix
     ./mpv-xdg.nix

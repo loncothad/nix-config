@@ -75,10 +75,12 @@ under `nixos/hosts/` becomes a system only when `nixos/default.nix` lists it.
 
 ## Home Manager composition
 
-`home-manager/modules/default.nix` is the reusable repository module set.
+`home-manager/modules/default.nix` is the reusable repository-owned module set.
 Project adapters may also export Home Manager modules when they meet the
-adapter boundary. The root `homeModules` output combines named adapter modules
-with the repository default barrel.
+adapter boundary. Adapter outputs are composed through Home Manager shared
+modules for NixOS profiles. The root `homeModules.default` combines those
+adapter outputs with the repository barrel for standalone consumers, while
+named outputs expose each module independently.
 
 `users.profiles.<name>` connects a NixOS user to a Home Manager configuration.
 The currently enabled profile is `loncothad`, sourced from

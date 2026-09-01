@@ -167,8 +167,9 @@ Then wire only the boundaries the adapter exports:
   `pkgs.fromFlakes.<name>-adapter` in `pkgs/default.nix`;
 - import and re-export NixOS modules in `flake-parts/modules.nix` and compose
   them in `nixos/default.nix` or the root default NixOS module;
-- import Home Manager implementations in `home-manager/modules/default.nix`
-  so the default barrel remains self-contained;
+- compose exported Home Manager modules through `home-manager.sharedModules`
+  for NixOS profiles and the root `homeModules.default`; do not import an
+  adapter's implementation path from the repository-owned module barrel;
 - import `inputs.<name>-adapter.flakeModules.default` in
   `flake-parts/default.nix` when the root should expose the adapter's named
   module outputs.

@@ -20,8 +20,12 @@
     homeModules = {
       agents = ../home-manager/modules/agents.nix;
       autolith = ../home-manager/modules/autolith.nix;
-      default = ../home-manager/modules;
-      fastpotify = inputs.fastpotify-adapter.homeModules.default;
+      default = {
+        imports = [
+          ../home-manager/modules
+          inputs.fastpotify-adapter.homeModules.default
+        ];
+      };
       mark-shot = ../home-manager/modules/mark-shot.nix;
       nushell-bom = ../home-manager/modules/nushell-bom.nix;
       polkit-agent-lxqt = ../home-manager/modules/polkit-agent-lxqt.nix;
