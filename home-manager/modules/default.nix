@@ -11,9 +11,9 @@
     ./profile.nix
     ./qimgv-xdg.nix
     ./wayland-compatibility.nix
+    ./xdg-dbus-proxy.nix
     ../../flakes/xwayland-satellite/home-manager.nix
     ../../flakes/mark-shot/home-manager.nix
-    ../../flakes/pi/home-manager.nix
     ./debloat.nix
   ];
 }
