@@ -10,7 +10,7 @@
     ./tldr.nix
     ./zoxide.nix
 
-    ./autolith.nix
+    ./autolith
     ./nushell
     ./zellij
 

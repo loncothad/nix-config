@@ -7,6 +7,10 @@
 
 let
   cfg = config.programs.autolith;
+
+  extensionLoader = extension: ''
+    (load #p${builtins.toJSON extension} :verbose nil :print nil)
+  '';
 in
 {
   options.programs.autolith = {
@@ -38,6 +42,17 @@ in
       default = { };
       description = "Additional non-secret environment variables for Autolith.";
     };
+
+    extensions = lib.mkOption {
+      type = lib.types.listOf lib.types.path;
+      default = [ ];
+      example = lib.literalExpression "[ ./extensions/my-command.lisp ]";
+      description = ''
+        Common Lisp extension files loaded in order from Autolith's global
+        init.lisp. Extensions execute in the AUTOLITH package with the user's
+        full privileges.
+      '';
+    };
   };
 
   config = lib.mkIf cfg.enable {
@@ -51,5 +66,13 @@ in
       // lib.optionalAttrs (cfg.reasoningEffort != null) {
         AUTOLITH_REASONING_EFFORT = cfg.reasoningEffort;
       };
+
+    xdg.configFile."autolith/init.lisp" = lib.mkIf (cfg.extensions != [ ]) {
+      text = ''
+        (in-package #:autolith)
+
+        ${lib.concatMapStrings extensionLoader cfg.extensions}
+      '';
+    };
   };
 }
