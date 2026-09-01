@@ -1,5 +1,5 @@
 {
-  description = "Fastpotify package set and Home Manager module";
+  description = "Fastpotify package repair and Home Manager module";
 
   inputs = {
     nixpkgs.url = "github:NixOS/nixpkgs/nixos-unstable";
