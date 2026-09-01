@@ -13,8 +13,8 @@
     in
     {
       packages = {
-        inherit (pkgs) celld;
         autolith = pkgs.fromFlakes.autolith.autolith;
+        celld = pkgs.fromFlakes.celld.celld;
         fastpotify = pkgs.fromFlakes.fastpotify.fastpotify;
         mark-shot = pkgs.fromFlakes.mark-shot.default;
         inherit (pkgs.fromFlakes.wine4office) wine4office wine4office-wine;

@@ -5,16 +5,20 @@
   gzip,
   lib,
   makeWrapper,
+  source,
   stdenv,
   stdenvNoCC,
 }:
 
-stdenvNoCC.mkDerivation (finalAttrs: {
+let
+  version = (lib.importTOML "${source}/crates/celld/Cargo.toml").package.version;
+in
+stdenvNoCC.mkDerivation {
   pname = "celld";
-  version = "0.4.0";
+  inherit version;
 
   src = fetchurl {
-    url = "https://github.com/denoland/celld/releases/download/v${finalAttrs.version}/celld-x86_64-unknown-linux-gnu.gz";
+    url = "https://github.com/denoland/celld/releases/download/v${version}/celld-x86_64-unknown-linux-gnu.gz";
     hash = "sha256-BIhihZcVRyXbL2H4VDT7OB4bJTXR6fCXxtIHJ80zeXM=";
   };
 
@@ -43,6 +47,8 @@ stdenvNoCC.mkDerivation (finalAttrs: {
       --prefix PATH : ${lib.makeBinPath [ esbuild ]}
   '';
 
+  passthru.upstreamSource = source;
+
   meta = {
     description = "Self-hosted, distributed Durable Objects";
     homepage = "https://celld.dev";
@@ -51,4 +57,4 @@ stdenvNoCC.mkDerivation (finalAttrs: {
     platforms = [ "x86_64-linux" ];
     sourceProvenance = [ lib.sourceTypes.binaryNativeCode ];
   };
-})
+}

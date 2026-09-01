@@ -1,10 +1,15 @@
-{ ... }:
+{ inputs, ... }:
 
 {
   flake = {
     nixosModules = {
-      celld = ../nixos/modules/celld.nix;
-      default = ../nixos/modules;
+      celld = inputs.celld.nixosModules.default;
+      default = {
+        imports = [
+          ../nixos/modules
+          inputs.celld.nixosModules.default
+        ];
+      };
     };
 
     homeModules = {

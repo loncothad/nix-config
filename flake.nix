@@ -36,6 +36,12 @@
       inputs.nixpkgs.follows = "nixpkgs";
     };
 
+    celld = {
+      url = "path:./flakes/celld";
+      inputs.nixpkgs.follows = "nixpkgs";
+      inputs.flake-parts.follows = "flake-parts";
+    };
+
     xwayland-satellite = {
       url = "path:./flakes/xwayland-satellite";
       inputs.nixpkgs.follows = "nixpkgs";

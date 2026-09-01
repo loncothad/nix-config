@@ -30,6 +30,7 @@ let
 
         overlaysModule
 
+        inputs.celld.nixosModules.default
         inputs.disko.nixosModules.disko
         inputs.home-manager.nixosModules.home-manager
 

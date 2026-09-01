@@ -33,6 +33,7 @@ in
     agenix = inputs.agenix.packages.${system};
     agenix-rekey = inputs.agenix-rekey.packages.${system};
     autolith = inputs.autolith.packages.${system};
+    celld = inputs.celld.packages.${system};
     fastpotify = fastpotifyPackages // {
       default = fastpotify;
       inherit fastpotify;
@@ -40,6 +41,4 @@ in
     mark-shot = inputs.mark-shot.packages.${system};
     wine4office = inputs.wine4office.packages.${system};
   };
-
-  celld = final.callPackage ./celld.nix { };
 }
