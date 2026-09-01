@@ -11,7 +11,7 @@ This file is only the working contract for agents.
 2. `justfile` — recipes for eval/rebuild/validate
 3. The host you are touching under `nixos/hosts/<name>/`
 4. `home-manager/users/loncothad/` if the change is user-facing
-5. `flakes/<name>/` if the change is a nested flake module
+5. `flakes/<name>/` if the change touches an external project adapter
 
 ## Commands
 
@@ -75,7 +75,9 @@ Commit as you go. Do not pile unrelated edits into one commit at the end.
 ## Edit rules
 
 - Keep host diffs in `nixos/hosts/<name>` and `…/niri/by-hostname/<hostname>.kdl`.
-- Shared behavior goes in `nixos/modules` or `home-manager/modules`.
+- Repository-owned shared behavior goes in `nixos/modules` or
+  `home-manager/modules`. For an imported project without an upstream flake,
+  its package and project-specific modules stay together in `flakes/<name>/`.
 - `loncothad` is imported on every system. Do not dump laptop-only packages into
   shared modules. Slim a host with `lib.mkForce` on
   `users.profiles.loncothad.homeManagerConfig`.
@@ -86,30 +88,53 @@ Commit as you go. Do not pile unrelated edits into one commit at the end.
 - Nix daemon is **Lix** (`nixos/modules/preferences/nix.nix`). Do not reintroduce
   CppNix-only settings (`configurable-impure-env`, `impure-env`).
 
-## Nested flakes (`flakes/`)
+## Project adapter flakes (`flakes/`)
 
-Complex, reusable Home Manager modules live in `flakes/<name>/` as their own
-flake-parts flakes so they do not bloat this repo's flake. Layout:
+`flakes/<name>/` is the ownership boundary for imported projects without an
+upstream flake. It can also hold a reusable module adapter for a native-flake or
+nixpkgs project. Adapters are independently locked flake-parts flakes. Their
+shape follows what they export:
 
 ```
 flakes/<name>/
-  flake.nix          flake-parts entry (`flakeModules.default`, `homeModules.default`)
-  flake-parts.nix    sets `flake.homeModules.<name>`
-  home-manager.nix   the HM module implementation
+  flake.nix          inputs and flake-parts entry
+  flake-parts.nix    packages, overlays, and module exports
+  package.nix        optional package implementation
+  nixos.nix          optional NixOS module
+  home-manager.nix   optional Home Manager module
   flake.lock
 ```
 
 - Use flake-parts. Do not add a second module system or a one-off `outputs =`.
 - File is `flake-parts.nix`, not `flake-module.nix`.
-- `nixpkgs` and `flake-parts` follows: on a core `path:` input, follow this
-  flake's `nixpkgs` and `flake-parts`.
-- To consume from this flake: add `inputs.<name>.url = "path:./flakes/<name>"`,
-  import `inputs.<name>.flakeModules.default` in `flake-parts/default.nix`, and
-  import `../../flakes/<name>/home-manager.nix` from the HM barrel so
-  `homeModules.default` stays self-contained.
-- Not every nested flake is a core input (`flakes/mark-shot` is barrel-only).
-- `git add` the new files, `nix flake lock ./flakes/<name>`, then `nix flake lock`
-  at the repo root. Path inputs are invisible until Git tracks them.
+- If the imported upstream repository has no `flake.nix`, it **must** have an
+  adapter here. Track its source as `inputs.<name>-src` (or another unambiguous
+  `-src` name) with `flake = false`; pass that input into the package instead of
+  fetching the project source from root `pkgs/`.
+- Keep a project's package and project-specific modules in the same adapter.
+  Root `pkgs/`, `nixos/modules/`, and `home-manager/modules/` must not become
+  alternate homes for non-flake upstream integrations.
+- If upstream already provides a usable flake, consume it directly. A local
+  supplemental module may still use a module-only adapter when it is large or
+  intended for reuse.
+- Core `path:` inputs follow the root `nixpkgs` and `flake-parts`. The adapter
+  must still be evaluable on its own with its own lock.
+- Package-producing inputs are mirrored as
+  `pkgs.fromFlakes.<flake-name>.<flake-provided-package>`. Do not flatten them
+  inside the overlay. Flat names are allowed only in the root `packages`
+  output as convenience entry points.
+- Export reusable modules from the adapter (`nixosModules.default` and/or
+  `homeModules.default`). Wire project modules into system/HM composition and
+  re-export them from the root; do not copy their implementation into a root
+  barrel.
+- A module's default package should come from the adapter's own package output
+  (or be an explicit package option), so the adapter remains usable outside
+  this repository's overlay.
+- Not every adapter is a core input (`flakes/mark-shot` is currently
+  barrel-only).
+- `git add` new adapter files before locking, then run
+  `nix flake lock ./flakes/<name>` followed by `nix flake lock` at the root.
+  Path inputs are invisible until Git tracks them.
 
 ## Out of scope unless asked
 
