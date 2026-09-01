@@ -11,7 +11,6 @@
     ./zoxide.nix
 
     ./autolith.nix
-    ./opencode
     ./nushell
     ./zellij
 
