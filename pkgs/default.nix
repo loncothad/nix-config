@@ -12,7 +12,6 @@ in
     celld-adapter = inputs.celld-adapter.packages.${system};
     fastpotify-adapter = inputs.fastpotify-adapter.packages.${system};
     mark-shot = inputs.mark-shot.packages.${system};
-    watt = inputs.watt.packages.${system};
     wine4office-adapter = inputs.wine4office-adapter.packages.${system};
   };
 }

@@ -31,10 +31,7 @@
 
   services.fwupd.enable = true;
 
-  services.watt = {
-    enable = true;
-    package = pkgs.fromFlakes.watt.watt;
-  };
+  services.watt.enable = true;
   hardware.sensor.iio.enable = true;
 
   hardware.graphics = {

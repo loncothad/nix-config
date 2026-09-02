@@ -1227,7 +1227,6 @@
         "stylix": "stylix",
         "sub2api-adapter": "sub2api-adapter",
         "treefmt": "treefmt",
-        "watt": "watt",
         "wine4office-adapter": "wine4office-adapter"
       }
     },
@@ -1512,26 +1511,6 @@
       "original": {
         "owner": "numtide",
         "repo": "treefmt-nix",
-        "type": "github"
-      }
-    },
-    "watt": {
-      "inputs": {
-        "nixpkgs": [
-          "nixpkgs"
-        ]
-      },
-      "locked": {
-        "lastModified": 1788350414,
-        "narHash": "sha256-uXv9ygsbkDd9XhJmEV3xeLW3YSgImRqgGUFpY7OzBM8=",
-        "owner": "NotAShelf",
-        "repo": "watt",
-        "rev": "f3f236264f631f72c84dd2dbad8a5733aac8b121",
-        "type": "github"
-      },
-      "original": {
-        "owner": "NotAShelf",
-        "repo": "watt",
         "type": "github"
       }
     },

@@ -17,7 +17,6 @@
         celld = pkgs.fromFlakes.celld-adapter.celld;
         fastpotify = pkgs.fromFlakes.fastpotify-adapter.fastpotify;
         mark-shot = pkgs.fromFlakes.mark-shot.default;
-        watt = pkgs.fromFlakes.watt.watt;
         inherit (pkgs.fromFlakes.wine4office-adapter) wine4office wine4office-wine;
       };
     };
