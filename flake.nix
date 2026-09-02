@@ -53,6 +53,12 @@
       inputs.flake-parts.follows = "flake-parts";
     };
 
+    zcode-adapter = {
+      url = "path:./flakes/zcode";
+      inputs.nixpkgs.follows = "nixpkgs";
+      inputs.flake-parts.follows = "flake-parts";
+    };
+
     sub2api-adapter = {
       url = "path:./flakes/sub2api";
       inputs.nixpkgs.follows = "nixpkgs";

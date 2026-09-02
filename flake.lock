@@ -1248,6 +1248,7 @@
         "sub2api-adapter": "sub2api-adapter",
         "treefmt": "treefmt",
         "wine4office-adapter": "wine4office-adapter",
+        "zcode-adapter": "zcode-adapter",
         "zvec-grep-adapter": "zvec-grep-adapter"
       }
     },
@@ -1571,6 +1572,25 @@
         "repo": "wine4office",
         "type": "github"
       }
+    },
+    "zcode-adapter": {
+      "inputs": {
+        "flake-parts": [
+          "flake-parts"
+        ],
+        "nixpkgs": [
+          "nixpkgs"
+        ]
+      },
+      "locked": {
+        "path": "./flakes/zcode",
+        "type": "path"
+      },
+      "original": {
+        "path": "./flakes/zcode",
+        "type": "path"
+      },
+      "parent": []
     },
     "zvec-grep-adapter": {
       "inputs": {

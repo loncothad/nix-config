@@ -18,6 +18,7 @@
         fastpotify = pkgs.fromFlakes.fastpotify-adapter.fastpotify;
         mark-shot = pkgs.fromFlakes.mark-shot.default;
         inherit (pkgs.fromFlakes.openai-codex-adapter) chatgpt codex;
+        inherit (pkgs.fromFlakes.zcode-adapter) coding-helper zcode;
         zvec-grep = pkgs.fromFlakes.zvec-grep-adapter.zvec-grep;
         inherit (pkgs.fromFlakes.wine4office-adapter) wine4office wine4office-wine;
       };
