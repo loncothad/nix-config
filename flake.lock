@@ -1140,6 +1140,25 @@
         "type": "github"
       }
     },
+    "openai-codex-adapter": {
+      "inputs": {
+        "flake-parts": [
+          "flake-parts"
+        ],
+        "nixpkgs": [
+          "nixpkgs"
+        ]
+      },
+      "locked": {
+        "path": "./flakes/openai-codex",
+        "type": "path"
+      },
+      "original": {
+        "path": "./flakes/openai-codex",
+        "type": "path"
+      },
+      "parent": []
+    },
     "pre-commit": {
       "inputs": {
         "flake-compat": "flake-compat_3",
@@ -1223,6 +1242,7 @@
         "nixpkgs-master": "nixpkgs-master",
         "nixpkgs-stable": "nixpkgs-stable",
         "notesnook-sync-server-adapter": "notesnook-sync-server-adapter",
+        "openai-codex-adapter": "openai-codex-adapter",
         "quadlet-nix": "quadlet-nix",
         "stylix": "stylix",
         "sub2api-adapter": "sub2api-adapter",

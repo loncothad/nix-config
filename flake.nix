@@ -47,6 +47,12 @@
       inputs.flake-parts.follows = "flake-parts";
     };
 
+    openai-codex-adapter = {
+      url = "path:./flakes/openai-codex";
+      inputs.nixpkgs.follows = "nixpkgs";
+      inputs.flake-parts.follows = "flake-parts";
+    };
+
     sub2api-adapter = {
       url = "path:./flakes/sub2api";
       inputs.nixpkgs.follows = "nixpkgs";

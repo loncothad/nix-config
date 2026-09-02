@@ -23,7 +23,10 @@ in
       useGlobalPkgs = true;
       useUserPackages = true;
       extraSpecialArgs = { inherit inputs; };
-      sharedModules = [ inputs.fastpotify-adapter.homeModules.default ];
+      sharedModules = [
+        inputs.fastpotify-adapter.homeModules.default
+        inputs.openai-codex-adapter.homeModules.default
+      ];
     };
   };
 }

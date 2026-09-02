@@ -22,10 +22,12 @@
     homeModules = {
       agents = ../home-manager/modules/agents;
       autolith = ../home-manager/modules/autolith.nix;
+      openai-codex = inputs.openai-codex-adapter.homeModules.default;
       default = {
         imports = [
           ../home-manager/modules
           inputs.fastpotify-adapter.homeModules.default
+          inputs.openai-codex-adapter.homeModules.default
         ];
       };
       mark-shot = ../home-manager/modules/mark-shot.nix;

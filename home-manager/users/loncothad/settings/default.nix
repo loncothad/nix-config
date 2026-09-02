@@ -7,6 +7,7 @@
     ./git.nix
     ./ssh.nix
     ./jj.nix
+    ./openai-codex.nix
     ./tldr.nix
     ./zoxide.nix
     ./zvec-grep.nix
