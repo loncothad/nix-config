@@ -71,6 +71,14 @@ def --wrapped run-nh [...args: string] {
   run-command (nh-command ...$args)
 }
 
+def --wrapped run-gix [...args: string] {
+  if (which gix | is-not-empty) {
+    run-program gix ...$args
+  } else {
+    run-nix run nixpkgs#gitoxide -- ...$args
+  }
+}
+
 def --wrapped run-rebuild [privileged: bool, ...args: string] {
   run-command (rebuild-command $privileged ...$args)
 }
@@ -376,9 +384,9 @@ def "main disko-eval" [host: string = "kepler"] {
   run-nix eval --json (flake-ref $"nixosConfigurations.($host).config.disko.devices")
 }
 
-# Show short Git status.
+# Show repository status with gix.
 def "main status" [] {
-  run-program git -C $repo_root status -sb
+  run-gix --no-verbose --repository $repo_root status --format simplified --untracked normal :
 }
 
 # Show the Git log.

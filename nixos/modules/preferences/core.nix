@@ -96,6 +96,7 @@ in
       ripgrep
       curl
       git
+      gitoxide
       nushell
     ];
   };

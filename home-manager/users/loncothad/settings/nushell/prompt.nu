@@ -12,7 +12,11 @@ def create_left_prompt [] {
   if (which git | is-not-empty) {
     let branch = (do -i { ^git symbolic-ref --short HEAD } | complete | get stdout | str trim)
     if ($branch | is-not-empty) {
-      let dirty = (do -i { ^git status --porcelain } | complete | get stdout | is-not-empty)
+      let dirty = if (which gix | is-not-empty) {
+        do -i { ^gix --no-verbose status --format simplified --untracked normal : } | complete | get stdout | is-not-empty
+      } else {
+        do -i { ^git status --porcelain } | complete | get stdout | is-not-empty
+      }
       let status_char = if $dirty { "*" } else { "" }
       $git_info = $"(ansi green_bold)($branch)($status_char)(ansi reset)"
     }

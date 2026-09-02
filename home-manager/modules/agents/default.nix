@@ -124,7 +124,7 @@ let
             type = types.listOf types.str;
             default = [ ];
             example = [
-              "Bash(git:*)"
+              "Bash(gix:*)"
               "Read"
             ];
             description = ''
