@@ -35,6 +35,11 @@
       url = "github:lambda-symbolics/autolith";
     };
 
+    watt = {
+      url = "github:NotAShelf/watt";
+      inputs.nixpkgs.follows = "nixpkgs";
+    };
+
     fastpotify-adapter = {
       url = "path:./flakes/fastpotify";
       inputs.nixpkgs.follows = "nixpkgs";

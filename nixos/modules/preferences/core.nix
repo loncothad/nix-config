@@ -70,7 +70,7 @@ in
       btop
       iotop
       iftop
-      powertop
+      pkgs.fromFlakes.watt.watt
       lsof
       psmisc
 
