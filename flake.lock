@@ -1227,7 +1227,8 @@
         "stylix": "stylix",
         "sub2api-adapter": "sub2api-adapter",
         "treefmt": "treefmt",
-        "wine4office-adapter": "wine4office-adapter"
+        "wine4office-adapter": "wine4office-adapter",
+        "zvec-grep-adapter": "zvec-grep-adapter"
       }
     },
     "rust-overlay": {
@@ -1548,6 +1549,43 @@
         "owner": "ttv20",
         "ref": "wine4office-v0.1.11-rc.2",
         "repo": "wine4office",
+        "type": "github"
+      }
+    },
+    "zvec-grep-adapter": {
+      "inputs": {
+        "flake-parts": [
+          "flake-parts"
+        ],
+        "nixpkgs": [
+          "nixpkgs"
+        ],
+        "zvec-grep-src": "zvec-grep-src"
+      },
+      "locked": {
+        "path": "./flakes/zvec-grep",
+        "type": "path"
+      },
+      "original": {
+        "path": "./flakes/zvec-grep",
+        "type": "path"
+      },
+      "parent": []
+    },
+    "zvec-grep-src": {
+      "flake": false,
+      "locked": {
+        "lastModified": 1788246216,
+        "narHash": "sha256-8bP+w2YSzWlTJbipmF8ighraZRDye0uiZmd8+Pz4WE8=",
+        "owner": "zvec-ai",
+        "repo": "zvec-grep",
+        "rev": "309a66995809243d3274fa8b5bea63ab11dda1a0",
+        "type": "github"
+      },
+      "original": {
+        "owner": "zvec-ai",
+        "ref": "v0.2.1",
+        "repo": "zvec-grep",
         "type": "github"
       }
     }

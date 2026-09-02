@@ -13,5 +13,6 @@ in
     fastpotify-adapter = inputs.fastpotify-adapter.packages.${system};
     mark-shot = inputs.mark-shot.packages.${system};
     wine4office-adapter = inputs.wine4office-adapter.packages.${system};
+    zvec-grep-adapter = inputs.zvec-grep-adapter.packages.${system};
   };
 }

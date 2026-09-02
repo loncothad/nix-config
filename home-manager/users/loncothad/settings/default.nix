@@ -9,6 +9,7 @@
     ./jj.nix
     ./tldr.nix
     ./zoxide.nix
+    ./zvec-grep.nix
 
     ./autolith
     ./nushell

@@ -41,6 +41,12 @@
       inputs.flake-parts.follows = "flake-parts";
     };
 
+    zvec-grep-adapter = {
+      url = "path:./flakes/zvec-grep";
+      inputs.nixpkgs.follows = "nixpkgs";
+      inputs.flake-parts.follows = "flake-parts";
+    };
+
     sub2api-adapter = {
       url = "path:./flakes/sub2api";
       inputs.nixpkgs.follows = "nixpkgs";

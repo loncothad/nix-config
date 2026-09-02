@@ -17,6 +17,7 @@
         celld = pkgs.fromFlakes.celld-adapter.celld;
         fastpotify = pkgs.fromFlakes.fastpotify-adapter.fastpotify;
         mark-shot = pkgs.fromFlakes.mark-shot.default;
+        zvec-grep = pkgs.fromFlakes.zvec-grep-adapter.zvec-grep;
         inherit (pkgs.fromFlakes.wine4office-adapter) wine4office wine4office-wine;
       };
     };
