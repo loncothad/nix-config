@@ -2,6 +2,7 @@
 
 {
   imports = [
+    ./bazel.nix
     ./bottom.nix
     ./btop.nix
     ./git.nix
