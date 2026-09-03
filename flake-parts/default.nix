@@ -14,6 +14,7 @@
     ./treefmt.nix
     ./modules.nix
     ./packages.nix
+    ./templates.nix
     ./nixos-configurations.nix
   ];
 }

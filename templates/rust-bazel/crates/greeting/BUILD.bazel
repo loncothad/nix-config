@@ -1,0 +1,14 @@
+load("@rules_rust//rust:defs.bzl", "rust_library", "rust_test")
+
+rust_library(
+    name = "greeting",
+    srcs = glob(["src/**/*.rs"]),
+    crate_name = "greeting",
+    edition = "2024",
+    visibility = ["//visibility:public"],
+)
+
+rust_test(
+    name = "greeting_test",
+    crate = ":greeting",
+)

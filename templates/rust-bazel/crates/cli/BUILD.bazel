@@ -1,0 +1,10 @@
+load("@rules_rust//rust:defs.bzl", "rust_binary")
+
+rust_binary(
+    name = "workspace-cli",
+    srcs = glob(["src/**/*.rs"]),
+    crate_name = "workspace_cli",
+    edition = "2024",
+    visibility = ["//visibility:public"],
+    deps = ["//crates/greeting"],
+)

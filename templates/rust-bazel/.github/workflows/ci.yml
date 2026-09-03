@@ -1,0 +1,25 @@
+name: CI
+
+on:
+  pull_request:
+  push:
+
+permissions:
+  contents: read
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v6
+      - uses: DeterminateSystems/determinate-nix-action@v3
+      - name: Evaluate the Nix flake
+        run: nix flake check
+      - name: Check and test in the Nix development shell
+        run: |
+          nix develop --command bash -euo pipefail -c '
+            cargo fmt --all -- --check
+            cargo test --workspace
+            buildifier -mode=check -r .
+            bazel test //...
+          '

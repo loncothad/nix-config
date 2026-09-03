@@ -1,0 +1,12 @@
+[package]
+name = "workspace-cli"
+edition.workspace = true
+license.workspace = true
+version.workspace = true
+
+[dependencies]
+greeting = { path = "../greeting" }
+
+[[bin]]
+name = "workspace-cli"
+path = "src/main.rs"
