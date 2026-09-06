@@ -78,6 +78,8 @@
     beets
     xdg-utils
     brillo
+    shh
+    run0-sudo-shim
 
     hyprpicker
 
