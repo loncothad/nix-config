@@ -44,8 +44,11 @@
             packages = with pkgs; [
               bazel-buildtools
               bazelisk
+              mold
               rustToolchain
             ];
+
+            RUSTFLAGS = "-C link-arg=-fuse-ld=mold";
           };
         };
     };
