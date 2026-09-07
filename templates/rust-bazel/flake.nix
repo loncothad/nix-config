@@ -13,11 +13,20 @@
       url = "github:oxalica/rust-overlay";
       inputs.nixpkgs.follows = "nixpkgs";
     };
+
+    treefmt = {
+      url = "github:numtide/treefmt-nix";
+      inputs.nixpkgs.follows = "nixpkgs";
+    };
   };
 
   outputs =
     inputs@{ flake-parts, ... }:
     flake-parts.lib.mkFlake { inherit inputs; } {
+      imports = [
+        inputs.treefmt.flakeModule
+      ];
+
       systems = [
         "aarch64-linux"
         "x86_64-linux"
@@ -40,6 +49,13 @@
           };
         in
         {
+          treefmt = {
+            projectRootFile = "flake.nix";
+            programs.buildifier.enable = true;
+            programs.nixfmt.enable = true;
+            programs.rustfmt.enable = true;
+          };
+
           devShells.default = pkgs.mkShell {
             packages = with pkgs; [
               bazel-buildtools
