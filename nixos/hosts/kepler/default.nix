@@ -8,6 +8,8 @@
   networking.hostName = "kepler";
   networking.networkmanager.enable = true;
 
+  virtualisation.smolvm.enable = true;
+
   host.profile = {
     enable = true;
     purpose = "desktop";
