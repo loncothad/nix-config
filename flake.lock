@@ -749,6 +749,40 @@
         "type": "github"
       }
     },
+    "libkrun-src": {
+      "flake": false,
+      "locked": {
+        "lastModified": 1779235645,
+        "narHash": "sha256-rmRMZ5j3HlueCAXQLydjmMq45+hwhxSLWM02VvHokcY=",
+        "owner": "smol-machines",
+        "repo": "libkrun",
+        "rev": "98163265197caa24a789699f16a68b98e917b65b",
+        "type": "github"
+      },
+      "original": {
+        "owner": "smol-machines",
+        "repo": "libkrun",
+        "rev": "98163265197caa24a789699f16a68b98e917b65b",
+        "type": "github"
+      }
+    },
+    "libkrunfw-src": {
+      "flake": false,
+      "locked": {
+        "lastModified": 1778821066,
+        "narHash": "sha256-g2DxDnnh52JCPg4ktPWFBi0J9203FCncGOzB3eiCRxQ=",
+        "owner": "smol-machines",
+        "repo": "libkrunfw",
+        "rev": "516ceece6aed60ccc84ac8faa459885062e39400",
+        "type": "github"
+      },
+      "original": {
+        "owner": "smol-machines",
+        "repo": "libkrunfw",
+        "rev": "516ceece6aed60ccc84ac8faa459885062e39400",
+        "type": "github"
+      }
+    },
     "libnbtplusplus": {
       "flake": false,
       "locked": {
@@ -1244,6 +1278,7 @@
         "notesnook-sync-server-adapter": "notesnook-sync-server-adapter",
         "openai-codex-adapter": "openai-codex-adapter",
         "quadlet-nix": "quadlet-nix",
+        "smolvm-adapter": "smolvm-adapter",
         "stylix": "stylix",
         "sub2api-adapter": "sub2api-adapter",
         "treefmt": "treefmt",
@@ -1292,6 +1327,49 @@
       "original": {
         "owner": "oxalica",
         "repo": "rust-overlay",
+        "type": "github"
+      }
+    },
+    "smolvm-adapter": {
+      "inputs": {
+        "flake-parts": [
+          "flake-parts"
+        ],
+        "nixpkgs": [
+          "nixpkgs"
+        ],
+        "smolvm-upstream": "smolvm-upstream"
+      },
+      "locked": {
+        "path": "./flakes/smolvm",
+        "type": "path"
+      },
+      "original": {
+        "path": "./flakes/smolvm",
+        "type": "path"
+      },
+      "parent": []
+    },
+    "smolvm-upstream": {
+      "inputs": {
+        "libkrun-src": "libkrun-src",
+        "libkrunfw-src": "libkrunfw-src",
+        "nixpkgs": [
+          "smolvm-adapter",
+          "nixpkgs"
+        ]
+      },
+      "locked": {
+        "lastModified": 1788775961,
+        "narHash": "sha256-tDt+igJNzWEAfFOFRw3HNNsCXGG+3I0kBpSJ/eFfTtc=",
+        "owner": "smol-machines",
+        "repo": "smolvm",
+        "rev": "0ad2f3044d1d2d67494ab869e2d9716c8150da19",
+        "type": "github"
+      },
+      "original": {
+        "owner": "smol-machines",
+        "repo": "smolvm",
         "type": "github"
       }
     },

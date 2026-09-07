@@ -11,6 +11,7 @@ in
     autolith = inputs.autolith.packages.${system};
     celld-adapter = inputs.celld-adapter.packages.${system};
     fastpotify-adapter = inputs.fastpotify-adapter.packages.${system};
+    smolvm-adapter = inputs.smolvm-adapter.packages.${system};
     mark-shot = inputs.mark-shot.packages.${system};
     openai-codex-adapter = inputs.openai-codex-adapter.packages.${system};
     wine4office-adapter = inputs.wine4office-adapter.packages.${system};

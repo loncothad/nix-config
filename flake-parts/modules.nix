@@ -7,6 +7,7 @@
       ferron = ../nixos/modules/ferron.nix;
       notesnook-sync-server = inputs.notesnook-sync-server-adapter.nixosModules.default;
       sub2api = inputs.sub2api-adapter.nixosModules.default;
+      smolvm = inputs.smolvm-adapter.nixosModules.default;
       default = {
         imports = [
           ../nixos/modules
@@ -15,6 +16,7 @@
           inputs.determinate.nixosModules.default
           inputs.notesnook-sync-server-adapter.nixosModules.default
           inputs.sub2api-adapter.nixosModules.default
+          inputs.smolvm-adapter.nixosModules.default
         ];
       };
     };
