@@ -155,6 +155,11 @@ def "main fmt" [] {
   run-nix fmt $repo_root
 }
 
+# Open the repository development shell in Nushell.
+def --wrapped "main shell" [...args: string] {
+  run-nix develop $repo_root --command nu ...$args
+}
+
 # Evaluate flake checks.
 def --wrapped "main check" [...args: string] {
   run-nix flake check --show-trace $repo_root ...$args
