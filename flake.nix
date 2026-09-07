@@ -85,6 +85,12 @@
       inputs.flake-parts.follows = "flake-parts";
     };
 
+    smolvm-adapter = {
+      url = "path:./flakes/smolvm";
+      inputs.nixpkgs.follows = "nixpkgs";
+      inputs.flake-parts.follows = "flake-parts";
+    };
+
     treefmt = {
       url = "github:numtide/treefmt-nix";
       inputs.nixpkgs.follows = "nixpkgs";
