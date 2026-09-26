@@ -175,8 +175,10 @@ in
       networking.nameservers = cfg.dns.upstreamServers;
       services.resolved = {
         enable = true;
-        dnssec = cfg.dns.dnssec;
-        dnsovertls = "true";
+        settings.Resolve = {
+          DNSSEC = cfg.dns.dnssec;
+          DNSOverTLS = "true";
+        };
       };
     })
 
