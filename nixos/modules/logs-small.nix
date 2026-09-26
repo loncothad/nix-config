@@ -17,7 +17,7 @@ in
   };
 
   config = mkIf cfg.enable {
-    services.journald.extraConfig = "SystemMaxUse=200M";
+    services.journald.settings.Journal.SystemMaxUse = "200M";
     systemd.coredump.settings.Coredump.MaxUse = "200M";
 
     boot.kernelParams = [ "log_buf_len=20M" ];
