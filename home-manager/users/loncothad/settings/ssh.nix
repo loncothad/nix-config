@@ -7,7 +7,7 @@
   };
 
   home.file = {
-    ".ssh/id_072.pub".source = inputs.self + "/misc/ssh-keys/id_072.pub";
-    ".ssh/id_365.pub".source = inputs.self + "/misc/ssh-keys/id_365.pub";
+    ".ssh/id_ed25519_sk_653.pub".source = inputs.self + "/misc/ssh-keys/id_ed25519_sk_653.pub";
+    ".ssh/id_ed25519_sk_863.pub".source = inputs.self + "/misc/ssh-keys/id_ed25519_sk_863.pub";
   };
 }
