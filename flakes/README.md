@@ -183,6 +183,13 @@ Then wire only the boundaries the adapter exports:
 
 ## Updating and validation
 
+GitHub may rate-limit anonymous flake updates. Run `./tasks.nu github-auth` once
+and enter a GitHub personal access token at the hidden prompt. The task stores
+it in `~/.config/nix/github-auth.conf` (or under `$XDG_CONFIG_HOME/nix`) with
+mode `0600` and adds `!include github-auth.conf` to the user's `nix.conf`.
+Neither the token nor its file belongs in this repository. The normal update
+commands below then use Nix's authenticated GitHub access automatically.
+
 For a new adapter, add its files to Git before Nix evaluates the path. Then use
 the repository command that updates the adapter first and its root path input
 second:
