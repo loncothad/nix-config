@@ -16,7 +16,7 @@ upstreamPackage.overrideAttrs (oldAttrs: {
     pname = "fastpotify";
     version = (lib.importTOML "${upstreamSource}/Cargo.toml").package.version;
     src = upstreamSource;
-    hash = "sha256-e/uJwqYszz7ASo5elWcTIX6Smb0xJgQZA5fgHuwvzaE=";
+    hash = "sha256-RpYSZhnJw4del+yyjnF0ax+cPUIAJNwGljdVmoyEphs=";
   };
 
   buildInputs = (oldAttrs.buildInputs or [ ]) ++ [
@@ -29,10 +29,14 @@ upstreamPackage.overrideAttrs (oldAttrs: {
   ];
 
   postPatch = (oldAttrs.postPatch or "") + ''
+    projectmBuildScript=$(find "$cargoDepsCopy" -path '*/projectm-sys-*/build.rs' -print -quit)
+    test -n "$projectmBuildScript"
     substituteInPlace \
-      "$cargoDepsCopy/source-git-1/projectm-sys-1.2.3/build.rs" \
+      "$projectmBuildScript" \
       --replace-fail \
-      'println!("cargo:rustc-link-search=native={}/lib", dst.display());' \
-      'println!("cargo:rustc-link-search=native={}/lib64", dst.display());'
+      '.define("BUILD_TESTING", "OFF")' \
+      '.define("BUILD_TESTING", "OFF")
+            .define("CMAKE_INSTALL_LIBDIR", "lib")
+            .define("ENABLE_DEBUG_POSTFIX", "OFF")'
   '';
 })
