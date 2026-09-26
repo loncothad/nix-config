@@ -92,7 +92,7 @@
 
     git = {
       enable = true;
-      diffToolMode = true;
+      mode = "both";
     };
 
     jujutsu = {
