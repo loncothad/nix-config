@@ -134,6 +134,80 @@
         "type": "github"
       }
     },
+    "cargo-multivers-adapter": {
+      "inputs": {
+        "cargo-multivers-src": "cargo-multivers-src",
+        "flake-parts": [
+          "flake-parts"
+        ],
+        "nixpkgs": [
+          "nixpkgs"
+        ]
+      },
+      "locked": {
+        "path": "./flakes/cargo-multivers",
+        "type": "path"
+      },
+      "original": {
+        "path": "./flakes/cargo-multivers",
+        "type": "path"
+      },
+      "parent": []
+    },
+    "cargo-multivers-src": {
+      "flake": false,
+      "locked": {
+        "lastModified": 1783152852,
+        "narHash": "sha256-rIGUixtLyjwXsGAP5uFkMcbL/7VRMHvNd4hcDWUd500=",
+        "owner": "ronnychevalier",
+        "repo": "cargo-multivers",
+        "rev": "83fbd6f88f53a211394485f1ab08c21a7fe8674d",
+        "type": "github"
+      },
+      "original": {
+        "owner": "ronnychevalier",
+        "ref": "v0.13.0",
+        "repo": "cargo-multivers",
+        "type": "github"
+      }
+    },
+    "cargo-pretty-adapter": {
+      "inputs": {
+        "cargo-pretty-src": "cargo-pretty-src",
+        "flake-parts": [
+          "flake-parts"
+        ],
+        "nixpkgs": [
+          "nixpkgs"
+        ]
+      },
+      "locked": {
+        "path": "./flakes/cargo-pretty",
+        "type": "path"
+      },
+      "original": {
+        "path": "./flakes/cargo-pretty",
+        "type": "path"
+      },
+      "parent": []
+    },
+    "cargo-pretty-src": {
+      "flake": false,
+      "locked": {
+        "lastModified": 1789332814,
+        "narHash": "sha256-RKTt1yH50LnooMlj4lChWvrtLMpR8M5LoChdxuFYTos=",
+        "owner": "romancitodev",
+        "repo": "cargo-pretty",
+        "rev": "bd6249e1f07c37b8ce98f8c99415321314db9355",
+        "type": "github"
+      },
+      "original": {
+        "owner": "romancitodev",
+        "repo": "cargo-pretty",
+        "rev": "bd6249e1f07c37b8ce98f8c99415321314db9355",
+        "type": "github"
+      }
+    },
     "celld-adapter": {
       "inputs": {
         "celld-src": "celld-src",
@@ -1259,6 +1333,8 @@
         "agenix": "agenix",
         "agenix-rekey": "agenix-rekey",
         "autolith": "autolith",
+        "cargo-multivers-adapter": "cargo-multivers-adapter",
+        "cargo-pretty-adapter": "cargo-pretty-adapter",
         "celld-adapter": "celld-adapter",
         "determinate": "determinate",
         "disko": "disko",
@@ -1278,6 +1354,7 @@
         "notesnook-sync-server-adapter": "notesnook-sync-server-adapter",
         "openai-codex-adapter": "openai-codex-adapter",
         "quadlet-nix": "quadlet-nix",
+        "rust-overlay": "rust-overlay_3",
         "smolvm-adapter": "smolvm-adapter",
         "stylix": "stylix",
         "sub2api-adapter": "sub2api-adapter",
@@ -1322,6 +1399,26 @@
         "owner": "oxalica",
         "repo": "rust-overlay",
         "rev": "8534567325bd8a8d2928e6afd81e0a87d19efd3c",
+        "type": "github"
+      },
+      "original": {
+        "owner": "oxalica",
+        "repo": "rust-overlay",
+        "type": "github"
+      }
+    },
+    "rust-overlay_3": {
+      "inputs": {
+        "nixpkgs": [
+          "nixpkgs"
+        ]
+      },
+      "locked": {
+        "lastModified": 1790407471,
+        "narHash": "sha256-M8elY2UShg4ZuLTiRLEHO+ae5xQFp3/ReQdxp/R+1UU=",
+        "owner": "oxalica",
+        "repo": "rust-overlay",
+        "rev": "4e9bb05a9ab6c37dc74c22974ebed6e36dc73eb2",
         "type": "github"
       },
       "original": {

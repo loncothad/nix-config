@@ -116,6 +116,23 @@
       inputs.nixpkgs.follows = "nixpkgs";
     };
 
+    cargo-multivers-adapter = {
+      url = "path:./flakes/cargo-multivers";
+      inputs.nixpkgs.follows = "nixpkgs";
+      inputs.flake-parts.follows = "flake-parts";
+    };
+
+    cargo-pretty-adapter = {
+      url = "path:./flakes/cargo-pretty";
+      inputs.nixpkgs.follows = "nixpkgs";
+      inputs.flake-parts.follows = "flake-parts";
+    };
+
+    rust-overlay = {
+      url = "github:oxalica/rust-overlay";
+      inputs.nixpkgs.follows = "nixpkgs";
+    };
+
     nix-cachyos-kernel = {
       url = "github:xddxdd/nix-cachyos-kernel/release";
       # inputs.nixpkgs.follows = "nixpkgs";

@@ -5,6 +5,7 @@ let
 
   overlaysModule = { ... }: {
     nixpkgs.overlays = [
+      inputs.rust-overlay.overlays.default
       inputs.nix-cachyos-kernel.overlays.default
       (import ../pkgs { inherit inputs; })
     ];
