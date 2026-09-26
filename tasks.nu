@@ -203,6 +203,37 @@ def "main eval" [attribute: string] {
   run-nix eval --show-trace (flake-ref $attribute)
 }
 
+# Store a GitHub token in the user's Nix config for authenticated flake updates.
+def "main github-auth" [] {
+  let config_root = $env.XDG_CONFIG_HOME? | default ($env.HOME | path join ".config")
+  let config_dir = $config_root | path join nix
+  let config_file = $config_dir | path join nix.conf
+  let auth_file = $config_dir | path join github-auth.conf
+  let token = input --suppress-output "GitHub personal access token: " | str trim
+
+  if ($token == "" or $token =~ '\s') {
+    error make { msg: "provide a non-empty token without whitespace" }
+  }
+
+  mkdir $config_dir
+  ^chmod 700 $config_dir
+  touch $auth_file
+  ^chmod 600 $auth_file
+  $"access-tokens = github.com=($token)\n" | save --raw --force $auth_file
+
+  let current = if ($config_file | path exists) {
+    open --raw $config_file
+  } else {
+    ""
+  }
+  if not ($current | lines | any {|line| ($line | str trim) == "!include github-auth.conf" }) {
+    let separator = if ($current == "" or ($current | str ends-with "\n")) { "" } else { "\n" }
+    ($current + $separator + "!include github-auth.conf\n") | save --raw --force $config_file
+  }
+
+  print $"GitHub token configured in ($auth_file)."
+}
+
 # Update root flake inputs only.
 def --wrapped "main update" [...args: string] {
   run-nix flake update --flake $repo_root ...$args
