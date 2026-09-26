@@ -8,6 +8,7 @@
     ./git.nix
     ./ssh.nix
     ./jj.nix
+    ./rust.nix
     ./openai-codex.nix
     ./tldr.nix
     ./zoxide.nix
