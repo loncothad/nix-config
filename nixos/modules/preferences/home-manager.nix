@@ -26,7 +26,6 @@ in
       sharedModules = [
         inputs.fastpotify-adapter.homeModules.default
         inputs.openai-codex-adapter.homeModules.default
-        inputs.zcode-adapter.homeModules.default
       ];
     };
   };

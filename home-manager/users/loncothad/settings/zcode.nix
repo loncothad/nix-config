@@ -1,3 +1,0 @@
-{
-  programs.zcode.enable = true;
-}

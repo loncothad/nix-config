@@ -12,7 +12,6 @@
     ./openai-codex.nix
     ./tldr.nix
     ./zoxide.nix
-    ./zcode.nix
     ./zvec-grep.nix
 
     ./autolith
