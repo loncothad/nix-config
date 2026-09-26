@@ -1,0 +1,66 @@
+{
+  "nodes": {
+    "cargo-pretty-src": {
+      "flake": false,
+      "locked": {
+        "lastModified": 1789332814,
+        "narHash": "sha256-RKTt1yH50LnooMlj4lChWvrtLMpR8M5LoChdxuFYTos=",
+        "owner": "romancitodev",
+        "repo": "cargo-pretty",
+        "rev": "bd6249e1f07c37b8ce98f8c99415321314db9355",
+        "type": "github"
+      },
+      "original": {
+        "owner": "romancitodev",
+        "repo": "cargo-pretty",
+        "rev": "bd6249e1f07c37b8ce98f8c99415321314db9355",
+        "type": "github"
+      }
+    },
+    "flake-parts": {
+      "inputs": {
+        "nixpkgs-lib": [
+          "nixpkgs"
+        ]
+      },
+      "locked": {
+        "lastModified": 1733312601,
+        "narHash": "sha256-4pDvzqnegAfRkPwO3wmwBhVi/Sye1mzps0zHWYnP88c=",
+        "owner": "hercules-ci",
+        "repo": "flake-parts",
+        "rev": "205b12d8b7cd4802fbcb8e8ef6a0f1408781a4f9",
+        "type": "github"
+      },
+      "original": {
+        "owner": "hercules-ci",
+        "repo": "flake-parts",
+        "type": "github"
+      }
+    },
+    "nixpkgs": {
+      "locked": {
+        "lastModified": 1790323409,
+        "narHash": "sha256-VVTPf+Hyd5ebpjBMHmrLMSBIeW6ls48Bqtosj7CNKLA=",
+        "owner": "NixOS",
+        "repo": "nixpkgs",
+        "rev": "e94cb152ed51bd6e24eb4a41f1460252beb52cd2",
+        "type": "github"
+      },
+      "original": {
+        "owner": "NixOS",
+        "repo": "nixpkgs",
+        "ref": "nixos-unstable",
+        "type": "github"
+      }
+    },
+    "root": {
+      "inputs": {
+        "cargo-pretty-src": "cargo-pretty-src",
+        "flake-parts": "flake-parts",
+        "nixpkgs": "nixpkgs"
+      }
+    }
+  },
+  "root": "root",
+  "version": 7
+}
