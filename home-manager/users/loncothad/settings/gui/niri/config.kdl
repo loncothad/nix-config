@@ -54,7 +54,7 @@ binds {
   Mod+S { spawn "fuzzel"; }
   Mod+X { spawn "ghostty"; }
 
-  Mod+B { spawn "hyprlock"; }
+  Mod+B { spawn "hyprlock" "--grace" "5"; }
   
   Mod+Shift+S { spawn "mark-shot"; }
   Print { spawn "mark-shot"; }

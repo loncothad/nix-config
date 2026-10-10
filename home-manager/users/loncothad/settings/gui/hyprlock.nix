@@ -6,12 +6,10 @@
 
     settings = {
       general = {
-        disable_loading_bar = true;
         hide_cursor = true;
-        grace = 5;
       };
 
-      backgrounds = [
+      background = [
         {
           path = inputs.self + "/misc/assets/wallpapers/blue-waves-dark-background.jpg";
           blur_passes = 3;
@@ -19,7 +17,7 @@
         }
       ];
 
-      input-fields = [
+      input-field = [
         {
           size = "250, 60";
           outline_thickness = 2;
