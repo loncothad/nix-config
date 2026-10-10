@@ -155,6 +155,10 @@ in
       boot.kernel.sysctl = {
         "net.ipv4.ip_forward" = 1;
         "net.ipv6.conf.all.forwarding" = 1;
+        # Forwarding normally disables router-advertisement acceptance. Retain
+        # autoconfiguration on upstream links without enabling IPv6 NAT.
+        "net.ipv6.conf.all.accept_ra" = 2;
+        "net.ipv6.conf.default.accept_ra" = 2;
       };
     })
 
@@ -238,26 +242,28 @@ in
 
       # A separate earlier base chain can drop traffic before trusted-interface
       # and allowed-port accepts. It never accepts or opens an SSH port itself.
-      networking.nftables.tables.ssh-rate-limit = mkIf cfg.firewall.rateLimitSsh.enable {
-        family = "inet";
-        content = ''
-          set ssh4 {
-            type ipv4_addr
-            flags dynamic, timeout
-            timeout 1m
-          }
-          set ssh6 {
-            type ipv6_addr
-            flags dynamic, timeout
-            timeout 1m
-          }
-          chain input {
-            type filter hook input priority filter - 10; policy accept;
-            iifname != "lo" tcp dport ${toNftSet config.services.openssh.ports} ct state new tcp flags & (fin | syn | rst | ack) == syn update @ssh4 { ip saddr limit rate over ${toString cfg.firewall.rateLimitSsh.maxConnections}/minute } drop
-            iifname != "lo" tcp dport ${toNftSet config.services.openssh.ports} ct state new tcp flags & (fin | syn | rst | ack) == syn update @ssh6 { ip6 saddr limit rate over ${toString cfg.firewall.rateLimitSsh.maxConnections}/minute } drop
-          }
-        '';
-      };
+      networking.nftables.tables.ssh-rate-limit =
+        mkIf (cfg.firewall.rateLimitSsh.enable && config.services.openssh.ports != [ ])
+          {
+            family = "inet";
+            content = ''
+              set ssh4 {
+                type ipv4_addr
+                flags dynamic, timeout
+                timeout 1m
+              }
+              set ssh6 {
+                type ipv6_addr
+                flags dynamic, timeout
+                timeout 1m
+              }
+              chain input {
+                type filter hook input priority filter - 10; policy accept;
+                iifname != "lo" tcp dport ${toNftSet config.services.openssh.ports} ct state new tcp flags & (fin | syn | rst | ack) == syn update @ssh4 { ip saddr limit rate over ${toString cfg.firewall.rateLimitSsh.maxConnections}/minute } drop
+                iifname != "lo" tcp dport ${toNftSet config.services.openssh.ports} ct state new tcp flags & (fin | syn | rst | ack) == syn update @ssh6 { ip6 saddr limit rate over ${toString cfg.firewall.rateLimitSsh.maxConnections}/minute } drop
+              }
+            '';
+          };
     })
   ];
 }
