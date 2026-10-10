@@ -1,7 +1,8 @@
-{ ... }:
+{ pkgs, ... }:
 
 {
   imports = [
+    ./scheduler.nix
     ./hardware-setup.nix
   ];
 
@@ -10,16 +11,8 @@
 
   virtualisation.smolvm.enable = true;
 
-  host.profile = {
-    enable = true;
-    purpose = "desktop";
-    platform = "nixos";
-    hardware = {
-      x86_64Level = "v3"; # Core Ultra X9 388H (no AVX512)
-      formFactor = "laptop";
-      schedExtMode = "auto";
-    };
-  };
+  # Keep the existing CachyOS v3 kernel and scheduler configuration explicit.
+  boot.kernelPackages = pkgs.cachyosKernels.linuxPackages-cachyos-bore-lto-x86_64-v3;
 
   preferences.agenix = {
     # enable = true;

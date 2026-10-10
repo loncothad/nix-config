@@ -27,7 +27,6 @@
     ./nixos-compat.nix
     ./no-mitigations.nix
     ./pam-limits.nix
-    ./profile.nix
     ./tmp-log.nix
     ./virtual-camera.nix
     ./watchdog-timeout.nix
