@@ -20,7 +20,7 @@
     "i915.force_probe=!e20b"
     "xe.force_probe=e20b"
     "i915.enable_psr=1"
-    "xe.enable_display=1"
+    "xe.probe_display=1"
     "nvme_core.default_ps_max_latency=5500"
   ];
 
