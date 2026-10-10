@@ -81,6 +81,12 @@ resources live under `virtualisation.quadlet`.
 The currently constructed systems are `kepler` and `vega-small`. A directory
 under `nixos/hosts/` becomes a system only when `nixos/default.nix` lists it.
 
+Host kernel and scheduler choices are direct NixOS settings in each host's
+`default.nix` and `scheduler.nix`. Kepler's native resolver composition lives in
+`nixos/hosts/kepler/networking.nix`; upstream service options own DNS policy.
+Shared time/firewall/NAT preferences use the pinned NixOS modules. Repeatable
+evaluation/configuration checks and offline VM packet tests live in `tests/`.
+
 ## Home Manager composition
 
 `home-manager/modules/default.nix` is the reusable repository-owned module set.
