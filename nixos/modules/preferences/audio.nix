@@ -28,7 +28,7 @@ in
       args = [
         "--max-realtime-priority=20"
         "--min-nice-level=-10"
-        "--rttime-msec-max=200"
+        "--rttime-usec-max=200000"
       ];
     };
 
@@ -85,7 +85,6 @@ in
       powerOnBoot = mkDefault true;
       settings = {
         General = {
-          Enable = "Source,Sink,Media,Socket";
           Experimental = true;
           FastConnectable = true;
           DiscoverableTimeout = 0;
@@ -94,7 +93,7 @@ in
         Policy = {
           AutoEnable = true;
           ReconnectAttempts = 7;
-          ReconnectInterval = 2;
+          ReconnectIntervals = "2";
         };
       };
     };
