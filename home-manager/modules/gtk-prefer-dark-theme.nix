@@ -21,7 +21,6 @@ in
       enable = mkDefault true;
       # GTK4 / libadwaita (Ghostty) follow color-scheme via the portal.
       colorScheme = "dark";
-      gtk2.extraConfig = "gtk-application-prefer-dark-theme = true";
       gtk3.extraConfig.gtk-application-prefer-dark-theme = true;
     };
   };
