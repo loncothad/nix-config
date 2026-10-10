@@ -861,6 +861,18 @@
         "type": "github"
       }
     },
+    "loncothad-ssh-keys": {
+      "flake": false,
+      "locked": {
+        "narHash": "sha256-jhn+Fj8rdHzjJyEsgcpWl9kCJb3cnage+ByO6dM7MRs=",
+        "type": "file",
+        "url": "https://github.com/loncothad.keys"
+      },
+      "original": {
+        "type": "file",
+        "url": "https://github.com/loncothad.keys"
+      }
+    },
     "mark-shot": {
       "inputs": {
         "flake-utils": "flake-utils",
@@ -1332,6 +1344,7 @@
         "freesm-launcher": "freesm-launcher",
         "home-manager": "home-manager",
         "lanzaboote": "lanzaboote",
+        "loncothad-ssh-keys": "loncothad-ssh-keys",
         "mark-shot": "mark-shot",
         "microvm": "microvm",
         "nix-cachyos-kernel": "nix-cachyos-kernel",

@@ -1,5 +1,10 @@
 {
   inputs = {
+    loncothad-ssh-keys = {
+      url = "file+https://github.com/loncothad.keys";
+      flake = false;
+    };
+
     nixpkgs = {
       url = "github:nixos/nixpkgs/nixos-unstable";
     };
