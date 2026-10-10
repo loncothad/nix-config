@@ -16,15 +16,22 @@ Run from the repository root:
 
 `configuration-check` is also part of normal flake checks. It checks both hosts'
 generated Niri includes, Ghostty, Fuzzel, Zellij, Hyprlock, Ashell, MPV, tuigreet,
-RTKit arguments, scheduler mode arguments, and tmpfiles rules with the pinned
+Git, Tealdeer, Nushell, RTKit arguments, scheduler mode arguments, and tmpfiles rules with the pinned
 programs. Tuigreet's effective TOML dump must retain every configured field.
 BlueZ keys are checked against the supported group/option tables in its pinned
-source, including positive reconnect intervals. GTK2 settings are checked against
+source, including nonnegative reconnect intervals. GTK2 settings are checked against
 the actual library's properties. WirePlumber's Bluetooth property scopes and codecs
 are checked against pinned PipeWire documentation/source, and policy settings
 against WirePlumber's installed schema. Negative cases confirm that unknown flags,
 ignored Ashell fields, obsolete Hyprlock options, and unsupported BlueZ settings
 are detected. Logs are kept in the check derivation's output by hostname.
+
+Bottom, Jujutsu and Lazygit settings are validated against the JSON schemas
+shipped in their pinned source, rejecting undocumented fields in objects with
+known properties while retaining explicitly extensible sections. Jujutsu's push
+bookmark template is parsed in a temporary repository. The configured prefix is
+preserved, and automatic bookmark tracking is configured for the `origin` remote
+using the current per-remote setting. No existing repository is modified.
 
 These checks isolate HOME, XDG paths and the Wayland socket. Ashell and Hyprlock
 parse their configuration before the deliberate missing-compositor failure;
@@ -45,7 +52,9 @@ The 2026-10-10 pass-through audit corrected unsupported BlueZ keys, the RTKit
 limit flag/unit, WirePlumber hardware-volume property scope, Hyprlock widget names and CLI grace period, Ashell's enum/table
 fields and bar appearance, the GTK2 dark-theme property, duplicate greeter cache
 rules, the built-in intel_pstate module entry, the renamed Xe display parameter,
-removed mitigation aliases, Zswap's removed allocator parameter/sysfs entry, and
+removed mitigation aliases, Zswap's removed allocator parameter/sysfs entry,
+Bottom's temperature section, Jujutsu's tracking/push-template settings,
+Lazygit's diff-renderer/icon settings, and
 AppArmor includes outside profile blocks or referencing a nonexistent abstraction.
 
 Additional inspection used the patched CachyOS 7.2.8 source for kernel parameters

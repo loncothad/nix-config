@@ -23,6 +23,33 @@ let
       zellij = program "zellij" "zellij/config.kdl";
       hyprlock = program "hyprlock" "hypr/hyprlock.conf";
       mpv = program "mpv" "mpv/mpv.conf";
+      schemas = {
+        bottom = {
+          config = h.programs.bottom.settings;
+          schema = "${host.pkgs.bottom.src}/schema/v${host.pkgs.bottom.version}/bottom.json";
+        };
+        jujutsu = {
+          config = h.programs.jujutsu.settings;
+          schema = "${host.pkgs.jujutsu.src}/cli/src/config-schema.json";
+        };
+        lazygit = {
+          config = h.programs.lazygit.settings;
+          schema = "${host.pkgs.lazygit.src}/schema/config.json";
+        };
+      };
+      jujutsu = {
+        exe = lib.getExe h.programs.jujutsu.package;
+        config = h.home.file."${h.xdg.configHome}/jj/config.toml".source;
+      };
+      git = program "git" "git/config";
+      tealdeer = {
+        exe = lib.getExe h.programs.tealdeer.package;
+        config = h.home.file."${h.xdg.configHome}/tealdeer/config.toml".source;
+      };
+      nushell = {
+        exe = lib.getExe h.programs.nushell.package;
+        config = h.programs.nushell.configFile.source;
+      };
       ashell = {
         exe = lib.getExe h.programs.ashell.package;
         # Send parser diagnostics to stderr in the isolated test process.
@@ -83,7 +110,9 @@ let
     }
   );
 in
-pkgs.runCommand "configuration-checks" { nativeBuildInputs = [ pkgs.python3 ]; } ''
-  mkdir -p $out
-  python3 ${./configuration.py} ${manifest} $out
-''
+pkgs.runCommand "configuration-checks"
+  { nativeBuildInputs = [ (pkgs.python3.withPackages (ps: [ ps.jsonschema ])) ]; }
+  ''
+    mkdir -p $out
+    python3 ${./configuration.py} ${manifest} $out
+  ''

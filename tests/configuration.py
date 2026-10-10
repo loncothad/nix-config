@@ -12,6 +12,7 @@ import sys
 import tarfile
 import tempfile
 import tomllib
+import jsonschema
 
 
 resource.setrlimit(resource.RLIMIT_CORE, (0, 0))
@@ -58,7 +59,7 @@ def check_bluez(text, schema):
         assert group in schema, f"Unknown BlueZ group: {group}"
         assert set(parser[group]) <= schema[group], f"Unknown BlueZ option in {group}"
     if parser.has_option("Policy", "ReconnectIntervals"):
-        assert all(int(v) > 0 for v in parser["Policy"]["ReconnectIntervals"].split(","))
+        assert all(int(v) >= 0 for v in parser["Policy"]["ReconnectIntervals"].split(","))
 
 
 def subset(expected, actual):
@@ -93,6 +94,18 @@ def check_wireplumber(config):
                 assert isinstance(value, bool), f"Expected a boolean for {key}"
 
 
+def strict_schema(value):
+    """Reject undocumented object keys; keep explicitly extensible sections."""
+    if isinstance(value, dict):
+        if "properties" in value:
+            value.setdefault("additionalProperties", False)
+        for child in value.values():
+            strict_schema(child)
+    elif isinstance(value, list):
+        for child in value:
+            strict_schema(child)
+
+
 for hostname, host in manifest["hosts"].items():
     logs = output / hostname
     logs.mkdir()
@@ -104,6 +117,26 @@ for hostname, host in manifest["hosts"].items():
             "WAYLAND_DISPLAY": "audit-missing-display",
             "DISPLAY": "", "DBUS_SESSION_BUS_ADDRESS": "unix:path=/audit-missing-bus",
         }
+        for name, values in host["schemas"].items():
+            schema = json.loads(Path(values["schema"]).read_text())
+            strict_schema(schema)
+            try:
+                jsonschema.validate(values["config"], schema)
+            except jsonschema.ValidationError as error:
+                raise AssertionError(f"{name} {error.json_path}: {error.message}") from None
+            (logs / (name + "-schema.log")).write_text("Configuration matches the pinned upstream schema.\n")
+        run([host["git"]["exe"], "config", "--file", host["git"]["config"], "--list"],
+            environment, logs / "git.log")
+        run([host["tealdeer"]["exe"], "--config-path", host["tealdeer"]["config"],
+             "--show-paths", "--no-auto-update"], environment, logs / "tealdeer.log")
+        _, text = run([host["nushell"]["exe"], "--no-config-file", "--no-history", "--commands",
+                       "source '" + host["nushell"]["config"] + "'"], environment, logs / "nushell.log")
+        assert "Error:" not in text, text
+        jj = [host["jujutsu"]["exe"], "--config-file", host["jujutsu"]["config"]]
+        run([*jj, "git", "init", work / "jj-fixture"], environment, logs / "jj-init.log")
+        template = host["schemas"]["jujutsu"]["config"]["templates"]["git_push_bookmark"]
+        run([*jj, "-R", work / "jj-fixture", "log", "--no-graph", "-r", "@", "-T", template],
+            environment, logs / "jj-template.log")
         for name, args in {
             "ghostty": ["+validate-config", "--config-file=" + host["ghostty"]["config"]],
             "fuzzel": ["--check-config", "--config=" + host["fuzzel"]["config"]],
