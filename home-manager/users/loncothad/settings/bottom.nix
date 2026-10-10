@@ -5,7 +5,7 @@
     enable = true;
 
     settings = {
-      temperature_type = "c";
+      flags.temperature_type = "c";
     };
   };
 }
