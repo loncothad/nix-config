@@ -32,11 +32,6 @@ in
       ];
     };
 
-    networking.firewall.allowedUDPPorts = [
-      6001
-      6002
-    ];
-
     # Pipewire setup
     services.pipewire = {
       enable = true;
@@ -47,7 +42,7 @@ in
 
       wireplumber = mkIf cfg.bluetooth.enable {
         enable = true; # Explicitly enable wireplumber
-        
+
         extraConfig = mkIf cfg.bluetooth.enable {
           # Disable dynamic headset switching during active mic sessions
           "10-bluetooth-policy" = {
@@ -119,18 +114,24 @@ in
     services.blueman.enable = mkIf cfg.bluetooth.enable true;
 
     environment.systemPackages = lib.mkMerge [
-      (lib.mkIf cfg.enable (with pkgs; [
-        wireplumber
-        pulsemixer
-        pamixer
-        pipewire
-        lxqt.pavucontrol-qt
-        easyeffects
-      ]))
-      (lib.mkIf cfg.bluetooth.enable (with pkgs; [
-        bluez
-        bluetuith
-      ]))
+      (lib.mkIf cfg.enable (
+        with pkgs;
+        [
+          wireplumber
+          pulsemixer
+          pamixer
+          pipewire
+          lxqt.pavucontrol-qt
+          easyeffects
+        ]
+      ))
+      (lib.mkIf cfg.bluetooth.enable (
+        with pkgs;
+        [
+          bluez
+          bluetuith
+        ]
+      ))
     ];
   };
 }
