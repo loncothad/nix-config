@@ -30,5 +30,6 @@
     ./tmp-log.nix
     ./virtual-camera.nix
     ./watchdog-timeout.nix
+    ./zswap-compat.nix
   ];
 }
