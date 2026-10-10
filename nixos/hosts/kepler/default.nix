@@ -4,6 +4,7 @@
   imports = [
     ./scheduler.nix
     ./hardware-setup.nix
+    ./networking.nix
   ];
 
   networking.hostName = "kepler";
@@ -119,22 +120,6 @@
     bluetooth.enable = true;
   };
   services.bluetooth-kill-before-sleep.enable = true;
-
-  preferences.networking = {
-    dns = {
-      enable = true;
-      mode = "dot";
-    };
-    time = {
-      enable = true;
-      mode = "client";
-    };
-    firewall = {
-      enable = true;
-      allowLocalDiscovery = true;
-    };
-  };
-  networking.optimizations.enable = true;
 
   preferences.secureBoot.enable = false; # Toggle true once setup using sbctl keys is initialized
 

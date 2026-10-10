@@ -13,12 +13,21 @@ let
     types
     optionalString
     concatMapStringsSep
+    optional
+    filter
+    hasInfix
     ;
 
-  # Format helpers for nftables
   toNftSet = items: "{ ${concatMapStringsSep ", " toString items} }";
   toNftIfaceSet = ifaces: "{ ${concatMapStringsSep ", " (i: ''"${i}"'') ifaces} }";
-  toNftSubnetSet = subnets: "{ ${concatMapStringsSep ", " toString subnets} }";
+  ntpServer = cfg.time.enable && cfg.time.mode == "server";
+  clientSubnets = map (
+    client:
+    if hasInfix "/" client then client else "${client}/${if hasInfix ":" client then "128" else "32"}"
+  ) cfg.time.allowedClients;
+  ipv4Clients = filter (client: !(hasInfix ":" client)) clientSubnets;
+  ipv6Clients = filter (client: hasInfix ":" client) clientSubnets;
+
 in
 {
   options.preferences.networking = {
@@ -27,40 +36,6 @@ in
         type = types.bool;
         default = false;
         description = "Enable kernel-level IPv4 and IPv6 packet forwarding (Router capability).";
-      };
-    };
-
-    dns = {
-      enable = mkOption {
-        type = types.bool;
-        default = true;
-        description = "Manage system-wide DNS architecture and encryption wrappers.";
-      };
-      mode = mkOption {
-        type = types.enum [
-          "plain"
-          "dot"
-          "doh"
-        ];
-        default = "dot";
-        description = "Encryption architecture for outgoing DNS queries.";
-      };
-      upstreamServers = mkOption {
-        type = types.listOf types.str;
-        default = [
-          "1.1.1.1#cloudflare-dns.com"
-          "9.9.9.9#dns.quad9.net"
-        ];
-        description = "Upstream recursive resolvers.";
-      };
-      dnssec = mkOption {
-        type = types.enum [
-          "true"
-          "false"
-          "allow-downgrade"
-        ];
-        default = "allow-downgrade";
-        description = "Enforce DNSSEC validation state.";
       };
     };
 
@@ -78,25 +53,24 @@ in
         default = "client";
         description = ''
           NTP operational topology:
-          - 'client': Employs lightweight systemd-timesyncd for local clock alignment.
-          - 'server': Employs chrony to act as a high-precision NTP server for downstream peers.
+          - 'client': Run ntpd-rs without listening for downstream peers.
+          - 'server': Run ntpd-rs with an explicit downstream client allowlist.
         '';
       };
       servers = mkOption {
         type = types.listOf types.str;
         default = [
-          "time.google.com"
           "time.cloudflare.com"
           "0.nixos.pool.ntp.org"
           "1.nixos.pool.ntp.org"
           "2.nixos.pool.ntp.org"
         ];
-        description = "List of upstream NTP stratums to track.";
+        description = "Upstream NTP servers. Defaults use nonsmearing sources; do not mix these with leap-smearing services.";
       };
       allowedClients = mkOption {
         type = types.listOf types.str;
         default = [ ];
-        description = "Subnets/IPs permitted to poll this machine for time (Server mode only).";
+        description = "Explicit IPv4/IPv6 subnets or addresses permitted to poll this machine in server mode. Empty or universal allowlists are rejected.";
       };
     };
 
@@ -122,13 +96,18 @@ in
         type = types.bool;
         default = false;
       };
+      discoveryInterfaces = mkOption {
+        type = types.listOf types.str;
+        default = [ ];
+        description = "Interfaces on which to allow multicast mDNS when local discovery is enabled. NetBIOS and LLMNR are not opened.";
+      };
       rateLimitSsh = {
         enable = mkOption {
           type = types.bool;
           default = false;
         };
         maxConnections = mkOption {
-          type = types.int;
+          type = types.ints.positive;
           default = 5;
         };
       };
@@ -166,155 +145,111 @@ in
       };
     })
 
-    # DNS Config
-    (mkIf (cfg.dns.enable && cfg.dns.mode == "plain") {
-      networking.nameservers = cfg.dns.upstreamServers;
-    })
-
-    (mkIf (cfg.dns.enable && cfg.dns.mode == "dot") {
-      networking.nameservers = cfg.dns.upstreamServers;
-      services.resolved = {
-        enable = true;
-        settings.Resolve = {
-          DNSSEC = cfg.dns.dnssec;
-          DNSOverTLS = "true";
-        };
-      };
-    })
-
-    (mkIf (cfg.dns.enable && cfg.dns.mode == "doh") {
-      networking.nameservers = [
-        "127.0.0.1"
-        "::1"
-      ];
-      networking.networkmanager.dns = "none";
-      networking.dhcpcd.extraConfig = "nohook resolv.conf";
-
-      services.dnscrypt-proxy2 = {
-        enable = true;
-        settings = {
-          listen_addresses = [
-            "127.0.0.1:53"
-            "[::1]:53"
-          ];
-          dnscrypt_servers = false;
-          doh_servers = true;
-          require_dnssec = if cfg.dns.dnssec == "true" then true else false;
-          bootstrap_resolvers = [
-            "9.9.9.9:53"
-            "1.1.1.1:53"
-          ];
-        };
-      };
-    })
-
-    # Time Synchronization Config
-    (mkIf (cfg.time.enable && cfg.time.mode == "client") {
-      networking.timeServers = cfg.time.servers;
-      services.timesyncd.enable = true;
-    })
-
-    (mkIf (cfg.time.enable && cfg.time.mode == "server") {
+    {
+      # A disabled preference must also disable NixOS's default time client.
       services.timesyncd.enable = false;
-      services.chrony = {
-        enable = true;
-        servers = cfg.time.servers;
-        extraConfig = ''
-          ${concatMapStringsSep "\n" (subnet: "allow ${subnet}") cfg.time.allowedClients}
-          local stratum 10
-        '';
-      };
+      services.ntpd-rs.enable = cfg.time.enable;
+      assertions = [
+        {
+          assertion =
+            ntpServer
+            -> (
+              clientSubnets != [ ]
+              && !(builtins.elem "0.0.0.0/0" clientSubnets)
+              && !(builtins.elem "::/0" clientSubnets)
+            );
+          message = "NTP server mode requires an explicit, non-public client allowlist.";
+        }
+        {
+          assertion = cfg.firewall.allowLocalDiscovery -> cfg.firewall.discoveryInterfaces != [ ];
+          message = "Local discovery requires explicit discoveryInterfaces.";
+        }
+        {
+          assertion =
+            cfg.firewall.nat.enable
+            -> (
+              cfg.routing.enableForwarding
+              && cfg.firewall.nat.externalInterface != null
+              && cfg.firewall.nat.internalInterfaces != [ ]
+            );
+          message = "NAT requires forwarding, an external interface, and explicit internal interfaces.";
+        }
+      ];
+    }
+
+    (mkIf cfg.time.enable {
+      networking.timeServers = cfg.time.servers;
+      services.ntpd-rs.settings.server =
+        optional ntpServer {
+          listen = "0.0.0.0:123";
+          allowlist = {
+            filter = clientSubnets;
+            action = "ignore";
+          };
+        }
+        ++ optional ntpServer {
+          listen = "[::]:123";
+          allowlist = {
+            filter = clientSubnets;
+            action = "ignore";
+          };
+        };
     })
 
-    # Nftables Firewall Config
     (mkIf cfg.firewall.enable {
-      networking.firewall.enable = false;
-      networking.nftables = {
+      networking.nftables.enable = true;
+      networking.firewall = {
         enable = true;
-        ruleset = ''
-          table inet filter {
-            ${optionalString cfg.firewall.rateLimitSsh.enable ''
-              set ssh_meter {
-                type ipv4_addr
-                flags dynamic, timeout
-                timeout 1m
-              }
-            ''}
-
-            chain input {
-              type filter hook input priority filter; policy drop;
-
-              ct state established,related accept
-              ct state invalid drop
-              iifname "lo" accept
-
-              ip protocol icmp accept
-              ip6 nexthdr icmpv6 accept
-
-              ${optionalString (
-                cfg.firewall.trustedInterfaces != [ ]
-              ) "iifname ${toNftIfaceSet cfg.firewall.trustedInterfaces} accept"}
-              ${optionalString (
-                cfg.firewall.allowedTcpPorts != [ ]
-              ) "tcp dport ${toNftSet cfg.firewall.allowedTcpPorts} accept"}
-              ${optionalString (
-                cfg.firewall.allowedUdpPorts != [ ]
-              ) "udp dport ${toNftSet cfg.firewall.allowedUdpPorts} accept"}
-
-              # NTP Ingress Rule Construction
-              ${optionalString (cfg.time.enable && cfg.time.mode == "server") (
-                if cfg.time.allowedClients != [ ] then
-                  "ip saddr ${toNftSubnetSet cfg.time.allowedClients} udp dport 123 accept"
-                else
-                  "udp dport 123 accept"
-              )}
-
-              ${optionalString cfg.firewall.allowLocalDiscovery ''
-                udp dport { 137, 138, 5353, 5355 } pkttype multicast accept
-                udp dport { 137, 138, 5353, 5355 } accept
-              ''}
-
-              ${optionalString cfg.firewall.rateLimitSsh.enable ''
-                tcp dport 22 ct state new update @ssh_meter { ip saddr limit rate over ${toString cfg.firewall.rateLimitSsh.maxConnections}/minute } drop
-                tcp dport 22 ct state new accept
-              ''}
-
-              ${cfg.firewall.extraInputRules}
-            }
-
-            chain forward {
-              type filter hook forward priority filter; policy drop;
-              ct state established,related accept
-              ct state invalid drop
-
-              ${optionalString
-                (
-                  cfg.routing.enableForwarding
-                  && cfg.firewall.nat.enable
-                  && cfg.firewall.nat.externalInterface != null
-                  && cfg.firewall.nat.internalInterfaces != [ ]
-                )
-                ''
-                  iifname ${toNftIfaceSet cfg.firewall.nat.internalInterfaces} oifname "${cfg.firewall.nat.externalInterface}" accept
-                ''
-              }
-
-              ${cfg.firewall.extraForwardRules}
-            }
-
-            chain output {
-              type filter hook output priority filter; policy accept;
-            }
-          }
-
-          ${optionalString (cfg.firewall.nat.enable && cfg.firewall.nat.externalInterface != null) ''
-            table ip nat {
-              chain postrouting {
-                type filter hook postrouting priority srcnat; policy accept;
-                oifname "${cfg.firewall.nat.externalInterface}" masquerade
-              }
-            }
+        # Loose reverse-path checks allow asymmetric/VPN routes. Native rules
+        # handle DHCP and ICMPv6, including neighbor discovery.
+        checkReversePath = "loose";
+        allowedTCPPorts = cfg.firewall.allowedTcpPorts;
+        allowedUDPPorts =
+          cfg.firewall.allowedUdpPorts ++ optional config.networking.networkmanager.enable 68;
+        trustedInterfaces = cfg.firewall.trustedInterfaces;
+        # Netavark owns rootful container forwarding/NAT. Filtering forward
+        # here would drop container traffic before its own rules can accept it.
+        filterForward = cfg.firewall.nat.enable;
+        extraInputRules = ''
+          ${optionalString (
+            ntpServer && ipv4Clients != [ ]
+          ) "ip saddr ${toNftSet ipv4Clients} udp dport 123 accept"}
+          ${optionalString (
+            ntpServer && ipv6Clients != [ ]
+          ) "ip6 saddr ${toNftSet ipv6Clients} udp dport 123 accept"}
+          ${optionalString cfg.firewall.allowLocalDiscovery ''
+            iifname ${toNftIfaceSet cfg.firewall.discoveryInterfaces} ip daddr 224.0.0.251 udp dport 5353 accept
+            iifname ${toNftIfaceSet cfg.firewall.discoveryInterfaces} ip6 daddr ff02::fb udp dport 5353 accept
           ''}
+          ${cfg.firewall.extraInputRules}
+        '';
+        extraForwardRules = cfg.firewall.extraForwardRules;
+      };
+
+      networking.nat = {
+        inherit (cfg.firewall.nat) enable externalInterface internalInterfaces;
+      };
+
+      # A separate earlier base chain can drop traffic before trusted-interface
+      # and allowed-port accepts. It never accepts or opens an SSH port itself.
+      networking.nftables.tables.ssh-rate-limit = mkIf cfg.firewall.rateLimitSsh.enable {
+        family = "inet";
+        content = ''
+          set ssh4 {
+            type ipv4_addr
+            flags dynamic, timeout
+            timeout 1m
+          }
+          set ssh6 {
+            type ipv6_addr
+            flags dynamic, timeout
+            timeout 1m
+          }
+          chain input {
+            type filter hook input priority filter - 10; policy accept;
+            iifname != "lo" tcp dport ${toNftSet config.services.openssh.ports} ct state new tcp flags & (fin | syn | rst | ack) == syn update @ssh4 { ip saddr limit rate over ${toString cfg.firewall.rateLimitSsh.maxConnections}/minute } drop
+            iifname != "lo" tcp dport ${toNftSet config.services.openssh.ports} ct state new tcp flags & (fin | syn | rst | ack) == syn update @ssh6 { ip6 saddr limit rate over ${toString cfg.firewall.rateLimitSsh.maxConnections}/minute } drop
+          }
         '';
       };
     })

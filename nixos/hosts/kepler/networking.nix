@@ -29,7 +29,10 @@ in
   services.resolved = {
     enable = true;
     settings.Resolve = {
-      DNS = [ "127.0.0.1:5354" "[::1]:5354" ];
+      DNS = [
+        "127.0.0.1:5354"
+        "[::1]:5354"
+      ];
       Domains = [ "~." ];
       FallbackDNS = "";
       DNSOverTLS = false; # Plaintext loopback hop; dnsproxy encrypts externally.
@@ -42,10 +45,16 @@ in
   services.dnsproxy = {
     enable = true;
     settings = {
-      listen-addrs = [ "127.0.0.1" "::1" ];
+      listen-addrs = [
+        "127.0.0.1"
+        "::1"
+      ];
       listen-ports = [ 5354 ];
       # These IPs resolve only the endpoint hostname, independently of resolved.
-      bootstrap = [ "1.1.1.1:53" "1.0.0.1:53" ];
+      bootstrap = [
+        "1.1.1.1:53"
+        "1.0.0.1:53"
+      ];
       fallback = [ ];
       dnssec = false; # DO-bit requests are not local DNSSEC validation.
       insecure = false;
