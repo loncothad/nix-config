@@ -65,8 +65,6 @@ in
         "spectre_v2=off"
         "nospec_store_bypass_disable"
         "spec_store_bypass_disable=off"
-        "noibpb"
-        "noibrs"
         "no_stf_barrier"
       ])
 
@@ -94,7 +92,6 @@ in
         "mmio_stale_data=off"
         "retbleed=off"
         "gather_data_sampling=off"
-        "gds=off"
         "spec_rstack_overflow=off"
         "reg_file_data_sampling=off"
         "kvm.mitigate_smt_rsb=0"
