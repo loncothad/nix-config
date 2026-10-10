@@ -191,9 +191,7 @@ in
             network inet6 stream,
           '';
 
-          mkBraveProfile =
-            name: binary:
-            ''
+          mkBraveProfile = name: binary: ''
               #include <abstractions/base>
               #include <abstractions/graphical>
               #include <abstractions/audio>
@@ -205,7 +203,7 @@ in
               profile ${name} ${binary} flags=(attach_disconnected) {
             ${braveBody}
               }
-            '';
+          '';
         in
         {
           brave.profile = mkBraveProfile "brave" "${pkgs.brave}/bin/brave";

@@ -19,8 +19,8 @@ let
 in
 {
   imports = [
-#    inputs.agenix.nixosModules.default
-#    inputs.agenix-rekey.nixosModules.default
+    #    inputs.agenix.nixosModules.default
+    #    inputs.agenix-rekey.nixosModules.default
   ];
 
   options = {
@@ -49,17 +49,17 @@ in
       pkgs.fromFlakes.agenix-rekey.default
     ];
 
-#    age = {
-#      ageBin = "${pkgs.rage}/bin/rage";
-#
-#      # identityPaths = [ "/etc/ssh/ssh_host_ed25519_key" ];
-#
-#      rekey = {
-#        masterKeys = cfg.masterKeys;
-#        extraEncryptionKeys = cfg.extraEncryptionKeys;
-#        storageMode = "local";
-#        localStorageDir = "${toString inputs.self}/secrets/rekeyed/${config.networking.hostName}";
-#      };
-#    };
+    #    age = {
+    #      ageBin = "${pkgs.rage}/bin/rage";
+    #
+    #      # identityPaths = [ "/etc/ssh/ssh_host_ed25519_key" ];
+    #
+    #      rekey = {
+    #        masterKeys = cfg.masterKeys;
+    #        extraEncryptionKeys = cfg.extraEncryptionKeys;
+    #        storageMode = "local";
+    #        localStorageDir = "${toString inputs.self}/secrets/rekeyed/${config.networking.hostName}";
+    #      };
+    #    };
   };
 }
