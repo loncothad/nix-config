@@ -69,6 +69,30 @@ def subset(expected, actual):
     return expected == actual
 
 
+def check_wireplumber(config):
+    source = Path(config["source"])
+    docs = (source / "doc/dox/config/pipewire-props.7.md").read_text()
+    monitor = set(re.findall(r"@PAR@\s+monitor-prop\s+(bluez5\.[\w-]+)", docs))
+    device = set(re.findall(r"@PAR@\s+device-prop\s+(bluez5\.[\w-]+)", docs))
+    assert monitor and device, "PipeWire property documentation changed"
+    schema = Path(config["schema"]).read_text()
+    codecs = set()
+    for file in (source / "spa/plugins/bluez5").glob("a2dp-codec-*.c"):
+        codecs.update(re.findall(r'\.name\s*=\s*"([\w-]+)"', file.read_text()))
+    for section in config["config"].values():
+        props = section.get("monitor.bluez.properties", {})
+        assert {key for key in props if key.startswith("bluez5.")} <= monitor
+        assert set(props.get("bluez5.codecs", [])) <= codecs
+        for rule in section.get("monitor.bluez.rules", []):
+            props = rule.get("actions", {}).get("update-props", {})
+            assert {key for key in props if key.startswith("bluez5.")} <= device
+        for key, value in section.get("wireplumber.settings", {}).items():
+            field = re.search(r"^\s*" + re.escape(key) + r"\s*=\s*\{(.*?)\}", schema, re.M | re.S)
+            assert field, f"Unknown WirePlumber setting: {key}"
+            if re.search(r'type\s*=\s*"bool"', field[1]):
+                assert isinstance(value, bool), f"Expected a boolean for {key}"
+
+
 for hostname, host in manifest["hosts"].items():
     logs = output / hostname
     logs.mkdir()
@@ -149,6 +173,9 @@ for hostname, host in manifest["hosts"].items():
             result, _ = run([host["rtkit"]["exe"], "--rttime-msec-max=200", "--help"],
                             environment, logs / "rtkit-reject.log", success=False)
             assert result.returncode != 0
+        if "wireplumber" in host:
+            check_wireplumber(host["wireplumber"])
+            (logs / "wireplumber.log").write_text("Bluetooth property scopes, codecs and policy schema are valid.\n")
         if "tuigreet" in host:
             result, _ = run([host["tuigreet"]["exe"], "--config", host["tuigreet"]["config"],
                            "--dump-config"], environment, logs / "tuigreet.log")

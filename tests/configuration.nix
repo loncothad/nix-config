@@ -62,6 +62,13 @@ let
         inherit (c.security.rtkit) args;
       };
     }
+    // lib.optionalAttrs (c.services.pipewire.enable && c.services.pipewire.wireplumber.enable) {
+      wireplumber = {
+        source = host.pkgs.pipewire.src;
+        schema = "${host.pkgs.wireplumber}/share/wireplumber/wireplumber.conf";
+        config = c.services.pipewire.wireplumber.extraConfig;
+      };
+    }
     // lib.optionalAttrs c.services.greetd.tuigreet.enable {
       tuigreet = {
         exe = lib.getExe c.services.greetd.tuigreet.package;

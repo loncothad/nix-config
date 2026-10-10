@@ -20,7 +20,9 @@ RTKit arguments, scheduler mode arguments, and tmpfiles rules with the pinned
 programs. Tuigreet's effective TOML dump must retain every configured field.
 BlueZ keys are checked against the supported group/option tables in its pinned
 source, including positive reconnect intervals. GTK2 settings are checked against
-the actual library's properties. Negative cases confirm that unknown flags,
+the actual library's properties. WirePlumber's Bluetooth property scopes and codecs
+are checked against pinned PipeWire documentation/source, and policy settings
+against WirePlumber's installed schema. Negative cases confirm that unknown flags,
 ignored Ashell fields, obsolete Hyprlock options, and unsupported BlueZ settings
 are detected. Logs are kept in the check derivation's output by hostname.
 
@@ -40,7 +42,7 @@ The Zswap check covers current kernels, a 6.12 kernel, disabled operation, and
 rejection of an unavailable allocator on Linux 6.15 and newer.
 
 The 2026-10-10 pass-through audit corrected unsupported BlueZ keys, the RTKit
-limit flag/unit, Hyprlock widget names and CLI grace period, Ashell's enum/table
+limit flag/unit, WirePlumber hardware-volume property scope, Hyprlock widget names and CLI grace period, Ashell's enum/table
 fields and bar appearance, the GTK2 dark-theme property, duplicate greeter cache
 rules, the built-in intel_pstate module entry, the renamed Xe display parameter,
 removed mitigation aliases, Zswap's removed allocator parameter/sysfs entry, and

@@ -60,21 +60,9 @@ in
                 "aac"
                 "sbc_xq"
               ];
+              # This boolean belongs to the monitor, not a per-device rule.
+              "bluez5.enable-hw-volume" = true;
             };
-          };
-
-          # Hardware synchronization controls
-          "52-bluetooth-hw-tweaks" = {
-            "monitor.bluez.rules" = [
-              {
-                matches = [ { "device.name" = "~bluez_card.*"; } ];
-                actions = {
-                  update-props = {
-                    "bluez5.enable-hw-volume" = true;
-                  };
-                };
-              }
-            ];
           };
         };
       };
