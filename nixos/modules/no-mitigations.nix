@@ -1,4 +1,9 @@
-{ config, lib, ... }:
+{
+  config,
+  lib,
+  pkgs,
+  ...
+}:
 
 with lib;
 
@@ -59,14 +64,16 @@ in
       (mkIf cfg.global.disable [ "mitigations=off" ])
 
       # HIGH SEVERITY: Disables branch prediction and speculation barriers.
-      (mkIf cfg.spectre.disable [
-        "nospectre_v1"
-        "nospectre_v2"
-        "spectre_v2=off"
-        "nospec_store_bypass_disable"
-        "spec_store_bypass_disable=off"
-        "no_stf_barrier"
-      ])
+      (mkIf cfg.spectre.disable (
+        [
+          "nospectre_v1"
+          "nospectre_v2"
+          "spectre_v2=off"
+          "nospec_store_bypass_disable"
+          "spec_store_bypass_disable=off"
+        ]
+        ++ optionals pkgs.stdenv.hostPlatform.isPower [ "no_stf_barrier" ]
+      ))
 
       # HIGH SEVERITY: Disables Page Table Isolation (PTI).
       (mkIf cfg.meltdown.disable [
