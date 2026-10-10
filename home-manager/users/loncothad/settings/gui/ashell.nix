@@ -44,14 +44,14 @@
 
       system_info = {
         indicators = [
-          "CPU"
+          "Cpu"
           "Memory"
         ];
         interval = 10;
       };
 
       tray = {
-        right_click = "menu";
+        right_click = "Menu";
       };
 
       tempo = {
@@ -68,7 +68,7 @@
       settings = {
         hibernate_cmd = "systemctl hibernate";
         battery_hide_when_full = true;
-        peripheral_indicators = [ "Gamepad" ];
+        peripheral_indicators.Specific = [ "Gamepad" ];
         audio_indicator_format = "IconAndPercentage";
       };
 
@@ -82,7 +82,7 @@
       };
 
       appearance = {
-        style = "Solid";
+        bar.surface = "solid";
         font_name = "Lilex";
       };
     };
