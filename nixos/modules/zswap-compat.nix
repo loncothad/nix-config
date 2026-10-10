@@ -5,11 +5,14 @@ let
 in
 {
   # Linux 6.15 removed zpool selection; the pinned NixOS module still emits it.
-  options.boot.kernelParams.apply = params:
-    if cfg.enable && fixedAllocator then
-      lib.filter (param: !(lib.hasPrefix "zswap.zpool=" param)) params
-    else
-      params;
+  options.boot.kernelParams = lib.mkOption {
+    apply =
+      params:
+      if cfg.enable && fixedAllocator then
+        lib.filter (param: !(lib.hasPrefix "zswap.zpool=" param)) params
+      else
+        params;
+  };
 
   config = lib.mkIf (cfg.enable && fixedAllocator) {
     boot.kernel.sysfs.module.zswap.parameters.zpool = lib.mkForce null;
