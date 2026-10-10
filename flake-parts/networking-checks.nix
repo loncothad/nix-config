@@ -2,7 +2,6 @@
 {
   perSystem = { pkgs, ... }: {
     checks.networking = import ../tests/networking.nix { inherit inputs pkgs; };
-    checks.zswap = import ../tests/zswap.nix { inherit inputs pkgs; };
     packages.networking-compare = pkgs.writeShellApplication {
       name = "networking-compare";
       runtimeInputs = [ pkgs.python3 ];

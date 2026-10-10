@@ -160,6 +160,11 @@ def --wrapped "main networking-check" [...args: string] {
   run-nix build --no-link (flake-ref checks.x86_64-linux.networking) ...$args
 }
 
+# Validate pass-through desktop, daemon, scheduler, tmpfiles and AppArmor settings.
+def --wrapped "main configuration-check" [...args: string] {
+  run-nix build --no-link (flake-ref checks.x86_64-linux.configuration) (flake-ref checks.x86_64-linux.zswap) (flake-ref checks.x86_64-linux.apparmor) ...$args
+}
+
 # Run offline boot/restart, DoH, VPN routing, TLS, NTP ACL, and SSH packet tests.
 def --wrapped "main networking-test" [...args: string] {
   run-nix build --no-link (flake-ref packages.x86_64-linux.networking-vm-test) ...$args
