@@ -155,6 +155,35 @@ def "main fmt" [] {
   run-nix fmt $repo_root
 }
 
+# Validate time modes, ACLs, native DNS configuration, and generated firewall rules.
+def --wrapped "main networking-check" [...args: string] {
+  run-nix build --no-link (flake-ref checks.x86_64-linux.networking) ...$args
+}
+
+# Run offline boot/restart, DoH, VPN routing, TLS, NTP ACL, and SSH packet tests.
+def --wrapped "main networking-test" [...args: string] {
+  run-nix build --no-link (flake-ref packages.x86_64-linux.networking-vm-test) ...$args
+}
+
+# Compare public DoH providers on the current network without changing DNS.
+def "main networking-compare" [] {
+  run-nix run (flake-ref packages.x86_64-linux.networking-compare)
+}
+
+# Inspect native networking on the running host without reading endpoint contents.
+def "main networking-status" [] {
+  run-program resolvectl status
+  run-program nmcli --fields NAME,TYPE,DEVICE connection show --active
+  run-program sudo nft list ruleset
+}
+
+# Edit protected DNS upstreams locally, then reload their systemd credential.
+def "main dns-upstreams" [] {
+  run-program sudoedit /etc/dnsproxy/upstreams
+  run-program sudo systemctl reset-failed dnsproxy.service
+  run-program sudo systemctl restart dnsproxy.service
+}
+
 # Open the repository development shell in Nushell.
 def --wrapped "main shell" [...args: string] {
   run-nix develop $repo_root --command nu ...$args
@@ -199,8 +228,8 @@ def "main eval-host" [--host (-H): string] {
 }
 
 # Evaluate a flake attribute.
-def "main eval" [attribute: string] {
-  run-nix eval --show-trace (flake-ref $attribute)
+def --wrapped "main eval" [attribute: string, ...args: string] {
+  run-nix eval --show-trace (flake-ref $attribute) ...$args
 }
 
 # Store a GitHub token in the user's Nix config for authenticated flake updates.

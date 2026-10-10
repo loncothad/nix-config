@@ -18,5 +18,6 @@
     ./packages.nix
     ./templates.nix
     ./nixos-configurations.nix
+    ./networking-checks.nix
   ];
 }
