@@ -14,7 +14,6 @@
     {
       packages = {
         autolith = pkgs.fromFlakes.autolith.autolith;
-        celld = pkgs.fromFlakes.celld-adapter.celld;
         cargo-multivers = pkgs.fromFlakes.cargo-multivers-adapter.cargo-multivers;
         cargo-pretty = pkgs.fromFlakes.cargo-pretty-adapter.cargo-pretty;
         fastpotify = pkgs.fromFlakes.fastpotify-adapter.fastpotify;

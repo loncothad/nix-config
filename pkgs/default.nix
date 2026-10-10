@@ -9,7 +9,6 @@ in
     agenix = inputs.agenix.packages.${system};
     agenix-rekey = inputs.agenix-rekey.packages.${system};
     autolith = inputs.autolith.packages.${system};
-    celld-adapter = inputs.celld-adapter.packages.${system};
     cargo-multivers-adapter = inputs.cargo-multivers-adapter.packages.${system};
     cargo-pretty-adapter = inputs.cargo-pretty-adapter.packages.${system};
     fastpotify-adapter = inputs.fastpotify-adapter.packages.${system};

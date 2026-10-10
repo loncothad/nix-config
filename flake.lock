@@ -223,43 +223,6 @@
         "type": "github"
       }
     },
-    "celld-adapter": {
-      "inputs": {
-        "celld-src": "celld-src",
-        "flake-parts": [
-          "flake-parts"
-        ],
-        "nixpkgs": [
-          "nixpkgs"
-        ]
-      },
-      "locked": {
-        "path": "./flakes/celld",
-        "type": "path"
-      },
-      "original": {
-        "path": "./flakes/celld",
-        "type": "path"
-      },
-      "parent": []
-    },
-    "celld-src": {
-      "flake": false,
-      "locked": {
-        "lastModified": 1787947627,
-        "narHash": "sha256-ZVmGkgjrQRAIZJvRaljBYdmcixMFxYJDFqTzGuo/AZ4=",
-        "owner": "denoland",
-        "repo": "celld",
-        "rev": "a52f9905425bc41134d817694bdc2c50bcc5e856",
-        "type": "github"
-      },
-      "original": {
-        "owner": "denoland",
-        "ref": "v0.4.0",
-        "repo": "celld",
-        "type": "github"
-      }
-    },
     "crane": {
       "locked": {
         "lastModified": 1781825982,
@@ -1336,7 +1299,6 @@
         "autolith": "autolith",
         "cargo-multivers-adapter": "cargo-multivers-adapter",
         "cargo-pretty-adapter": "cargo-pretty-adapter",
-        "celld-adapter": "celld-adapter",
         "determinate": "determinate",
         "disko": "disko",
         "fastpotify-adapter": "fastpotify-adapter",

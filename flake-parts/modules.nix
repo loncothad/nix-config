@@ -3,7 +3,6 @@
 {
   flake = {
     nixosModules = {
-      celld = inputs.celld-adapter.nixosModules.default;
       ferron = ../nixos/modules/ferron.nix;
       notesnook-sync-server = inputs.notesnook-sync-server-adapter.nixosModules.default;
       sub2api = inputs.sub2api-adapter.nixosModules.default;
@@ -12,7 +11,6 @@
         imports = [
           ../nixos/modules
           inputs.quadlet-nix.nixosModules.quadlet
-          inputs.celld-adapter.nixosModules.default
           inputs.determinate.nixosModules.default
           inputs.notesnook-sync-server-adapter.nixosModules.default
           inputs.sub2api-adapter.nixosModules.default

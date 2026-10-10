@@ -31,7 +31,6 @@ let
 
         overlaysModule
 
-        inputs.celld-adapter.nixosModules.default
         inputs.notesnook-sync-server-adapter.nixosModules.default
         inputs.sub2api-adapter.nixosModules.default
         inputs.smolvm-adapter.nixosModules.default

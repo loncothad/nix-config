@@ -24,7 +24,7 @@ does not enable them.
 ./tasks.nu hosts            # flake nixosConfigurations
 ./tasks.nu eval-host --host kepler
 ./tasks.nu niri-validate    # loncothad niri KDL (HOST selects by-hostname)
-./tasks.nu update-adapter celld
+./tasks.nu update-adapter smolvm
 ./tasks.nu update-all       # nested adapter locks, then the root lock
 ./tasks.nu switch           # nh switch for current hostname
 ```

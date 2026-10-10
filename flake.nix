@@ -72,12 +72,6 @@
       inputs.quadlet-nix.follows = "quadlet-nix";
     };
 
-    celld-adapter = {
-      url = "path:./flakes/celld";
-      inputs.nixpkgs.follows = "nixpkgs";
-      inputs.flake-parts.follows = "flake-parts";
-    };
-
     wine4office-adapter = {
       url = "path:./flakes/wine4office";
       inputs.nixpkgs.follows = "nixpkgs";
