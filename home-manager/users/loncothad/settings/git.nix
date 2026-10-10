@@ -75,14 +75,16 @@
 
     settings = {
       gui = {
-        showIcons = true;
-        borderStyle = "rounded";
+        nerdFontsVersion = "3";
+        border = "rounded";
       };
       git = {
-        paging = {
-          colorArg = "always";
-          pager = "${pkgs.delta}/bin/delta --dark --paging=never";
-        };
+        diffRenderers = [
+          {
+            colorArg = "always";
+            command = "${pkgs.delta}/bin/delta --dark --paging=never";
+          }
+        ];
       };
     };
   };
