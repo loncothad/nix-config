@@ -12,7 +12,6 @@
 
   virtualisation.smolvm.enable = true;
 
-  # Keep the existing CachyOS v3 kernel and scheduler configuration explicit.
   boot.kernelPackages = pkgs.cachyosKernels.linuxPackages-cachyos-bore-lto-x86_64-v3;
 
   preferences.agenix = {

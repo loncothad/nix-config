@@ -4,7 +4,6 @@ let
   fixedAllocator = lib.versionAtLeast config.boot.kernelPackages.kernel.version "6.15";
 in
 {
-  # Linux 6.15 removed zpool selection; the pinned NixOS module still emits it.
   options.boot.kernelParams = lib.mkOption {
     apply =
       params:

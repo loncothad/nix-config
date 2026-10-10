@@ -15,7 +15,6 @@ in
   };
 
   config = lib.mkIf cfg.enable {
-    # systemd 258 and newer supply USB uaccess rules; the ADB NixOS module was removed.
     environment.systemPackages = [ pkgs.android-tools ];
   };
 }

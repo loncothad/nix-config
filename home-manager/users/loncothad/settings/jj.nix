@@ -26,7 +26,6 @@
 
       templates.git_push_bookmark = ''"loncothad/push-" ++ change_id.short()'';
 
-      # The removed global auto-local-branch option is now configured per remote.
       remotes.origin.auto-track-bookmarks = "*";
     };
   };
