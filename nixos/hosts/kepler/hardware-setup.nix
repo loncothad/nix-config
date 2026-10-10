@@ -10,8 +10,8 @@
     zpool = "zsmalloc";
   };
 
+  # intel_pstate is a built-in driver, not a loadable kernel module.
   boot.kernelModules = [
-    "intel_pstate"
     "ideapad_laptop"
   ];
 
