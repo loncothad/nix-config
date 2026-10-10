@@ -16,6 +16,8 @@ let
     optional
     filter
     hasInfix
+    splitString
+    toInt
     ;
 
   toNftSet = items: "{ ${concatMapStringsSep ", " toString items} }";
@@ -27,6 +29,17 @@ let
   ) cfg.time.allowedClients;
   ipv4Clients = filter (client: !(hasInfix ":" client)) clientSubnets;
   ipv6Clients = filter (client: hasInfix ":" client) clientSubnets;
+  # A single IPv6 wildcard socket receives IPv4-mapped addresses too. The
+  # pinned daemon cannot bind separate IPv4/IPv6 wildcard sockets on one port.
+  daemonClients =
+    clientSubnets
+    ++ map (
+      subnet:
+      let
+        parts = splitString "/" subnet;
+      in
+      "::ffff:${builtins.head parts}/${toString (96 + toInt (builtins.elemAt parts 1))}"
+    ) ipv4Clients;
 
 in
 {
@@ -154,9 +167,7 @@ in
           assertion =
             ntpServer
             -> (
-              clientSubnets != [ ]
-              && !(builtins.elem "0.0.0.0/0" clientSubnets)
-              && !(builtins.elem "::/0" clientSubnets)
+              clientSubnets != [ ] && !(lib.any (subnet: builtins.match ".*/0+" subnet != null) clientSubnets)
             );
           message = "NTP server mode requires an explicit, non-public client allowlist.";
         }
@@ -179,21 +190,16 @@ in
 
     (mkIf cfg.time.enable {
       networking.timeServers = cfg.time.servers;
-      services.ntpd-rs.settings.server =
-        optional ntpServer {
-          listen = "0.0.0.0:123";
-          allowlist = {
-            filter = clientSubnets;
-            action = "ignore";
-          };
-        }
-        ++ optional ntpServer {
-          listen = "[::]:123";
-          allowlist = {
-            filter = clientSubnets;
-            action = "ignore";
-          };
+      boot.kernel.sysctl = mkIf (ntpServer && config.networking.enableIPv6) {
+        "net.ipv6.bindv6only" = 0;
+      };
+      services.ntpd-rs.settings.server = optional ntpServer {
+        listen = if config.networking.enableIPv6 then "[::]:123" else "0.0.0.0:123";
+        allowlist = {
+          filter = if config.networking.enableIPv6 then daemonClients else ipv4Clients;
+          action = "ignore";
         };
+      };
     })
 
     (mkIf cfg.firewall.enable {
