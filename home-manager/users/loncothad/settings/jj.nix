@@ -24,10 +24,10 @@
         # difftastic is integration is handled in the difftastic module
       };
 
-      git = {
-        auto-local-branch = true;
-        push-bookmark-prefix = "loncothad/push-";
-      };
+      templates.git_push_bookmark = ''"loncothad/push-" ++ change_id.short()'';
+
+      # The removed global auto-local-branch option is now configured per remote.
+      remotes.origin.auto-track-bookmarks = "*";
     };
   };
 }
