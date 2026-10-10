@@ -108,8 +108,5 @@ in
     environment.etc."tuigreet/config.toml".source =
       tomlFormat.generate "tuigreet-config.toml" cfg.settings;
 
-    systemd.tmpfiles.rules = [
-      "d /var/cache/tuigreet 0755 greeter greeter - -"
-    ];
   };
 }
