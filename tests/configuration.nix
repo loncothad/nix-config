@@ -12,6 +12,7 @@ let
         config = homeFile file;
       };
     in
+    assert !c.programs.niri.enable || !h.programs.hyprlock.enable || c.security.pam.services ? hyprlock;
     {
       niri = {
         exe = lib.getExe host.pkgs.niri;

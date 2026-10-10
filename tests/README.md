@@ -49,7 +49,8 @@ The Zswap check covers current kernels, a 6.12 kernel, disabled operation, and
 rejection of an unavailable allocator on Linux 6.15 and newer.
 
 The 2026-10-10 pass-through audit corrected unsupported BlueZ keys, the RTKit
-limit flag/unit, WirePlumber hardware-volume property scope, Hyprlock widget names and CLI grace period, Ashell's enum/table
+limit flag/unit, WirePlumber hardware-volume property scope, Hyprlock widget names,
+CLI grace period and Kepler PAM entry, Ashell's enum/table
 fields and bar appearance, the GTK2 dark-theme property, duplicate greeter cache
 rules, the built-in intel_pstate module entry, the renamed Xe display parameter,
 removed mitigation aliases, Zswap's removed allocator parameter/sysfs entry,

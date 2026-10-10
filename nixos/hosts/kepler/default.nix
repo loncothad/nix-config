@@ -39,6 +39,9 @@
     useNautilus = false;
   };
 
+  # Home Manager configures Hyprlock; NixOS supplies its authentication stack.
+  security.pam.services.hyprlock = { };
+
   services.greetd.tuigreet = {
     enable = true;
 
