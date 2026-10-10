@@ -165,8 +165,13 @@ in
         let
           braveBody = ''
             #include <abstractions/base>
-            #include <abstractions/graphical>
+            #include <abstractions/X>
+            #include <abstractions/wayland>
+            #include <abstractions/mesa>
             #include <abstractions/audio>
+            #include <abstractions/cups-client>
+            #include <abstractions/nameservice>
+            #include <abstractions/user-download>
             #include <abstractions/fonts>
 
             /nix/store/** r,
@@ -192,13 +197,7 @@ in
           '';
 
           mkBraveProfile = name: binary: ''
-              #include <abstractions/base>
-              #include <abstractions/graphical>
-              #include <abstractions/audio>
-              #include <abstractions/cups-client>
-              #include <abstractions/nameservice>
-              #include <abstractions/user-download>
-              #include <abstractions/fonts>
+              #include <tunables/global>
 
               profile ${name} ${binary} flags=(attach_disconnected) {
             ${braveBody}
@@ -215,14 +214,13 @@ in
 
       (mkIf cfg.pidgin.enable {
         pidgin.profile = ''
-          #include <abstractions/base>
-          #include <abstractions/graphical>
-          #include <abstractions/audio>
-          #include <abstractions/nameservice>
+          #include <tunables/global>
 
           profile pidgin ${pkgs.pidgin}/bin/pidgin flags=(attach_disconnected) {
             #include <abstractions/base>
-            #include <abstractions/graphical>
+            #include <abstractions/X>
+            #include <abstractions/wayland>
+            #include <abstractions/mesa>
             #include <abstractions/audio>
             #include <abstractions/nameservice>
 
@@ -240,14 +238,13 @@ in
 
       (mkIf cfg.telegram.enable {
         telegram.profile = ''
-          #include <abstractions/base>
-          #include <abstractions/graphical>
-          #include <abstractions/audio>
-          #include <abstractions/nameservice>
+          #include <tunables/global>
 
           profile telegram ${pkgs.telegram-desktop}/bin/telegram-desktop flags=(attach_disconnected) {
             #include <abstractions/base>
-            #include <abstractions/graphical>
+            #include <abstractions/X>
+            #include <abstractions/wayland>
+            #include <abstractions/mesa>
             #include <abstractions/audio>
             #include <abstractions/nameservice>
 
@@ -265,14 +262,13 @@ in
 
       (mkIf cfg._64gram.enable {
         _64gram.profile = ''
-          #include <abstractions/base>
-          #include <abstractions/graphical>
-          #include <abstractions/audio>
-          #include <abstractions/nameservice>
+          #include <tunables/global>
 
           profile _64gram ${(lib.getExe pkgs._64gram)} flags=(attach_disconnected) {
             #include <abstractions/base>
-            #include <abstractions/graphical>
+            #include <abstractions/X>
+            #include <abstractions/wayland>
+            #include <abstractions/mesa>
             #include <abstractions/audio>
             #include <abstractions/nameservice>
 
@@ -292,13 +288,13 @@ in
 
       (mkIf cfg.zed.enable {
         zed.profile = ''
-          #include <abstractions/base>
-          #include <abstractions/graphical>
-          #include <abstractions/nameservice>
+          #include <tunables/global>
 
           profile zed ${pkgs.zed-editor}/bin/zed flags=(attach_disconnected) {
             #include <abstractions/base>
-            #include <abstractions/graphical>
+            #include <abstractions/X>
+            #include <abstractions/wayland>
+            #include <abstractions/mesa>
             #include <abstractions/nameservice>
 
             /nix/store/** r,
@@ -316,7 +312,7 @@ in
 
       (mkIf cfg.neovim.enable {
         neovim.profile = ''
-          #include <abstractions/base>
+          #include <tunables/global>
 
           profile neovim ${pkgs.neovim}/bin/nvim flags=(attach_disconnected) {
             #include <abstractions/base>
@@ -334,7 +330,7 @@ in
 
       (mkIf cfg.helix.enable {
         helix.profile = ''
-          #include <abstractions/base>
+          #include <tunables/global>
 
           profile helix ${pkgs.helix}/bin/hx flags=(attach_disconnected) {
             #include <abstractions/base>
@@ -352,12 +348,13 @@ in
 
       (mkIf cfg.qimgv.enable {
         qimgv.profile = ''
-          #include <abstractions/base>
-          #include <abstractions/graphical>
+          #include <tunables/global>
 
           profile qimgv ${pkgs.qimgv}/bin/qimgv flags=(attach_disconnected) {
             #include <abstractions/base>
-            #include <abstractions/graphical>
+            #include <abstractions/X>
+            #include <abstractions/wayland>
+            #include <abstractions/mesa>
 
             /nix/store/** r,
             owner @{HOME}/** r,
@@ -369,13 +366,13 @@ in
 
       (mkIf cfg.mpv.enable {
         mpv.profile = ''
-          #include <abstractions/base>
-          #include <abstractions/graphical>
-          #include <abstractions/audio>
+          #include <tunables/global>
 
           profile mpv ${pkgs.mpv}/bin/mpv flags=(attach_disconnected) {
             #include <abstractions/base>
-            #include <abstractions/graphical>
+            #include <abstractions/X>
+            #include <abstractions/wayland>
+            #include <abstractions/mesa>
             #include <abstractions/audio>
 
             /nix/store/** r,
@@ -391,12 +388,13 @@ in
 
       (mkIf cfg.ghostty.enable {
         ghostty.profile = ''
-          #include <abstractions/base>
-          #include <abstractions/graphical>
+          #include <tunables/global>
 
           profile ghostty ${pkgs.ghostty}/bin/ghostty flags=(attach_disconnected) {
             #include <abstractions/base>
-            #include <abstractions/graphical>
+            #include <abstractions/X>
+            #include <abstractions/wayland>
+            #include <abstractions/mesa>
 
             /dev/pts/* rw,
             /nix/store/** r,
