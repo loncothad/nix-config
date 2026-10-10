@@ -30,13 +30,16 @@ The fixture uses only test certificates and reserved addresses. No real private
 endpoint belongs in these files. Local DNSSEC validation is disabled by the
 explicit host policy; the fixture is not a DNSSEC cryptographic validation test.
 
-Both hosts' complete kernel derivation and scheduler settings were compared with
-the pre-change evaluated values and matched exactly. The root nixpkgs lock stays
-at `e94cb152ed51bd6e24eb4a41f1460252beb52cd2`.
+The initial networking migration compared both hosts' complete kernel derivation
+and scheduler settings with their pre-change values and matched them exactly
+at nixpkgs `e94cb152ed51bd6e24eb4a41f1460252beb52cd2`. The 2026-10-10 input refresh
+uses nixpkgs `e7439b6b14ad3cc35d05608ebca9bce01a25f5f8`; package/kernel versions
+follow those updated inputs while scheduler choices and argument lists remain
+unchanged. Rerun these checks after each input refresh.
 
 On the development machine, pure full-host evaluation/check initially refused the
 already configured unfree ChatGPT adapter package. Validation was also run with
-that existing package permitted, without changing any package or input pin:
+that existing package permitted:
 
 ```console
 NIXPKGS_ALLOW_UNFREE=1 ./tasks.nu check --impure

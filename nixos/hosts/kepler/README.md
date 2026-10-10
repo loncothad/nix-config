@@ -26,7 +26,7 @@ including the selectable modes, without retuning them.
 
 ## Networking
 
-`networking.nix` uses native systemd-resolved and dnsproxy 0.84.1:
+`networking.nix` uses native systemd-resolved and dnsproxy 0.86.0:
 
 ```text
 applications -> resolved stub (:53) -> loopback dnsproxy (:5354) -> HTTPS resolver
