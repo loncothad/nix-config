@@ -1,4 +1,4 @@
-# Networking validation
+# Configuration validation
 
 Run from the repository root:
 
@@ -6,12 +6,55 @@ Run from the repository root:
 ./tasks.nu fmt
 ./tasks.nu check
 ./tasks.nu networking-check
+./tasks.nu configuration-check
 ./tasks.nu networking-test
 ./tasks.nu eval nixosConfigurations.kepler.config.system.build.toplevel.drvPath
 ./tasks.nu eval nixosConfigurations.vega-small.config.system.build.toplevel.drvPath
 ./tasks.nu dry-build --host kepler
 ./tasks.nu dry-build --host vega-small
 ```
+
+`configuration-check` is also part of normal flake checks. It checks both hosts'
+generated Niri includes, Ghostty, Fuzzel, Zellij, Hyprlock, Ashell, MPV, tuigreet,
+RTKit arguments, scheduler mode arguments, and tmpfiles rules with the pinned
+programs. Tuigreet's effective TOML dump must retain every configured field.
+BlueZ keys are checked against the supported group/option tables in its pinned
+source, including positive reconnect intervals. GTK2 settings are checked against
+the actual library's properties. Negative cases confirm that unknown flags,
+ignored Ashell fields, obsolete Hyprlock options, and unsupported BlueZ settings
+are detected. Logs are kept in the check derivation's output by hostname.
+
+These checks isolate HOME, XDG paths and the Wayland socket. Ashell and Hyprlock
+parse their configuration before the deliberate missing-compositor failure;
+the test requires reaching that boundary without parser errors. No screen is
+locked and no scheduler is attached. MPV parses its full configuration while
+playing one generated frame without video/audio output. Missing fonts in the
+build sandbox are not evidence that the configured host lacks those fonts.
+Tmpfiles runs with `--dry-run` against a temporary root with fixture account
+records, so it does not create or remove live system paths.
+
+The separate AppArmor check compiles all 13 named profile variants with the
+pinned parser, include files and policy ABI. It skips kernel loading and caches;
+it verifies syntax and include resolution, not effective application access.
+The Zswap check covers current kernels, a 6.12 kernel, disabled operation, and
+rejection of an unavailable allocator on Linux 6.15 and newer.
+
+The 2026-10-10 pass-through audit corrected unsupported BlueZ keys, the RTKit
+limit flag/unit, Hyprlock widget names and CLI grace period, Ashell's enum/table
+fields and bar appearance, the GTK2 dark-theme property, duplicate greeter cache
+rules, the built-in intel_pstate module entry, the renamed Xe display parameter,
+removed mitigation aliases, Zswap's removed allocator parameter/sysfs entry, and
+AppArmor includes outside profile blocks or referencing a nonexistent abstraction.
+
+Additional inspection used the patched CachyOS 7.2.8 source for kernel parameters
+and the pinned Hyprpaper source for its registered wallpaper settings. The
+generated udev rules built through NixOS's validation builder. Containerd's native
+configuration dump preserved the smolvm runtime and CNI path; its supported
+version-2 input is migrated by containerd to version 4. WirePlumber's configured
+Bluetooth policy, codec and hardware-volume keys were checked against the pinned
+configuration/schema. No private runtime endpoint or environment file was read.
+Rendering, actual hardware/kernel behavior, service activation, and supplied
+runtime secrets still require checks on the deployed machines.
 
 `networking-check` is part of normal flake checks. It evaluates native DNS policy,
 time client/server/disabled modes, dual-stack and IPv4-only allowlists, empty and
