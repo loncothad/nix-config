@@ -428,11 +428,7 @@ def "main niri-validate" [--host (-H): string] {
       touch $temporary_host_config
     }
 
-    if (which niri | is-not-empty) {
-      run-program niri validate --config $temporary_config
-    } else {
-      run-nix shell nixpkgs#niri --command niri validate --config $temporary_config
-    }
+    run-nix shell (flake-ref $"nixosConfigurations.($selected).pkgs.niri") --command niri validate --config $temporary_config
     null
   } catch { |error|
     $error
