@@ -199,6 +199,15 @@ def --wrapped "main check" [...args: string] {
   run-nix flake check --show-trace $repo_root ...$args
 }
 
+# Check each project adapter independently using its own lock file.
+def --wrapped "main check-adapters" [...args: string] {
+  for adapter_flake in (glob ($repo_root | path join flakes '*' flake.nix) | sort) {
+    let directory = $adapter_flake | path dirname
+    print $"Checking adapter ($directory | path basename)"
+    run-nix flake check --show-trace $directory ...$args
+  }
+}
+
 # Build a package output without creating ./result.
 def --wrapped "main build-package" [package: string, ...args: string] {
   run-nix build --no-link (flake-ref $package) ...$args
