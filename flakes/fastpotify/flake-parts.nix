@@ -5,15 +5,10 @@ let
     pkgs:
     let
       upstreamPackages = inputs.fastpotify-upstream.packages.${pkgs.stdenv.hostPlatform.system};
-      fastpotify = pkgs.callPackage ./package.nix {
-        upstreamPackage = upstreamPackages.fastpotify;
-        upstreamSource = inputs.fastpotify-upstream;
-      };
     in
     upstreamPackages
     // {
-      default = fastpotify;
-      inherit fastpotify;
+      fastpotify = upstreamPackages.spotifast;
     };
 in
 {

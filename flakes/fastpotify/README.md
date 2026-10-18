@@ -1,16 +1,16 @@
-# Fastpotify adapter
+# Spotifast adapter (Fastpotify compatibility)
 
-This flake keeps the repository's necessary package repair and Home Manager
-integration for [Fastpotify](https://github.com/crmne/fastpotify) together.
-Upstream already exports a flake; the local adapter consumes it as
-`fastpotify-upstream`, preserves its package set, and replaces its Fastpotify
-derivation with the repaired build.
+This flake combines upstream packages and Home Manager integration for
+[Spotifast](https://github.com/crmne/spotifast), formerly Fastpotify. It consumes
+the upstream flake as `fastpotify-upstream` and preserves its package set.
+The adapter directory, input names, `fastpotify` package alias, and
+`programs.fastpotify` option remain stable for existing consumers.
 
 ## Project links
 
-- Original repository: [crmne/fastpotify](https://github.com/crmne/fastpotify)
-- Website and documentation: [fastpotify.rocks](https://fastpotify.rocks/)
-- Repository documentation: [upstream README](https://github.com/crmne/fastpotify#readme)
+- Original repository: [crmne/spotifast](https://github.com/crmne/spotifast)
+- Website and documentation: [spotifast.rocks](https://spotifast.rocks/)
+- Repository documentation: [upstream README](https://github.com/crmne/spotifast#readme)
 
 ## Outputs
 
@@ -18,16 +18,18 @@ The adapter currently supports `x86_64-linux` and exports:
 
 ```text
 packages.x86_64-linux.fastpotify
+packages.x86_64-linux.spotifast
 packages.x86_64-linux.default
 overlays.default
 homeModules.default
 flakeModules.default
 ```
 
-`package.nix` supplies the missing Cargo vendor hash and native desktop
-libraries, and corrects projectM's library search path. The Home Manager module
-defines `programs.fastpotify`; the standalone `homeModules.default` output
-defaults its package to the repaired build exposed by this flake.
+Upstream owns the Cargo vendor hash, desktop libraries, projectM library path,
+and pinned Rust toolchain. No local package overrides are needed. The Home
+Manager module defines `programs.fastpotify` and writes settings below
+`$XDG_CONFIG_HOME/spotifast/`; the standalone `homeModules.default` output
+defaults its package to the upstream build exposed by this flake.
 `flakeModules.default` contributes that module to a consuming root as the named
 `homeModules.fastpotify` output.
 
@@ -39,6 +41,6 @@ the adapter output through `home-manager.sharedModules`.
 
 ## Updating
 
-Update `fastpotify-upstream`, refresh this flake's lock, and replace the Cargo
-vendor hash when the dependency graph changes. Evaluate and build this flake
-before refreshing the root lock.
+Run `./tasks.nu update-adapter fastpotify`, then validate with
+`./tasks.nu check-adapters --no-build` and build the root
+`packages.x86_64-linux.fastpotify` output. Upstream maintains dependency hashes.

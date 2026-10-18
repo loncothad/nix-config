@@ -11,19 +11,19 @@ let
 in
 {
   options.programs.fastpotify = {
-    enable = lib.mkEnableOption "Fastpotify, a native Spotify client (documentation: https://fastpotify.rocks)";
+    enable = lib.mkEnableOption "Spotifast, a native Spotify client (documentation: https://spotifast.rocks)";
 
     package = lib.mkOption {
       type = lib.types.package;
-      description = "The Fastpotify package to install.";
+      description = "The Spotifast package to install.";
     };
 
     settings = lib.mkOption {
       type = jsonFormat.type;
       default = { };
       description = ''
-        Settings written to {file}`$XDG_CONFIG_HOME/fastpotify/settings.json`.
-        See https://fastpotify.rocks for supported keys.
+        Settings written to {file}`$XDG_CONFIG_HOME/spotifast/settings.json`.
+        See https://spotifast.rocks for supported keys.
       '';
     };
   };
@@ -31,8 +31,8 @@ in
   config = lib.mkIf cfg.enable {
     home.packages = [ cfg.package ];
 
-    xdg.configFile."fastpotify/settings.json" = lib.mkIf (cfg.settings != { }) {
-      source = jsonFormat.generate "fastpotify-settings.json" cfg.settings;
+    xdg.configFile."spotifast/settings.json" = lib.mkIf (cfg.settings != { }) {
+      source = jsonFormat.generate "spotifast-settings.json" cfg.settings;
     };
   };
 }

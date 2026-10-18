@@ -7,11 +7,11 @@
         ]
       },
       "locked": {
-        "lastModified": 1788450739,
-        "narHash": "sha256-glZLQlzIn1fXH6PazR2iUmTo7kzzyYSshrWhLS9TqCU=",
+        "lastModified": 1790898470,
+        "narHash": "sha256-zTwuwezD0w3hpga6a6P8emidzAZFyWqlNeRBlpWOOl8=",
         "owner": "hercules-ci",
         "repo": "flake-parts",
-        "rev": "31729ca8cbdb4fa927b34e5f4353e6a83f39e993",
+        "rev": "024633cd702b10285db5cb19b40ad48d2399ba60",
         "type": "github"
       },
       "original": {
@@ -23,44 +23,44 @@
     "libkrun-src": {
       "flake": false,
       "locked": {
-        "lastModified": 1779235645,
-        "narHash": "sha256-rmRMZ5j3HlueCAXQLydjmMq45+hwhxSLWM02VvHokcY=",
+        "lastModified": 1790725010,
+        "narHash": "sha256-1kL0sdQP6ijlB2oncKzZcl74qzmE6obiX5Hr6ezuqbc=",
         "owner": "smol-machines",
         "repo": "libkrun",
-        "rev": "98163265197caa24a789699f16a68b98e917b65b",
+        "rev": "3285db7404144ed61faf0848bb424c0f82743f41",
         "type": "github"
       },
       "original": {
         "owner": "smol-machines",
         "repo": "libkrun",
-        "rev": "98163265197caa24a789699f16a68b98e917b65b",
+        "rev": "3285db7404144ed61faf0848bb424c0f82743f41",
         "type": "github"
       }
     },
     "libkrunfw-src": {
       "flake": false,
       "locked": {
-        "lastModified": 1778821066,
-        "narHash": "sha256-g2DxDnnh52JCPg4ktPWFBi0J9203FCncGOzB3eiCRxQ=",
+        "lastModified": 1790794569,
+        "narHash": "sha256-S2hB4SVRGLmur4oIcr21gZ8k7n/iXKvQ7unOH9fbZoU=",
         "owner": "smol-machines",
         "repo": "libkrunfw",
-        "rev": "516ceece6aed60ccc84ac8faa459885062e39400",
+        "rev": "bfb229911374698399dcedcc92019287870759ab",
         "type": "github"
       },
       "original": {
         "owner": "smol-machines",
         "repo": "libkrunfw",
-        "rev": "516ceece6aed60ccc84ac8faa459885062e39400",
+        "rev": "bfb229911374698399dcedcc92019287870759ab",
         "type": "github"
       }
     },
     "nixpkgs": {
       "locked": {
-        "lastModified": 1790323409,
-        "narHash": "sha256-VVTPf+Hyd5ebpjBMHmrLMSBIeW6ls48Bqtosj7CNKLA=",
+        "lastModified": 1792094642,
+        "narHash": "sha256-zp8ToDMnqZcu4o4IH9pdwXFXGp7yLm/M0dEnNWnyd7I=",
         "owner": "NixOS",
         "repo": "nixpkgs",
-        "rev": "e94cb152ed51bd6e24eb4a41f1460252beb52cd2",
+        "rev": "fe13242281a67641c0102cdb1087f0ebe586c7df",
         "type": "github"
       },
       "original": {
@@ -86,11 +86,11 @@
         ]
       },
       "locked": {
-        "lastModified": 1790415184,
-        "narHash": "sha256-ZDN/N/mSaAwYZ4ai4buGK3cBSl4udGphIHYGNMhYKkQ=",
+        "lastModified": 1792280013,
+        "narHash": "sha256-H6rnUamtfJBJAZtyEW2pFa85d3xYZWPZR+yxVZy6kpg=",
         "owner": "smol-machines",
         "repo": "smolvm",
-        "rev": "c684a1c759822d6d22bc1598d183f65ea4154cbb",
+        "rev": "f0c7a0fe1e0d81fe348edfcbe8bb8498c76951b1",
         "type": "github"
       },
       "original": {
