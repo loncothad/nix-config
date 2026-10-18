@@ -465,6 +465,25 @@ def "main disko-eval" [host: string = "kepler"] {
   run-nix eval --json (flake-ref $"nixosConfigurations.($host).config.disko.devices")
 }
 
+# Erase, partition, format and mount a host's configured disks at /mnt.
+def "main disko-format" [--host (-H): string] {
+  let selected = resolve-host $host
+  print $"WARNING: erasing every disk in ($selected)'s Disko configuration."
+  let specification = nix-command run --inputs-from $repo_root disko -- --mode destroy,format,mount --flake (flake-ref $selected)
+  run-command (make-command sudo (
+    ["--preserve-env=NIX_CONFIG" $specification.executable] | append $specification.args
+  ) $specification.environment)
+}
+
+# Install a host onto disks already mounted at /mnt from a live installer.
+def --wrapped "main install" [--host (-H): string, ...args: string] {
+  let selected = resolve-host $host
+  run-command (make-command sudo (
+    ["--preserve-env=NIX_CONFIG,NIXPKGS_ALLOW_UNFREE" "nixos-install" "--root" "/mnt" "--flake" (flake-ref $selected)]
+    | append $args
+  ) { NIX_CONFIG: $nix_config })
+}
+
 # Show repository status with gix.
 def "main status" [] {
   run-gix --no-verbose --repository $repo_root status --format simplified --untracked normal :
