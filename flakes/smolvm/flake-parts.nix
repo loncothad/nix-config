@@ -1,10 +1,20 @@
 { inputs, ... }:
 
+let
+  repairPackage = pkgs: upstreamPackage: pkgs.callPackage ./package.nix { inherit upstreamPackage; };
+in
 {
   perSystem =
     { pkgs, ... }:
+    let
+      upstreamPackages = inputs.smolvm-upstream.packages.${pkgs.stdenv.hostPlatform.system};
+      smolvm = repairPackage pkgs upstreamPackages.smolvm;
+    in
     {
-      packages = inputs.smolvm-upstream.packages.${pkgs.stdenv.hostPlatform.system};
+      packages = upstreamPackages // {
+        inherit smolvm;
+        default = smolvm;
+      };
     };
 
   flake = {
@@ -20,6 +30,11 @@
       };
 
     nixosModules.smolvm = inputs.self.nixosModules.default;
-    overlays.default = inputs.smolvm-upstream.overlays.default;
+    overlays.default =
+      final: prev:
+      let
+        upstream = inputs.smolvm-upstream.overlays.default final prev;
+      in
+      upstream // { smolvm = repairPackage final upstream.smolvm; };
   };
 }

@@ -6,6 +6,11 @@ The upstream flake is wrapped here so the package and runtime module remain
 available through the repository's `flakes/` boundary while smolvm is not yet
 packaged in nixpkgs.
 
+`package.nix` patches the containerd shim's ELF interpreter and library search
+path for NixOS. The upstream package already patches the main executable and
+bundled libraries. An install check resolves the shim's dependencies with the
+Nix dynamic loader without starting containerd or a VM.
+
 The adapter exports the upstream package set (`smolvm`, `libkrun`, and
 `libkrunfw`), the `smolvm` overlay, and `nixosModules.default` (also available
 as `nixosModules.smolvm`). Enabling `virtualisation.smolvm` installs the engine
