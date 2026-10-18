@@ -2,6 +2,8 @@
 
 const repo_root = path self .
 const nix_config = "extra-experimental-features = nix-command flakes"
+# Installation uses explicit flake paths and the root's pinned Disko input.
+const installer_nix_config = ($nix_config + "\nflake-registry =")
 const nix_flags = [
   "--extra-experimental-features"
   "nix-command"
@@ -472,7 +474,7 @@ def "main disko-format" [--host (-H): string] {
   let specification = nix-command run --inputs-from $repo_root disko -- --mode destroy,format,mount --flake (flake-ref $selected)
   run-command (make-command sudo (
     ["--preserve-env=NIX_CONFIG" $specification.executable] | append $specification.args
-  ) $specification.environment)
+  ) { NIX_CONFIG: $installer_nix_config })
 }
 
 # Install a host onto disks already mounted at /mnt from a live installer.
@@ -481,7 +483,7 @@ def --wrapped "main install" [--host (-H): string, ...args: string] {
   run-command (make-command sudo (
     ["--preserve-env=NIX_CONFIG,NIXPKGS_ALLOW_UNFREE" "nixos-install" "--root" "/mnt" "--flake" (flake-ref $selected)]
     | append $args
-  ) { NIX_CONFIG: $nix_config })
+  ) { NIX_CONFIG: $installer_nix_config })
 }
 
 # Show repository status with gix.
