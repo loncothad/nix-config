@@ -344,6 +344,12 @@ def --wrapped "main switch" [--host (-H): string, ...args: string] {
   run-command (nh-os-command switch $selected ...$args)
 }
 
+# Build and switch with nixos-rebuild directly, without nh.
+def --wrapped "main switch-legacy" [--host (-H): string, ...args: string] {
+  let selected = resolve-host $host
+  run-rebuild true switch --flake (flake-ref $selected) ...$args
+}
+
 # Build and set a host as the boot default without switching now.
 def --wrapped "main boot" [--host (-H): string, ...args: string] {
   let selected = resolve-host $host
